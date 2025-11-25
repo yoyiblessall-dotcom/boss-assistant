@@ -41,10 +41,10 @@
 <div class="admin-panel" id="adminPanel">
   <h2>💼 老闆小副手 - 系統連線中</h2>
   <div style="padding:10px; background:#f0f0f0; border-radius:8px; margin-bottom:15px;">
-    <strong>系統狀態：</strong> <span id="statusText">正在呼叫 Google 總部...</span>
+    <strong>系統狀態：</strong> <span id="statusText">正在連線 祐逸yoyi 服務器...</span>
   </div>
   <div id="demoControls">
-    <label>演示模式切換：</label><br>
+    <label>專屬貴賓模式：</label><br>
     <select class="industry-select" id="industrySelect" onchange="manualSwitch()">
       <option value="pc_repair">1. 電腦維修</option>
       <option value="restaurant">2. 餐飲美食</option>
@@ -90,8 +90,8 @@ const CLIENT_ID = urlParams.get('id');
 
 const industries = {
   pc_repair: { name: "電腦維修 小副手", color: "#005bac", icon: "💻", welcome: "嗨！電腦開不了機還是中毒？我是老闆的數位分身，這裡可以幫你快速診斷！", faqs: [{q:"開不了機",a:"開不了機？先檢查插頭鬆了沒！如果風扇有轉螢幕黑，可能是顯卡問題。"},{q:"跑超慢",a:"電腦跑很慢通常是硬碟老化，建議找老闆升級 SSD，速度快5倍！"}] },
-  restaurant: { name: "美味食堂 訂位幫手", color: "#ff6b35", icon: "🍔", welcome: "歡迎光臨！想訂位還是看菜單？告訴我人數，我幫您安排！", faqs: [{q:"我要訂位",a:"沒問題！請問您預計「幾月幾號」以及「幾位」用餐？"}] },
-  beauty: { name: "時尚美學 預約助理", color: "#e91e63", icon: "💅", welcome: "哈囉～想換個新造型嗎？我可以幫您查詢設計師空檔或價目表喔！", faqs: [{q:"預約剪髮",a:"好的，請問您想指定哪位設計師？"}] },
+  restaurant: { name: "美味食堂 小幫手", color: "#ff6b35", icon: "🍔", welcome: "歡迎光臨！想訂位還是看菜單？告訴我人數，我幫您安排！", faqs: [{q:"我要訂位",a:"沒問題！請問您預計「幾月幾號」以及「幾位」用餐？"}] },
+  beauty: { name: "時尚美學 小助理", color: "#e91e63", icon: "💅", welcome: "哈囉～想換個新造型嗎？我可以幫您查詢設計師空檔或價目表喔！", faqs: [{q:"預約剪髮",a:"好的，請問您想指定哪位設計師？"}] },
   real_estate: { name: "房產顧問", color: "#c5a059", icon: "🏠", welcome: "您好，想買房、賣房，還是查詢實價登錄？", faqs: [{q:"最新物件",a:"本週新進：市中心三房車位、捷運旁小豪宅。"}] },
   gym: { name: "健身教練", color: "#4caf50", icon: "💪", welcome: "動起來！想了解會籍方案還是預約參觀？", faqs: [{q:"會籍費用",a:"目前推廣方案：單月 1288，年約每月 988。"}] },
   car: { name: "汽車保修", color: "#607d8b", icon: "🚗", welcome: "車子有異音？該保養了？", faqs: [{q:"定期保養",a:"建議每 5000 公里換機油。"}] },

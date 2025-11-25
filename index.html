@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>老闆小副手 - 智能客服</title>
+<title>智能客服</title>
 <style>
   :root { --primary-color: #005bac; --text-color: #333; }
   body { font-family: "Microsoft JhengHei", sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
 
-  /* 演示面板 (預設顯示，驗證成功後隱藏) */
+  /* 演示面板 */
   .admin-panel { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
   .industry-select { padding: 10px; width: 100%; max-width: 300px; font-size: 16px; margin-top: 10px;}
 
-  /* 歡迎訊息 (驗證後顯示) */
+  /* 歡迎面板 */
   .welcome-panel { display: none; text-align: center; margin-top: 100px; color: #555; }
   .welcome-panel h2 { font-size: 28px; color: var(--primary-color); margin-bottom: 10px; }
 
@@ -38,14 +38,13 @@
 </head>
 <body>
 
-<!-- 1. 演示面板 (只有還沒驗證成功時顯示) -->
 <div class="admin-panel" id="adminPanel">
   <h2>💼 老闆小副手 - 系統連線中</h2>
   <div style="padding:10px; background:#f0f0f0; border-radius:8px; margin-bottom:15px;">
-    <strong>系統狀態：</strong> <span id="statusText">正在呼叫 祐逸yoyi 總部...</span>
+    <strong>系統狀態：</strong> <span id="statusText">正在呼叫 Google 總部...</span>
   </div>
   <div id="demoControls">
-    <label>貴賓專屬模式切換：</label><br>
+    <label>演示模式切換：</label><br>
     <select class="industry-select" id="industrySelect" onchange="manualSwitch()">
       <option value="pc_repair">1. 電腦維修</option>
       <option value="restaurant">2. 餐飲美食</option>
@@ -61,17 +60,16 @@
   </div>
 </div>
 
-<!-- 2. 歡迎面板 (驗證成功後顯示) -->
 <div class="welcome-panel" id="welcomePanel">
   <h2 id="welcomeTitle">👋 歡迎使用</h2>
   <p>系統連線成功，請點擊右下角按鈕開始服務。</p>
 </div>
 
-<!-- 3. 聊天組件 -->
 <div class="float-btn" id="floatBtn" onclick="toggleChat()">💬</div>
 
 <div class="chat-window" id="chatWindow">
   <div class="chat-header">
+    <!-- 🟢 這裡的標題會被 JS 動態換掉 -->
     <span id="botTitle">客服助手</span>
     <span style="cursor:pointer" onclick="toggleChat()">✕</span>
   </div>
@@ -87,28 +85,25 @@
 // 🔴 請在這裡填入你的 GAS 網址 🔴
 const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZoqtIy9g7r-YPB1Xx_31gZhkhvZ01N8LTux5jqIzULXdvXw/exec"; 
 
-// 從網址取得 ID
 const urlParams = new URLSearchParams(window.location.search);
 const CLIENT_ID = urlParams.get('id');
 
-// 預設資料庫
 const industries = {
-  pc_repair: { name: "電腦維修 小副手", color: "#005bac", icon: "💻", welcome: "嗨！電腦開不了機還是中毒？我是老闆的數位分身，這裡可以幫你快速診斷！", faqs: [{q:"開不了機",a:"開不了機？先檢查插頭鬆了沒！如果風扇有轉螢幕黑，可能是顯卡問題。"},{q:"跑超慢",a:"電腦跑很慢通常是硬碟老化，建議找老闆升級 SSD，速度快5倍！"},{q:"重灌多少錢",a:"系統重灌基本費 800 元，含驅動與常用軟體，約需 2 小時。"},{q:"螢幕黑屏",a:"螢幕黑屏但有聲音？試試看重接螢幕線，不行就是螢幕或顯卡壞了。"}] },
-  restaurant: { name: "美味食堂 小幫手", color: "#ff6b35", icon: "🍔", welcome: "歡迎光臨！想訂位還是看菜單？告訴我人數，我幫您安排！", faqs: [{q:"我要訂位",a:"沒問題！請問您預計「幾月幾號」以及「幾位」用餐？"},{q:"推薦菜色",a:"第一次來嗎？推薦必點「招牌厚切豬排」和「松露燉飯」！"},{q:"營業時間",a:"我們每天 11:00 - 21:00 營業，最後點餐時間為 20:30。"}] },
-  beauty: { name: "時尚美學 小助理", color: "#e91e63", icon: "💅", welcome: "哈囉～想換個新造型嗎？我可以幫您查詢設計師空檔或價目表喔！", faqs: [{q:"預約剪髮",a:"好的，請問您想指定哪位設計師？"},{q:"價目表",a:"洗+剪 600元，染髮短髮 1500 起，燙髮 2000 起。"}] },
-  real_estate: { name: "房產顧問", color: "#c5a059", icon: "🏠", welcome: "您好，想買房、賣房，還是查詢實價登錄？", faqs: [{q:"最新物件",a:"本週新進：市中心三房車位、捷運旁小豪宅。"},{q:"我要賣房",a:"我們可以免費幫您估價，歡迎預約。"}] },
-  gym: { name: "健身教練", color: "#4caf50", icon: "💪", welcome: "動起來！想了解會籍方案還是預約參觀？", faqs: [{q:"會籍費用",a:"目前推廣方案：單月 1288，年約每月 988。"},{q:"團課課表",a:"瑜珈、拳擊有氧課表已更新，我可以傳給您。"}] },
-  car: { name: "汽車保修", color: "#607d8b", icon: "🚗", welcome: "車子有異音？該保養了？", faqs: [{q:"定期保養",a:"建議每 5000 公里換機油。"},{q:"輪胎價格",a:"請問您的輪胎規格？我幫您報價。"}] },
-  shop: { name: "網拍客服", color: "#d32f2f", icon: "🛍️", welcome: "您好！關於訂單進度或退換貨，我都能處理！", faqs: [{q:"訂單查詢",a:"請給我訂單編號，我幫您查。"},{q:"運費計算",a:"滿 1000 免運。"}] },
-  clinic: { name: "診所掛號", color: "#009688", icon: "🏥", welcome: "早安，需要查詢門診時間或掛號嗎？", faqs: [{q:"門診時間",a:"早診 09:00-12:00，午診 14:30-17:30。"},{q:"預約掛號",a:"初診需現場填表，複診可透過 LINE 預約。"}] },
-  plumbing: { name: "水電維修", color: "#1976d2", icon: "🔧", welcome: "水管漏水？跳電？師傅盡快過去！", faqs: [{q:"馬桶不通",a:"我們可以通馬桶，費用約 1500 元。"},{q:"家裡跳電",a:"可能是負載過大或短路。"}] },
-  tutor: { name: "補習班", color: "#673ab7", icon: "📚", welcome: "家長您好！想了解課程或試聽安排嗎？", faqs: [{q:"課程費用",a:"國中全科班一學期 35000。"},{q:"試聽安排",a:"歡迎免費試聽一堂！"}] }
+  pc_repair: { name: "電腦維修 小副手", color: "#005bac", icon: "💻", welcome: "嗨！電腦開不了機還是中毒？我是老闆的數位分身，這裡可以幫你快速診斷！", faqs: [{q:"開不了機",a:"開不了機？先檢查插頭鬆了沒！如果風扇有轉螢幕黑，可能是顯卡問題。"},{q:"跑超慢",a:"電腦跑很慢通常是硬碟老化，建議找老闆升級 SSD，速度快5倍！"}] },
+  restaurant: { name: "美味食堂 訂位幫手", color: "#ff6b35", icon: "🍔", welcome: "歡迎光臨！想訂位還是看菜單？告訴我人數，我幫您安排！", faqs: [{q:"我要訂位",a:"沒問題！請問您預計「幾月幾號」以及「幾位」用餐？"}] },
+  beauty: { name: "時尚美學 預約助理", color: "#e91e63", icon: "💅", welcome: "哈囉～想換個新造型嗎？我可以幫您查詢設計師空檔或價目表喔！", faqs: [{q:"預約剪髮",a:"好的，請問您想指定哪位設計師？"}] },
+  real_estate: { name: "房產顧問", color: "#c5a059", icon: "🏠", welcome: "您好，想買房、賣房，還是查詢實價登錄？", faqs: [{q:"最新物件",a:"本週新進：市中心三房車位、捷運旁小豪宅。"}] },
+  gym: { name: "健身教練", color: "#4caf50", icon: "💪", welcome: "動起來！想了解會籍方案還是預約參觀？", faqs: [{q:"會籍費用",a:"目前推廣方案：單月 1288，年約每月 988。"}] },
+  car: { name: "汽車保修", color: "#607d8b", icon: "🚗", welcome: "車子有異音？該保養了？", faqs: [{q:"定期保養",a:"建議每 5000 公里換機油。"}] },
+  shop: { name: "網拍客服", color: "#d32f2f", icon: "🛍️", welcome: "您好！關於訂單進度或退換貨，我都能處理！", faqs: [{q:"訂單查詢",a:"請給我訂單編號，我幫您查。"}] },
+  clinic: { name: "診所掛號", color: "#009688", icon: "🏥", welcome: "早安，需要查詢門診時間或掛號嗎？", faqs: [{q:"門診時間",a:"早診 09:00-12:00，午診 14:30-17:30。"}] },
+  plumbing: { name: "水電維修", color: "#1976d2", icon: "🔧", welcome: "水管漏水？跳電？師傅盡快過去！", faqs: [{q:"馬桶不通",a:"我們可以通馬桶，費用約 1500 元。"}] },
+  tutor: { name: "補習班", color: "#673ab7", icon: "📚", welcome: "家長您好！想了解課程或試聽安排嗎？", faqs: [{q:"課程費用",a:"國中全科班一學期 35000。"}] }
 };
 
 let currentKey = "pc_repair";
 
 async function init() {
-  // 如果沒有 ID，就維持演示模式
   if (!CLIENT_ID) {
     document.getElementById("statusText").innerHTML = "🔴 演示模式 (網址無 ID)";
     manualSwitch();
@@ -119,36 +114,44 @@ async function init() {
     const res = await fetch(`${API_URL}?action=check_auth&client_id=${CLIENT_ID}`);
     const data = await res.json();
 
-    if (data.status === 'error') {
-      alert("無效的 ID");
-      return;
-    }
+    if (data.status === 'error') return alert("無效的 ID");
     if (data.status === 'expired') {
       document.getElementById("statusText").innerHTML = "🔴 帳號已過期";
-      alert("試用期已過");
+      alert("⚠️ 試用期已過，請續費");
       return;
     }
 
-    // 🟢 驗證成功：隱藏演示面板，顯示歡迎面板
     document.getElementById("adminPanel").style.display = "none";
     document.getElementById("welcomePanel").style.display = "block";
     document.getElementById("statusText").innerHTML = "🟢 已連線";
 
-    // 載入客製化問答
+    // 1. 載入客製化問答
     if (data.custom_qa && data.industry && industries[data.industry]) {
        industries[data.industry].faqs = data.custom_qa;
     }
 
-    // 切換行業
+    // 2. 切換行業
     if (data.industry && industries[data.industry]) {
       currentKey = data.industry;
-      document.getElementById("welcomeTitle").innerText = `👋 歡迎使用 ${industries[currentKey].name}`;
+      const industryData = industries[currentKey];
+      
+      // 🟢 3. 處理店名 (如果有自訂，就用自訂的，否則用預設的)
+      let displayTitle = industryData.name;
+      if (data.shop_name) {
+        displayTitle = data.shop_name; // 覆蓋
+      }
+      
+      document.getElementById("welcomeTitle").innerText = `👋 歡迎使用 ${displayTitle}`;
+      
+      // 更新全域變數
+      industries[currentKey].name = displayTitle; 
+      
       updateChatUI();
     }
 
   } catch (e) {
     console.error(e);
-    document.getElementById("statusText").innerHTML = "⚠️ 連線失敗 (請檢查 API 網址)";
+    document.getElementById("statusText").innerHTML = "⚠️ 連線失敗";
   }
 }
 
@@ -160,16 +163,17 @@ function manualSwitch() {
 function updateChatUI() {
   const data = industries[currentKey];
   document.documentElement.style.setProperty('--primary-color', data.color);
-  document.getElementById("botTitle").innerText = `${data.icon} ${data.name}`;
   
-  // 更新歡迎詞
+  // 更新標題 (這裡會自動讀取剛剛被覆蓋過的 name)
+  document.getElementById("botTitle").innerText = `${data.icon} ${data.name}`;
+  document.title = data.name; // 順便連瀏覽器分頁標題也改了
+  
   document.getElementById("chatBody").innerHTML = `
     <div class="message bot">
       <div class="bubble">${data.welcome}</div>
     </div>
   `;
   
-  // 更新按鈕
   const menu = document.getElementById("quickMenu");
   menu.innerHTML = "";
   data.faqs.forEach(item => {
@@ -194,7 +198,6 @@ function sendMessage() {
   if(!input.value) return;
   addMsg("user", input.value);
   
-  // 簡單關鍵字搜尋
   let ans = "建議您直接聯繫專人。";
   const data = industries[currentKey];
   for(let f of data.faqs) {
@@ -209,10 +212,10 @@ function addMsg(role, text) {
   const div = document.createElement("div");
   div.className = `message ${role}`;
   div.innerHTML = `<div class="bubble">${text}</div>`;
-  document.getElementById("chatBody").appendChild(div);
-  document.getElementById("chatBody").scrollTop = 9999;
+  const body = document.getElementById("chatBody");
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
   
-  // 紀錄對話
   if (CLIENT_ID) {
     fetch(API_URL, {
       method: 'POST', mode: 'no-cors',

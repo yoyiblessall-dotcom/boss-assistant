@@ -3,315 +3,298 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEXUS | Command Center</title>
+<title>AETHER CORE | God Mode</title>
+<!-- 引入與前台一致的字體 -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
   :root {
-    --bg-core: #050505;
-    --bg-panel: #111111;
-    --border: #333;
-    --accent: #007aff; /* Apple Blue */
-    --text-main: #f5f5f7;
-    --text-dim: #86868b;
-    --success: #34c759;
-    --danger: #ff3b30;
+    --bg-deep: #050505;
+    --text-main: #ffffff;
+    --text-mute: rgba(255, 255, 255, 0.5);
+    --border: rgba(255, 255, 255, 0.1);
+    --glass: rgba(255, 255, 255, 0.03);
+    --accent: #fff;
+    --glow: rgba(255, 255, 255, 0.3);
+    
+    /* 預設極光變量 */
+    --aurora-1: #4776E6; 
+    --aurora-2: #8E54E9; 
+    --aurora-3: #4776E6;
   }
+
+  * { box-sizing: border-box; outline: none; }
 
   body {
-    margin: 0;
-    padding: 0;
-    background-color: var(--bg-core);
+    margin: 0; padding: 0;
+    font-family: 'Space Grotesk', -apple-system, "Microsoft JhengHei", sans-serif;
+    background-color: var(--bg-deep);
     color: var(--text-main);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-    height: 100vh;
+    height: 100vh; overflow: hidden;
     display: flex;
-    overflow: hidden;
   }
 
-  /* 佈局架構 */
-  .layout-container { display: flex; width: 100%; height: 100%; }
-  
-  /* 左側：編輯區 */
-  .editor-zone {
-    flex: 1;
-    padding: 40px;
-    overflow-y: auto;
+  /* --- 背景引擎 (與前台一致，但更深沈) --- */
+  .core-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 10% 10%, #1a1a1a, #000);
+    z-index: -2;
+  }
+  .aurora-mesh {
+    position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent, var(--aurora-1) 60deg, transparent 120deg, var(--aurora-2) 180deg, transparent 240deg, var(--aurora-3) 300deg, transparent 360deg);
+    filter: blur(120px); opacity: 0.15;
+    animation: rotate 60s linear infinite;
+    z-index: -1;
+    transition: all 1s ease;
+  }
+  @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* --- 佈局 --- */
+  .layout { display: flex; width: 100%; height: 100%; position: relative; z-index: 1; }
+
+  /* 左側：控制甲板 (Control Deck) */
+  .deck {
+    flex: 1; display: flex; flex-direction: column;
     border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
+    backdrop-filter: blur(20px);
     max-width: 60%;
   }
-  .editor-zone::-webkit-scrollbar { width: 8px; }
-  .editor-zone::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
 
-  /* 右側：預覽區 */
-  .preview-zone {
-    flex: 1;
-    background: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-image: radial-gradient(#222 1px, transparent 1px);
-    background-size: 20px 20px;
-    position: relative;
-    border-left: 1px solid var(--border);
-  }
-
-  /* 標題與狀態 */
-  .header-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
+  .deck-header {
+    padding: 30px 40px;
     border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
   }
-  .system-status { font-size: 12px; color: var(--success); display: flex; align-items: center; gap: 6px; }
-  .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
+  .brand { font-size: 24px; font-weight: 700; letter-spacing: 2px; color: #fff; }
+  .status { font-size: 12px; color: var(--text-mute); letter-spacing: 1px; display: flex; align-items: center; gap: 8px;}
+  .dot { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 10px #00ff88; }
 
-  /* 輸入模組 */
-  .module-card {
-    background: var(--bg-panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-  .module-title {
-    font-size: 13px;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    letter-spacing: 1px;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .deck-scroll { flex: 1; overflow-y: auto; padding: 40px; }
+  .deck-scroll::-webkit-scrollbar { width: 4px; }
+  .deck-scroll::-webkit-scrollbar-thumb { background: #333; }
+
+  /* 輸入模組 (Modules) */
+  .section-title {
+    font-size: 12px; color: var(--text-mute); letter-spacing: 2px;
+    margin-bottom: 20px; text-transform: uppercase; border-left: 2px solid var(--accent);
+    padding-left: 10px;
   }
 
-  /* 未來感輸入框 */
-  .input-group { margin-bottom: 15px; position: relative; }
-  .input-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; display: block; }
-  .cyber-input {
-    width: 100%;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border);
-    color: var(--text-main);
-    padding: 10px 0;
-    font-size: 15px;
-    font-family: 'Courier New', monospace; /* 數據感 */
-    transition: 0.3s;
-    box-sizing: border-box;
-  }
-  .cyber-input:focus { outline: none; border-bottom-color: var(--accent); }
-  .cyber-input::placeholder { color: #333; }
-
-  /* QA 列表樣式 */
-  .qa-block {
-    background: rgba(255,255,255,0.03);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
-    position: relative;
-    border-left: 2px solid var(--accent);
-    transition: 0.2s;
-  }
-  .qa-block:hover { background: rgba(255,255,255,0.06); }
-  .qa-header { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
-  .qa-textarea {
-    width: 100%;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid var(--border);
-    color: var(--text-main);
-    padding: 10px;
-    border-radius: 6px;
-    resize: vertical;
-    min-height: 60px;
-    font-size: 14px;
-    box-sizing: border-box;
-    font-family: inherit;
-  }
-  .qa-textarea:focus { outline: none; border-color: var(--accent); }
+  .input-group { margin-bottom: 30px; position: relative; }
+  .label { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; display: block; }
   
-  /* 按鈕群 */
-  .btn-action {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-main);
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
+  .god-input {
+    width: 100%; background: rgba(255,255,255,0.03);
+    border: none; border-bottom: 1px solid var(--border);
+    color: #fff; padding: 12px 0; font-size: 16px;
+    font-family: inherit; transition: 0.3s;
   }
-  .btn-action:hover { border-color: var(--text-main); background: rgba(255,255,255,0.1); }
-  .btn-delete { color: var(--danger); border-color: rgba(255, 59, 48, 0.3); }
-  .btn-delete:hover { background: rgba(255, 59, 48, 0.1); border-color: var(--danger); }
-  
-  .btn-deploy {
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 15px 24px;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 0 20px rgba(0, 122, 255, 0.2);
-    transition: 0.3s;
-    width: 100%;
-    margin-top: 20px;
-    text-align: center;
-    font-size: 14px;
-    letter-spacing: 0.5px;
-  }
-  .btn-deploy:hover { box-shadow: 0 0 30px rgba(0, 122, 255, 0.4); transform: translateY(-1px); }
-  .btn-deploy:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
+  .god-input:focus { border-bottom-color: var(--accent); background: rgba(255,255,255,0.06); padding-left: 10px;}
+  .god-input::placeholder { color: rgba(255,255,255,0.2); }
 
-  /* 手機模擬器 (完全對應前台樣式) */
-  .phone-mockup {
-    width: 350px;
-    height: 700px;
-    border: 12px solid #222;
-    border-radius: 50px;
-    background: #000;
-    overflow: hidden;
+  /* QA 編輯器 */
+  .qa-card {
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    padding: 20px; margin-bottom: 15px; position: relative;
+    transition: 0.3s;
+  }
+  .qa-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+  
+  .qa-header { display: flex; gap: 20px; margin-bottom: 15px; align-items: center;}
+  .qa-input-s { flex: 1; font-weight: 700; color: var(--accent); }
+  
+  .qa-body textarea {
+    width: 100%; background: transparent; border: none; color: rgba(255,255,255,0.8);
+    resize: vertical; min-height: 60px; font-family: inherit; font-size: 14px; line-height: 1.6;
+    border-left: 1px solid var(--border); padding-left: 10px;
+  }
+  .qa-body textarea:focus { border-left-color: var(--accent); }
+
+  .btn-icon { background: transparent; border: none; color: #ff3b30; cursor: pointer; opacity: 0.5; transition: 0.2s; }
+  .btn-icon:hover { opacity: 1; transform: scale(1.1); }
+
+  .action-deck { margin-top: 20px; display: flex; gap: 15px; }
+  .btn-ghost {
+    background: transparent; border: 1px solid var(--border); color: #fff;
+    padding: 10px 20px; cursor: pointer; font-family: inherit; font-size: 12px; letter-spacing: 1px;
+    transition: 0.3s;
+  }
+  .btn-ghost:hover { border-color: #fff; }
+
+  .btn-main {
+    width: 100%; background: #fff; color: #000; border: none;
+    padding: 18px; font-family: inherit; font-weight: 700; font-size: 14px; letter-spacing: 2px;
+    cursor: pointer; margin-top: 20px; transition: 0.3s;
+    box-shadow: 0 0 20px rgba(255,255,255,0.1);
+  }
+  .btn-main:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255,255,255,0.3); }
+  .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* 右側：全息投影 (Holographic Preview) */
+  .preview-deck {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%);
     position: relative;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+  }
+
+  /* 手機外框 */
+  .phone-frame {
+    width: 360px; height: 720px;
+    background: #000; border-radius: 40px;
+    border: 8px solid #222;
+    position: relative; overflow: hidden;
+    box-shadow: 0 0 50px rgba(0,0,0,0.5), 0 0 100px var(--aurora-1); /* 光暈隨主題變 */
+    transition: box-shadow 1s ease;
   }
   .notch {
     position: absolute; top: 0; left: 50%; transform: translateX(-50%);
     width: 120px; height: 25px; background: #222;
-    border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 20;
+    border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 99;
   }
-  
-  /* 模擬前台介面 */
-  .sim-screen { 
-    height: 100%; display: flex; flex-direction: column; 
-    background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2670');
-    background-size: cover; background-position: center;
-    color: white; font-family: sans-serif;
-    position: relative;
-  }
-  .sim-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 1; }
-  .sim-content { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; padding: 20px; padding-top: 50px;}
 
-  .sim-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .sim-title { font-weight: bold; font-size: 16px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-  .sim-capsules { display: flex; gap: 5px; }
-  .sim-capsule { font-size: 10px; padding: 4px 8px; border-radius: 10px; background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); display: none;}
-
-  .sim-chat { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: hidden; justify-content: flex-end; padding-bottom: 60px;}
-  .sim-bubble { 
-    padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; max-width: 85%;
-    backdrop-filter: blur(10px); box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  /* --- 模擬前台 CSS (嵌入式) --- */
+  .sim-screen {
+    height: 100%; width: 100%; display: flex; flex-direction: column;
+    color: #fff; position: relative;
   }
-  .sim-bubble.bot { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.1); border-bottom-left-radius: 2px; align-self: flex-start; }
+  .sim-aurora {
+    position: absolute; inset: -50%;
+    background: conic-gradient(from 0deg, transparent, var(--aurora-1) 60deg, transparent, var(--aurora-2) 180deg, transparent, var(--aurora-3) 300deg, transparent);
+    filter: blur(60px); opacity: 0.5; animation: rotate 30s linear infinite; z-index: -1;
+  }
+  .sim-hud {
+    padding: 40px 20px 10px; display: flex; justify-content: space-between; align-items: center;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+  }
+  .sim-title { font-weight: 700; font-size: 14px; letter-spacing: 1px; }
+  .sim-capsule { font-size: 10px; padding: 4px 8px; border: 1px solid rgba(255,255,255,0.3); border-radius: 10px; }
+
+  .sim-chat { flex: 1; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; gap: 15px; }
+  .sim-node { max-width: 90%; font-size: 13px; line-height: 1.5; padding: 10px 0; border-left: 2px solid #fff; padding-left: 10px; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
   
-  .sim-chips { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+  .sim-dock { padding: 0 0 20px 0; background: linear-gradient(to top, #000, transparent); }
+  .sim-chips { display: flex; gap: 8px; overflow-x: auto; padding: 10px 20px; scrollbar-width: none; }
   .sim-chip { 
-    font-size: 11px; padding: 6px 10px; border-radius: 12px; 
-    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);
+    flex: 0 0 auto; padding: 8px 16px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); 
+    border-radius: 20px; font-size: 11px; color: rgba(255,255,255,0.8); white-space: nowrap;
+  }
+  .sim-input {
+    margin: 0 20px; height: 40px; border-bottom: 1px solid rgba(255,255,255,0.3);
+    display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.5);
   }
 
-  /* Loading Overlay */
-  .loading-overlay {
-    position: fixed; inset: 0; background: var(--bg-core); z-index: 999;
+  /* 載入層 */
+  .uplink-layer {
+    position: fixed; inset: 0; background: #000; z-index: 9999;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: var(--accent); font-family: monospace;
+    font-family: 'Space Grotesk', monospace; transition: opacity 0.5s;
   }
+  .loader-ring {
+    width: 50px; height: 50px; border: 2px solid rgba(255,255,255,0.1); border-top-color: #fff;
+    border-radius: 50%; animation: rotate 1s infinite linear;
+  }
+
 </style>
 </head>
 <body>
 
-<!-- Loading 畫面 -->
-<div class="loading-overlay" id="loadingScreen">
-  <i class="fas fa-satellite-dish fa-spin fa-2x"></i>
-  <p style="margin-top:20px;">ESTABLISHING UPLINK...</p>
+<div class="core-bg"></div>
+<div class="aurora-mesh" id="coreMesh"></div>
+
+<div class="uplink-layer" id="uplinkLayer">
+  <div class="loader-ring"></div>
+  <div style="margin-top:20px; letter-spacing: 3px; font-size: 12px;">ESTABLISHING UPLINK...</div>
 </div>
 
-<div class="layout-container">
+<div class="layout">
   
-  <!-- 左側：控制台 -->
-  <div class="editor-zone">
-    <div class="header-bar">
-      <div>
-        <h1 style="margin:0; font-size: 24px; font-weight:700;">NEXUS CONTROL</h1>
-        <span style="font-size:12px; color:var(--text-dim);" id="clientIdDisplay">ID: UNKNOWN</span>
-      </div>
-      <div class="system-status">
-        <div class="status-dot"></div> <span id="statusText">SYSTEM ONLINE</span>
-      </div>
+  <!-- 左側：造物主控制台 -->
+  <div class="deck">
+    <div class="deck-header">
+      <div class="brand">AETHER CORE</div>
+      <div class="status"><div class="dot"></div> ONLINE <span id="clientIdDisplay" style="margin-left:10px; opacity:0.5;">ID: --</span></div>
     </div>
 
-    <!-- 1. 全局設定 -->
-    <div class="module-card">
-      <div class="module-title"><i class="fas fa-globe"></i> GLOBAL VARIABLES (商店設定)</div>
+    <div class="deck-scroll">
+      
+      <!-- 1. 生態系設定 -->
+      <div class="section-title">01 / ECOSYSTEM VARIABLES (生態系設定)</div>
       
       <div class="input-group">
-        <label class="input-label">商店名稱 (TITLE)</label>
-        <input type="text" class="cyber-input" id="shopNameInput" placeholder="Default System Name" oninput="updatePreview()">
+        <label class="label">INDUSTRY PRESET (行業模板)</label>
+        <select class="god-input" id="industrySelect" onchange="manualSwitch(this.value)" style="background:#000;">
+           <option value="pc_repair">電腦維修 (Tech)</option>
+           <option value="restaurant">精緻餐飲 (Food)</option>
+           <option value="beauty">時尚美學 (Vogue)</option>
+           <option value="real_estate">房產顧問 (Estate)</option>
+           <option value="gym">健身教練 (Gym)</option>
+           <option value="car">汽車保修 (Auto)</option>
+           <option value="shop">網拍客服 (Shop)</option>
+           <option value="clinic">診所掛號 (Med)</option>
+           <option value="plumbing">水電維修 (Fix)</option>
+           <option value="tutor">補習班 (Study)</option>
+        </select>
       </div>
 
-      <div style="display: flex; gap: 20px;">
+      <div class="input-group">
+        <label class="label">DISPLAY NAME (顯示名稱)</label>
+        <input type="text" class="god-input" id="shopNameInput" oninput="syncPreview()">
+      </div>
+
+      <div style="display:flex; gap:20px;">
         <div class="input-group" style="flex:1">
-          <label class="input-label">聯絡電話 (PHONE)</label>
-          <input type="text" class="cyber-input" id="phoneInput" placeholder="Empty to hide" oninput="updatePreview()">
+          <label class="label">VOICE UPLINK (電話)</label>
+          <input type="text" class="god-input" id="phoneInput" oninput="syncPreview()">
         </div>
         <div class="input-group" style="flex:1">
-          <label class="input-label">LINE LINK</label>
-          <input type="text" class="cyber-input" id="lineInput" placeholder="Empty to hide" oninput="updatePreview()">
+          <label class="label">DATA LINK (LINE)</label>
+          <input type="text" class="god-input" id="lineInput" oninput="syncPreview()">
         </div>
       </div>
-    </div>
 
-    <!-- 2. 對話邏輯 -->
-    <div class="module-card">
-      <div class="module-title" style="justify-content:space-between">
-        <span><i class="fas fa-brain"></i> NEURAL RESPONSES (問答設定)</span>
-        <button class="btn-action" onclick="addQA()"><i class="fas fa-plus"></i> ADD NODE</button>
+      <!-- 2. 神經網絡回應 -->
+      <div class="section-title" style="margin-top:40px;">02 / NEURAL RESPONSES (對話邏輯)</div>
+      
+      <div id="qaList">
+        <!-- JS 生成 QA 卡片 -->
       </div>
-      <div id="qaEditorList">
-        <!-- JS 動態生成 QA 區塊 -->
-      </div>
-    </div>
 
-    <button class="btn-deploy" id="saveBtn" onclick="saveQA()">
-      <i class="fas fa-cloud-upload-alt"></i> DEPLOY TO SERVER (儲存設定)
-    </button>
-    <div style="text-align:center; margin-top:10px; font-size:11px; color:#555;">
-      SECURE CONNECTION VIA GOOGLE APPS SCRIPT
+      <div class="action-deck">
+        <button class="btn-ghost" onclick="addQA()">+ ADD NODE</button>
+      </div>
+
+      <button class="btn-main" id="saveBtn" onclick="saveData()">DEPLOY CHANGES (部署更新)</button>
+      <div style="text-align:center; margin-top:15px; font-size:10px; color:#555;">SECURE CONNECTION VIA GOOGLE APPS SCRIPT</div>
+
     </div>
   </div>
 
-  <!-- 右側：模擬器 -->
-  <div class="preview-zone">
-    <div class="phone-mockup">
+  <!-- 右側：全息預覽 -->
+  <div class="preview-deck">
+    <div class="phone-frame" id="phoneFrame">
       <div class="notch"></div>
       <div class="sim-screen">
-        <div class="sim-overlay"></div>
-        <div class="sim-content">
-          <!-- 頂部資訊 -->
-          <div class="sim-top-bar">
-            <div class="sim-title" id="simTitle">Store Name</div>
-            <div class="sim-capsules">
-              <div class="sim-capsule" id="simPhone"><i class="fas fa-phone"></i></div>
-              <div class="sim-capsule" id="simLine">LINE</div>
-            </div>
+        <div class="sim-aurora" id="simAurora"></div>
+        
+        <div class="sim-hud">
+          <div class="sim-title" id="simTitle">LOADING...</div>
+          <div style="display:flex; gap:5px;">
+            <div class="sim-capsule" id="simPhone" style="display:none">CALL</div>
+            <div class="sim-capsule" id="simLine" style="display:none">LINE</div>
           </div>
+        </div>
 
-          <!-- 對話內容 -->
-          <div class="sim-chat">
-            <div class="sim-bubble bot">
-              <div id="simWelcome">Welcome Message</div>
-              <div class="sim-chips" id="simChips"></div>
-            </div>
+        <div class="sim-chat">
+          <div class="sim-node" id="simWelcome">System initializing...</div>
+        </div>
+
+        <div class="sim-dock">
+          <div class="sim-chips" id="simChips"></div>
+          <div class="sim-input">
+            <span>Enter command...</span>
+            <span>SEND</span>
           </div>
-
-          <!-- 底部輸入框模擬 -->
-          <div style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); width:90%; height:40px; background:rgba(255,255,255,0.2); backdrop-filter:blur(10px); border-radius:20px; border:1px solid rgba(255,255,255,0.1);"></div>
         </div>
       </div>
     </div>
@@ -320,222 +303,219 @@
 </div>
 
 <script>
-  // 🔴 你的 GAS 網址 (邏輯保留)
-  const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZoqtIy9g7r-YPB1Xx_31gZhkhvZ01N8LTux5jqIzULXdvXw/exec"; 
+// 🔴 你的 GAS API 🔴
+const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZoqtIy9g7r-YPB1Xx_31gZhkhvZ01N8LTux5jqIzULXdvXw/exec"; 
+const urlParams = new URLSearchParams(window.location.search);
+const CLIENT_ID = urlParams.get('id');
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const CLIENT_ID = urlParams.get('id');
+// ★★★ 主題變量 (與前台一致) ★★★
+const themes = {
+  pc_repair: { name: "電腦維修", vars: { "--aurora-1": "#00f260", "--aurora-2": "#0575e6", "--aurora-3": "#00f260" }, welcome: "系統檢測中...", faqs: [{q:"無法開機",a:"檢查電源..."}] },
+  restaurant: { name: "精緻餐飲", vars: { "--aurora-1": "#ff416c", "--aurora-2": "#ff4b1f", "--aurora-3": "#ff9068" }, welcome: "歡迎光臨...", faqs: [{q:"訂位",a:"幾位用餐？"}] },
+  beauty: { name: "時尚美學", vars: { "--aurora-1": "#833ab4", "--aurora-2": "#fd1d1d", "--aurora-3": "#fcb045" }, welcome: "想換個造型嗎？", faqs: [{q:"預約",a:"哪位設計師？"}] },
+  real_estate: { name: "房產顧問", vars: { "--aurora-1": "#CAC531", "--aurora-2": "#F3F9A7", "--aurora-3": "#8E8D8A" }, welcome: "尋找物件...", faqs: [{q:"新物件",a:"市中心..."}] },
+  gym: { name: "健身教練", vars: { "--aurora-1": "#11998e", "--aurora-2": "#38ef7d", "--aurora-3": "#000000" }, welcome: "準備流汗？", faqs: [{q:"費用",a:"988起..."}] },
+  car: { name: "汽車保修", vars: { "--aurora-1": "#2C3E50", "--aurora-2": "#4CA1AF", "--aurora-3": "#C4E0E5" }, welcome: "車子異音？", faqs: [{q:"保養",a:"5000公里..."}] },
+  shop: { name: "網拍客服", vars: { "--aurora-1": "#FF512F", "--aurora-2": "#DD2476", "--aurora-3": "#FF512F" }, welcome: "訂單問題？", faqs: [{q:"查單",a:"給編號..."}] },
+  clinic: { name: "診所掛號", vars: { "--aurora-1": "#00d2ff", "--aurora-2": "#3a7bd5", "--aurora-3": "#00d2ff" }, welcome: "早安...", faqs: [{q:"掛號",a:"身分證..."}] },
+  plumbing: { name: "水電維修", vars: { "--aurora-1": "#1A2980", "--aurora-2": "#26D0CE", "--aurora-3": "#1A2980" }, welcome: "哪裡漏水？", faqs: [{q:"馬桶",a:"疏通..."}] },
+  tutor: { name: "補習班", vars: { "--aurora-1": "#4776E6", "--aurora-2": "#8E54E9", "--aurora-3": "#4776E6" }, welcome: "課程諮詢？", faqs: [{q:"試聽",a:"歡迎..."}] }
+};
 
-  // 本地狀態管理
-  let appState = {
-    qaList: [],
-    industry: '',
-    shopName: '',
-    phone: '',
-    line: '',
-    welcomeMsg: '歡迎光臨！' // 預設歡迎詞
+let appState = {
+  industry: 'pc_repair',
+  shopName: '',
+  phone: '',
+  line: '',
+  qaList: [],
+  welcome: ''
+};
+
+// --- 核心邏輯 ---
+async function init() {
+  if (!CLIENT_ID) {
+    document.querySelector('.uplink-layer').innerHTML = "<div style='color:red'>NO ID DETECTED (DEMO MODE)</div>";
+    setTimeout(() => {
+      document.getElementById('uplinkLayer').style.display = 'none';
+      manualSwitch('pc_repair');
+    }, 1500);
+    return;
+  }
+  
+  document.getElementById('clientIdDisplay').innerText = `ID: ${CLIENT_ID.substring(0,8)}...`;
+
+  try {
+    const res = await fetch(`${API_URL}?action=check_auth&client_id=${CLIENT_ID}`);
+    const data = await res.json();
+
+    if (data.status === 'error') return alert("ACCESS DENIED");
+
+    // 載入資料
+    appState.industry = data.industry || 'pc_repair';
+    appState.shopName = data.shop_name || '';
+    appState.phone = data.phone || '';
+    appState.line = data.line || '';
+
+    // QA 邏輯
+    if (data.custom_qa && data.custom_qa.length > 0) {
+      appState.qaList = data.custom_qa;
+    } else if (themes[appState.industry]) {
+      appState.qaList = themes[appState.industry].faqs;
+    } else {
+      appState.qaList = [{q:"範例", a:"回答"}];
+    }
+    
+    // 歡迎語
+    appState.welcome = themes[appState.industry].welcome;
+
+    // 填充 UI
+    document.getElementById('industrySelect').value = appState.industry;
+    document.getElementById('shopNameInput').value = appState.shopName;
+    document.getElementById('phoneInput').value = appState.phone;
+    document.getElementById('lineInput').value = appState.line;
+
+    renderQA();
+    applyTheme(appState.industry);
+    syncPreview();
+
+    document.getElementById('uplinkLayer').style.display = 'none';
+
+  } catch (e) {
+    alert("CONNECTION FAILED");
+  }
+}
+
+function manualSwitch(key) {
+  appState.industry = key;
+  appState.qaList = themes[key].faqs;
+  appState.welcome = themes[key].welcome;
+  
+  // 更新預設值
+  if(!appState.shopName) document.getElementById('shopNameInput').value = themes[key].name;
+  
+  renderQA();
+  applyTheme(key);
+  syncPreview();
+}
+
+function applyTheme(key) {
+  const t = themes[key];
+  const root = document.documentElement;
+  
+  // 更新後台背景
+  for (const [k, v] of Object.entries(t.vars)) {
+    root.style.setProperty(k, v);
+  }
+  
+  // 更新手機光暈
+  const frame = document.getElementById('phoneFrame');
+  frame.style.boxShadow = `0 0 50px rgba(0,0,0,0.5), 0 0 80px ${t.vars["--aurora-1"]}`;
+}
+
+function renderQA() {
+  const list = document.getElementById('qaList');
+  list.innerHTML = "";
+  appState.qaList.forEach((item, index) => {
+    const card = document.createElement('div');
+    card.className = 'qa-card';
+    card.innerHTML = `
+      <div class="qa-header">
+        <input type="text" class="god-input qa-input-s" value="${item.q}" oninput="updateQA(${index}, 'q', this.value)" placeholder="按鈕文字">
+        <button class="btn-icon" onclick="delQA(${index})"><i class="fas fa-trash"></i></button>
+      </div>
+      <div class="qa-body">
+        <textarea oninput="updateQA(${index}, 'a', this.value)" placeholder="回應內容...">${item.a}</textarea>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function updateQA(index, key, val) {
+  appState.qaList[index][key] = val;
+  syncPreview();
+}
+
+function addQA() {
+  appState.qaList.push({q: "新選項", a: "請輸入回應..."});
+  renderQA();
+  syncPreview();
+}
+
+function delQA(index) {
+  if(confirm("DELETE NODE?")) {
+    appState.qaList.splice(index, 1);
+    renderQA();
+    syncPreview();
+  }
+}
+
+// ★★★ 核心：即時同步 (Real-time Sync) ★★★
+function syncPreview() {
+  // 抓取當前輸入值
+  const name = document.getElementById('shopNameInput').value || themes[appState.industry].name;
+  const ph = document.getElementById('phoneInput').value;
+  const ln = document.getElementById('lineInput').value;
+  
+  // 更新預覽
+  document.getElementById('simTitle').innerText = name;
+  document.getElementById('simWelcome').innerText = appState.welcome;
+  
+  document.getElementById('simPhone').style.display = ph ? 'block' : 'none';
+  document.getElementById('simLine').style.display = ln ? 'block' : 'none';
+  
+  const chipContainer = document.getElementById('simChips');
+  chipContainer.innerHTML = "";
+  appState.qaList.forEach(item => {
+    const chip = document.createElement("div");
+    chip.className = "sim-chip";
+    chip.innerText = item.q;
+    chipContainer.appendChild(chip);
+  });
+}
+
+async function saveData() {
+  const btn = document.getElementById('saveBtn');
+  const oldText = btn.innerText;
+  
+  btn.innerText = "UPLOADING TO CLOUD...";
+  btn.disabled = true;
+  
+  // 抓取最終資料
+  const finalData = {
+    action: 'save_qa',
+    client_id: CLIENT_ID,
+    qa_list: appState.qaList,
+    shop_name: document.getElementById('shopNameInput').value,
+    phone: document.getElementById('phoneInput').value,
+    line: document.getElementById('lineInput').value
   };
 
-  // 預設資料 (Fallback)
-  const industries = {
-    pc_repair: { name: "電腦維修", welcome: "電腦開不了機？", faqs: [{q:"開不了機",a:"請檢查電源線..."}] },
-    beauty: { name: "美容美髮", welcome: "想換個新造型嗎？", faqs: [{q:"預約剪髮",a:"請問想預約哪位設計師？"}] },
-    restaurant: { name: "餐飲美食", welcome: "今晚想吃點什麼？", faqs: [{q:"訂位",a:"幾位用餐？"}] },
-    real_estate: { name: "房產顧問", welcome: "尋找夢想家園？", faqs: [{q:"最新物件",a:"..."}] },
-    gym: { name: "健身教練", welcome: "準備好流汗了嗎？", faqs: [] },
-    car: { name: "汽車保修", welcome: "車子有異音？", faqs: [] },
-    shop: { name: "網拍客服", welcome: "查詢訂單？", faqs: [] },
-    clinic: { name: "診所掛號", welcome: "需要掛號嗎？", faqs: [] },
-    plumbing: { name: "水電維修", welcome: "哪裡漏水了？", faqs: [] },
-    tutor: { name: "補習班", welcome: "課程諮詢？", faqs: [] }
-  };
-
-  // --- 初始化 ---
-  async function init() {
-    if (!CLIENT_ID) {
-      document.querySelector('.loading-overlay').innerHTML = `<p style="color:var(--danger)">ERROR: MISSING ID PARAMETER</p>`;
-      return;
-    }
-
-    document.getElementById('clientIdDisplay').innerText = `ID: ${CLIENT_ID.substring(0,6)}...`;
-
-    try {
-      const res = await fetch(`${API_URL}?action=check_auth&client_id=${CLIENT_ID}`);
-      const data = await res.json();
-
-      if (data.status === 'error') {
-        alert("ACCESS DENIED: 無效的 ID");
-        return;
-      }
-
-      // 載入數據
-      appState.industry = data.industry;
-      appState.shopName = data.shop_name || "";
-      appState.phone = data.phone || "";
-      appState.line = data.line || "";
-
-      // 根據行業設定預設歡迎語 (若有)
-      if (appState.industry && industries[appState.industry]) {
-         appState.welcomeMsg = industries[appState.industry].welcome;
-         // 如果名稱是空的，用行業預設
-         if (!appState.shopName) appState.shopName = industries[appState.industry].name;
-      }
-
-      // QA 載入邏輯
-      if (data.custom_qa && data.custom_qa.length > 0) {
-        appState.qaList = data.custom_qa;
-      } else if (data.industry && industries[data.industry]) {
-        appState.qaList = industries[data.industry].faqs;
-      } else {
-        appState.qaList = [{q: "範例按鈕", a: "範例回答"}];
-      }
-
-      // 填充 UI
-      document.getElementById("shopNameInput").value = appState.shopName;
-      document.getElementById("phoneInput").value = appState.phone;
-      document.getElementById("lineInput").value = appState.line;
-      document.getElementById("statusText").innerText = `CONNECTED: ${data.industry.toUpperCase()}`;
-      
-      renderEditor();
-      updatePreview(); // 首次渲染預覽
-
-      // 移除 Loading
-      setTimeout(() => {
-        document.getElementById('loadingScreen').style.opacity = '0';
-        setTimeout(() => document.getElementById('loadingScreen').style.display = 'none', 500);
-      }, 800);
-
-    } catch (e) {
-      console.error(e);
-      document.querySelector('.loading-overlay p').innerText = "CONNECTION FAILED";
-      document.querySelector('.loading-overlay p').style.color = "var(--danger)";
-    }
-  }
-
-  // --- 渲染編輯器 (左側) ---
-  function renderEditor() {
-    const list = document.getElementById('qaEditorList');
-    list.innerHTML = "";
-
-    appState.qaList.forEach((item, index) => {
-      const div = document.createElement('div');
-      div.className = 'qa-block';
-      div.innerHTML = `
-        <div class="qa-header">
-          <div class="input-group" style="margin:0; width:70%">
-             <input type="text" class="cyber-input" value="${item.q}" 
-               placeholder="按鈕文字 (User sees this)" 
-               oninput="updateQA(${index}, 'q', this.value)"
-               style="font-weight:bold; color:var(--accent);">
-          </div>
-          <button class="btn-action btn-delete" onclick="delQA(${index})"><i class="fas fa-trash"></i></button>
-        </div>
-        <textarea class="qa-textarea" placeholder="機器人回答 (Bot replies this)..." 
-          oninput="updateQA(${index}, 'a', this.value)">${item.a}</textarea>
-      `;
-      list.appendChild(div);
-    });
-  }
-
-  // --- 數據更新與實時預覽 ---
-  function updateQA(index, key, value) {
-    appState.qaList[index][key] = value;
-    updatePreview(); // 核心：即時連動
-  }
-
-  function addQA() {
-    appState.qaList.push({ q: "新選項", a: "請輸入回應..." });
-    renderEditor();
-    updatePreview();
-  }
-
-  function delQA(index) {
-    if(confirm('TERMINATE THIS NODE? (確定刪除此問答?)')) {
-      appState.qaList.splice(index, 1);
-      renderEditor();
-      updatePreview();
-    }
-  }
-
-  // --- 預覽邏輯 (右側) ---
-  function updatePreview() {
-    // 1. 同步變數
-    appState.shopName = document.getElementById("shopNameInput").value;
-    appState.phone = document.getElementById("phoneInput").value;
-    appState.line = document.getElementById("lineInput").value;
-
-    // 2. 更新標題
-    document.getElementById("simTitle").innerText = appState.shopName || "Store Name";
-    document.getElementById("simWelcome").innerText = appState.welcomeMsg;
-    
-    // 3. 更新膠囊按鈕
-    const phoneCap = document.getElementById("simPhone");
-    const lineCap = document.getElementById("simLine");
-    
-    phoneCap.style.display = appState.phone ? "inline-block" : "none";
-    lineCap.style.display = appState.line ? "inline-block" : "none";
-
-    // 4. 更新快捷選單 (Chips)
-    const chipsContainer = document.getElementById("simChips");
-    chipsContainer.innerHTML = "";
-    appState.qaList.forEach(item => {
-      const chip = document.createElement("div");
-      chip.className = "sim-chip";
-      chip.innerText = item.q;
-      chipsContainer.appendChild(chip);
-    });
-  }
-
-  // --- 部署 (儲存) ---
-  async function saveQA() {
-    const btn = document.getElementById('saveBtn');
-    const originalText = btn.innerHTML;
-    
-    // 視覺反饋
-    btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> UPLOADING DATA...`;
-    btn.disabled = true;
-
-    try {
-      await fetch(API_URL, {
-        method: 'POST',
-        mode: 'no-cors',
+  try {
+    await fetch(API_URL, {
+        method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'save_qa',
-          client_id: CLIENT_ID,
-          qa_list: appState.qaList,
-          shop_name: appState.shopName,
-          phone: appState.phone,
-          line: appState.line
-        })
-      });
-      
-      // 模擬成功 (因為 no-cors)
+        body: JSON.stringify(finalData)
+    });
+    
+    setTimeout(() => {
+      btn.innerText = "DEPLOYMENT SUCCESSFUL";
+      btn.style.background = "#00ff88";
+      btn.style.color = "#000";
       setTimeout(() => {
-        btn.innerHTML = `<i class="fas fa-check"></i> DEPLOYMENT SUCCESSFUL`;
-        btn.style.background = "#34c759";
-        
-        setTimeout(() => {
-          btn.innerHTML = originalText;
-          btn.style.background = ""; // Reset
-          btn.disabled = false;
-        }, 2000);
-      }, 1000);
-
-    } catch (e) {
-      alert("UPLOAD ERROR: " + e);
-      btn.innerHTML = `DEPLOY FAILED`;
-      btn.style.background = "#ff3b30";
-      setTimeout(() => {
-          btn.innerHTML = originalText;
-          btn.style.background = "";
-          btn.disabled = false;
+        btn.innerText = oldText;
+        btn.style.background = "#fff";
+        btn.disabled = false;
       }, 2000);
-    }
-  }
+    }, 1000);
 
-  // 啟動
-  init();
+  } catch (e) {
+    alert("UPLOAD ERROR");
+    btn.disabled = false;
+  }
+}
+
+init();
 
 </script>
 </body>

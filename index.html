@@ -329,7 +329,8 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZoqtIy9g7r-YPB1Xx_31gZhkhvZ01N8LTux5jqIzULXdvXw/exec"; 
 
 // 2. 這是客人的 ID (未來每個客人都不同)
-const CLIENT_ID = "test-user-001"; 
+const urlParams = new URLSearchParams(window.location.search);
+const CLIENT_ID = urlParams.get('id') || "test-user-001"; 
 
 /* =========================================================
    以下程式碼完全不用動！

@@ -42,10 +42,10 @@
 <div class="admin-panel" id="adminPanel">
   <h2>💼 老闆小副手 - 系統連線中</h2>
   <div style="padding:10px; background:#f0f0f0; border-radius:8px; margin-bottom:15px;">
-    <strong>系統狀態：</strong> <span id="statusText">正在呼叫 Google 總部...</span>
+    <strong>系統狀態：</strong> <span id="statusText">正在呼叫 祐逸yoyi 總部...</span>
   </div>
   <div id="demoControls">
-    <label>演示模式切換：</label><br>
+    <label>貴賓專屬模式切換：</label><br>
     <select class="industry-select" id="industrySelect" onchange="manualSwitch()">
       <option value="pc_repair">1. 電腦維修</option>
       <option value="restaurant">2. 餐飲美食</option>
@@ -94,8 +94,8 @@ const CLIENT_ID = urlParams.get('id');
 // 預設資料庫
 const industries = {
   pc_repair: { name: "電腦維修 小副手", color: "#005bac", icon: "💻", welcome: "嗨！電腦開不了機還是中毒？我是老闆的數位分身，這裡可以幫你快速診斷！", faqs: [{q:"開不了機",a:"開不了機？先檢查插頭鬆了沒！如果風扇有轉螢幕黑，可能是顯卡問題。"},{q:"跑超慢",a:"電腦跑很慢通常是硬碟老化，建議找老闆升級 SSD，速度快5倍！"},{q:"重灌多少錢",a:"系統重灌基本費 800 元，含驅動與常用軟體，約需 2 小時。"},{q:"螢幕黑屏",a:"螢幕黑屏但有聲音？試試看重接螢幕線，不行就是螢幕或顯卡壞了。"}] },
-  restaurant: { name: "美味食堂 訂位幫手", color: "#ff6b35", icon: "🍔", welcome: "歡迎光臨！想訂位還是看菜單？告訴我人數，我幫您安排！", faqs: [{q:"我要訂位",a:"沒問題！請問您預計「幾月幾號」以及「幾位」用餐？"},{q:"推薦菜色",a:"第一次來嗎？推薦必點「招牌厚切豬排」和「松露燉飯」！"},{q:"營業時間",a:"我們每天 11:00 - 21:00 營業，最後點餐時間為 20:30。"}] },
-  beauty: { name: "時尚美學 預約助理", color: "#e91e63", icon: "💅", welcome: "哈囉～想換個新造型嗎？我可以幫您查詢設計師空檔或價目表喔！", faqs: [{q:"預約剪髮",a:"好的，請問您想指定哪位設計師？"},{q:"價目表",a:"洗+剪 600元，染髮短髮 1500 起，燙髮 2000 起。"}] },
+  restaurant: { name: "美味食堂 小幫手", color: "#ff6b35", icon: "🍔", welcome: "歡迎光臨！想訂位還是看菜單？告訴我人數，我幫您安排！", faqs: [{q:"我要訂位",a:"沒問題！請問您預計「幾月幾號」以及「幾位」用餐？"},{q:"推薦菜色",a:"第一次來嗎？推薦必點「招牌厚切豬排」和「松露燉飯」！"},{q:"營業時間",a:"我們每天 11:00 - 21:00 營業，最後點餐時間為 20:30。"}] },
+  beauty: { name: "時尚美學 小助理", color: "#e91e63", icon: "💅", welcome: "哈囉～想換個新造型嗎？我可以幫您查詢設計師空檔或價目表喔！", faqs: [{q:"預約剪髮",a:"好的，請問您想指定哪位設計師？"},{q:"價目表",a:"洗+剪 600元，染髮短髮 1500 起，燙髮 2000 起。"}] },
   real_estate: { name: "房產顧問", color: "#c5a059", icon: "🏠", welcome: "您好，想買房、賣房，還是查詢實價登錄？", faqs: [{q:"最新物件",a:"本週新進：市中心三房車位、捷運旁小豪宅。"},{q:"我要賣房",a:"我們可以免費幫您估價，歡迎預約。"}] },
   gym: { name: "健身教練", color: "#4caf50", icon: "💪", welcome: "動起來！想了解會籍方案還是預約參觀？", faqs: [{q:"會籍費用",a:"目前推廣方案：單月 1288，年約每月 988。"},{q:"團課課表",a:"瑜珈、拳擊有氧課表已更新，我可以傳給您。"}] },
   car: { name: "汽車保修", color: "#607d8b", icon: "🚗", welcome: "車子有異音？該保養了？", faqs: [{q:"定期保養",a:"建議每 5000 公里換機油。"},{q:"輪胎價格",a:"請問您的輪胎規格？我幫您報價。"}] },

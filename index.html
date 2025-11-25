@@ -23,6 +23,15 @@
   /* 聊天視窗 */
   .chat-window { position: fixed; bottom: 100px; right: 30px; width: 380px; max-width: 90vw; height: 600px; max-height: 80vh; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: none; flex-direction: column; overflow: hidden; z-index: 9998; border: 1px solid #e0e0e0; }
   .chat-header { background: var(--primary-color); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+
+  /* 🟢 新增：聯絡工具列 */
+  .contact-bar { display: none; padding: 10px; background: #f1f8ff; border-bottom: 1px solid #e0e0e0; gap: 10px; }
+  .contact-btn { flex: 1; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; color: white; }
+  .btn-phone { background: #4caf50; }
+  .btn-line { background: #00c300; }
+  .contact-btn:hover { opacity: 0.9; }
+
+
   .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f9f9f9; }
   .message { display: flex; margin-bottom: 15px; }
   .message.user { justify-content: flex-end; }
@@ -73,6 +82,13 @@
     <span id="botTitle">客服助手</span>
     <span style="cursor:pointer" onclick="toggleChat()">✕</span>
   </div>
+
+  <!-- 🟢 新增：聯絡工具列容器 -->
+  <div class="contact-bar" id="contactBar">
+    <a href="#" class="contact-btn btn-phone" id="btnPhone">📞 撥打電話</a>
+    <a href="#" class="contact-btn btn-line" id="btnLine" target="_blank">💬 加 LINE</a>
+  </div>
+
   <div class="chat-body" id="chatBody"></div>
   <div class="quick-menu" id="quickMenu"></div>
   <div class="input-area">
@@ -124,6 +140,32 @@ async function init() {
     document.getElementById("adminPanel").style.display = "none";
     document.getElementById("welcomePanel").style.display = "block";
     document.getElementById("statusText").innerHTML = "🟢 已連線";
+
+    // 🟢 處理聯絡資訊
+    const contactBar = document.getElementById("contactBar");
+    const btnPhone = document.getElementById("btnPhone");
+    const btnLine = document.getElementById("btnLine");
+    let hasContact = false;
+
+    if (data.phone) {
+      btnPhone.href = `tel:${data.phone}`;
+      btnPhone.style.display = "flex";
+      hasContact = true;
+    } else {
+      btnPhone.style.display = "none";
+    }
+
+    if (data.line) {
+      btnLine.href = data.line;
+      btnLine.style.display = "flex";
+      hasContact = true;
+    } else {
+      btnLine.style.display = "none";
+    }
+
+    // 如果有任一聯絡方式，顯示工具列
+    contactBar.style.display = hasContact ? "flex" : "none";
+
 
     // 1. 載入客製化問答
     if (data.custom_qa && data.industry && industries[data.industry]) {

@@ -42,6 +42,17 @@
     <label class="shop-name-label">🏪 您的商店名稱 (顯示在聊天視窗上方)</label>
     <input type="text" id="shopNameInput" placeholder="例如：小美專屬商店 (若留空則顯示預設名稱)">
   </div>
+    <div class="config-row" style="display:flex; gap:10px;">
+      <div style="flex:1">
+        <label class="config-label">📞 門市電話</label>
+        <input type="text" id="phoneInput" placeholder="例如：02-12345678">
+      </div>
+      <div style="flex:1">
+        <label class="config-label">💬 LINE 加入連結</label>
+        <input type="text" id="lineInput" placeholder="例如：https://line.me/ti/p/xxxx">
+      </div>
+    </div>
+  </div>
 
   <div id="qaList">
     <div class="loading">⏳ 載入中...</div>
@@ -90,6 +101,8 @@
       // 🟢 載入店名
       if (data.shop_name) {
         document.getElementById("shopNameInput").value = data.shop_name;
+      if(data.phone) document.getElementById("phoneInput").value = data.phone;
+      if(data.line) document.getElementById("lineInput").value = data.line;
       }
 
       // 載入 QA
@@ -154,18 +167,19 @@
 
     try {
       await fetch(API_URL, {
-        method: 'POST',
-        mode: 'no-cors',
+        method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'save_qa',
           client_id: CLIENT_ID,
           qa_list: currentQA,
-          shop_name: shopName // 🟢 傳送店名
+          shop_name: shopName,
+          phone: phone, // 🟢 傳送
+          line: line    // 🟢 傳送
         })
       });
       
-      alert("✅ 儲存成功！您的店名和問答已更新。");
+      alert("✅ 儲存成功！");
       
     } catch (e) {
       alert("儲存失敗");

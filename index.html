@@ -3,353 +3,329 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Liquid Intelligence OS</title>
+<title>AETHER OS | Localized</title>
+<!-- 引入科技感英文字體 + 系統中文字體優化 -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
   :root {
-    --text-primary: #ffffff;
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.2);
-    --glass-highlight: rgba(255, 255, 255, 0.5);
+    --accent: #fff;
+    --glow: rgba(255, 255, 255, 0.5);
+    --bg-deep: #000;
+    --glass: rgba(255, 255, 255, 0.03);
+    --border: rgba(255, 255, 255, 0.08);
   }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   body {
     margin: 0; padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto, sans-serif;
-    background-color: #000;
-    color: var(--text-primary);
+    /* 優先使用系統高品質中文字體 */
+    font-family: 'Space Grotesk', -apple-system, "Microsoft JhengHei", "Heiti TC", sans-serif;
+    background-color: var(--bg-deep);
+    color: #fff;
     height: 100vh; width: 100vw;
     display: flex; flex-direction: column;
     overflow: hidden;
   }
 
-  /* ★★★ 核心：流體動態背景 (Mesh Gradient Animation) ★★★ */
-  .liquid-bg {
-    position: absolute; inset: 0;
-    background: #0f0c29; /* 底色 */
-    overflow: hidden;
-    z-index: -2;
-  }
-
-  /* 創造多個流動的光球 */
-  .orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px); /* 極致模糊，創造融合感 */
-    opacity: 0.6;
-    animation: float 20s infinite ease-in-out;
-  }
-
-  /* 定義不同顏色的光球 */
-  .orb-1 { width: 600px; height: 600px; background: #302b63; top: -100px; left: -100px; animation-delay: 0s; }
-  .orb-2 { width: 500px; height: 500px; background: #24243e; bottom: -100px; right: -100px; animation-delay: -5s; }
-  .orb-3 { width: 400px; height: 400px; background: #8e2de2; top: 40%; left: 40%; transform: translate(-50%, -50%); animation-delay: -10s; opacity: 0.4; }
-  
-  /* 動態更換顏色主題的遮罩 */
-  .color-overlay {
-    position: absolute; inset: 0;
-    background: transparent;
-    transition: background 1.5s ease; /* 顏色切換時的平滑過渡 */
+  /* --- 極光引擎 (Aurora Engine) --- */
+  .aether-void {
+    position: absolute; inset: -50%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      var(--aurora-1) 60deg,
+      transparent 120deg,
+      var(--aurora-2) 180deg,
+      transparent 240deg,
+      var(--aurora-3) 300deg,
+      transparent 360deg
+    );
+    filter: blur(90px); /* 增加模糊度讓中文閱讀更舒適 */
+    opacity: 0.35;
+    animation: rotateVoid 30s linear infinite;
     z-index: -1;
-    mix-blend-mode: overlay; /* 混合模式讓顏色更深邃 */
+    transition: all 2s ease;
   }
-
-  /* 讓背景動起來 */
-  @keyframes float {
-    0% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(0, 0) scale(1); }
-  }
-
-  /* 噪點層 (增加質感) */
-  .noise-layer {
+  
+  .noise-overlay {
     position: absolute; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
     pointer-events: none; z-index: -1;
   }
 
-  /* 頂部導航 */
-  .top-nav {
+  @keyframes rotateVoid { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* --- 頂部導航 --- */
+  .hud-top {
     flex: 0 0 auto; padding: 20px 24px;
     display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+    backdrop-filter: blur(10px);
     z-index: 10;
   }
-  .brand-title { 
-    font-weight: 800; font-size: 22px; letter-spacing: -0.5px; 
-    background: linear-gradient(to right, #fff, #ccc);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    text-shadow: 0 10px 20px rgba(0,0,0,0.5);
-  }
-  
-  .capsule-btn {
-    background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border);
-    color: white; text-decoration: none; padding: 8px 16px; border-radius: 30px;
-    font-size: 12px; display: none; align-items: center; gap: 8px; 
-    backdrop-filter: blur(20px); transition: 0.3s; font-weight: 600;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  }
-  .capsule-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
 
-  /* 聊天視窗 */
-  .chat-viewport {
-    flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 20px;
+  .brand-logo {
+    font-size: 16px; letter-spacing: 1px; font-weight: 700;
+    color: rgba(255,255,255,0.95);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .status-light {
+    width: 6px; height: 6px; background: #00ff88; border-radius: 50%;
+    box-shadow: 0 0 10px #00ff88; animation: pulse 2s infinite;
+  }
+
+  .nav-actions { display: flex; gap: 8px; }
+  .nav-btn {
+    background: var(--glass); border: 1px solid var(--border);
+    color: rgba(255,255,255,0.9); text-decoration: none;
+    font-size: 11px; font-weight: 500;
+    padding: 6px 14px; border-radius: 4px;
+    transition: 0.3s; display: none; align-items: center; gap: 6px;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
+
+  /* --- 對話流 --- */
+  .stream-viewport {
+    flex: 1; overflow-y: auto; padding: 30px 24px;
     display: flex; flex-direction: column; gap: 24px;
-    mask-image: linear-gradient(to bottom, transparent 0%, black 60px);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 60px);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
     scroll-behavior: smooth;
   }
-  .chat-viewport::-webkit-scrollbar { display: none; }
+  .stream-viewport::-webkit-scrollbar { display: none; }
 
-  /* 訊息氣泡 - 液態玻璃感 */
-  .message { max-width: 85%; display: flex; flex-direction: column; animation: popIn 0.5s cubic-bezier(0.19, 1, 0.22, 1); }
-  .message.bot { align-self: flex-start; }
-  .message.user { align-self: flex-end; align-items: flex-end; }
+  .node {
+    display: flex; flex-direction: column; max-width: 88%;
+    animation: driftUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .node.bot { align-self: flex-start; border-left: 2px solid var(--accent); padding-left: 18px; }
+  .node.user { align-self: flex-end; align-items: flex-end; border-right: 2px solid rgba(255,255,255,0.3); padding-right: 18px; }
 
-  .bubble {
-    padding: 16px 22px; border-radius: 26px; font-size: 15px; line-height: 1.6;
-    backdrop-filter: blur(25px); position: relative;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--glass-border);
+  .node-text {
+    font-size: 15px; line-height: 1.7; font-weight: 400;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    letter-spacing: 0.5px; /* 中文不需要太大間距 */
   }
-  
-  /* 機器人：極致的玻璃質感 */
-  .bot .bubble { 
-    background: rgba(255, 255, 255, 0.08); 
-    border-bottom-left-radius: 4px;
-    border-top: 1px solid var(--glass-highlight); /* 頂部高光 */
-  }
-  /* 用戶：發光的高科技感 */
-  .user .bubble { 
-    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(200,200,200,0.8));
-    color: black; 
-    border-bottom-right-radius: 4px; 
-    font-weight: 600;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-  }
+  .node.bot .node-text { color: rgba(255,255,255,0.95); }
+  .node.user .node-text { color: var(--accent); text-align: right; }
 
-  /* 底部 Dock */
-  .bottom-dock {
+  /* --- 底部控制台 --- */
+  .monolith-dock {
     flex: 0 0 auto;
-    /* 底部漸層，讓輸入框浮起來 */
-    background: radial-gradient(ellipse at bottom, rgba(0,0,0,0.8) 0%, transparent 70%);
-    padding: 10px 0 30px 0;
+    padding: 0 0 30px 0;
+    background: linear-gradient(to top, #000 30%, transparent);
     display: flex; flex-direction: column; gap: 15px;
     z-index: 20;
   }
 
-  .quick-actions-bar {
-    display: flex; gap: 12px; overflow-x: auto; padding: 5px 24px;
-    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  .orbit-bar {
+    display: flex; gap: 10px; overflow-x: auto; padding: 5px 24px;
+    scrollbar-width: none;
   }
-  .quick-actions-bar::-webkit-scrollbar { display: none; }
+  .orbit-bar::-webkit-scrollbar { display: none; }
 
-  .action-chip {
-    flex: 0 0 auto; padding: 10px 20px; border-radius: 30px;
-    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
-    color: white; font-size: 13px; cursor: pointer; white-space: nowrap; font-weight: 500;
-    backdrop-filter: blur(15px); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  .orbit-chip {
+    flex: 0 0 auto;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid var(--border);
+    color: rgba(255,255,255,0.9);
+    font-size: 13px; letter-spacing: 1px;
+    cursor: pointer; transition: 0.3s;
+    backdrop-filter: blur(10px);
+    position: relative; overflow: hidden;
+    font-family: inherit; /* 繼承中文字體 */
   }
-  .action-chip:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-  .action-chip:active { transform: scale(0.95); }
+  .orbit-chip:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 15px var(--glow); background: rgba(255,255,255,0.1); }
 
-  /* 變形輸入框 (Morphing Input) */
-  .input-wrapper {
-    margin: 0 24px;
-    background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(40px);
-    border-radius: 40px; padding: 8px 8px 8px 24px;
-    display: flex; align-items: center; 
-    border: 1px solid rgba(255,255,255,0.2);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    transition: 0.3s ease;
+  .core-input-wrapper {
+    margin: 0 24px; height: 50px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; gap: 15px; transition: 0.3s;
   }
-  .input-wrapper:focus-within {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255,255,255,0.5);
-    box-shadow: 0 0 30px rgba(255,255,255,0.1);
-  }
+  .core-input-wrapper:focus-within { border-bottom-color: var(--accent); }
 
-  .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; height: 36px; outline: none; font-weight: 500; }
-  .text-input::placeholder { color: rgba(255,255,255,0.5); }
-  
-  .send-btn {
-    width: 44px; height: 44px; border-radius: 50%; border: none;
-    background: white; color: black; display: flex; align-items: center; justify-content: center; cursor: pointer;
-    transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  .core-input {
+    flex: 1; background: transparent; border: none;
+    color: white; font-size: 16px; outline: none; letter-spacing: 1px;
+    font-family: inherit;
   }
-  .send-btn:hover { transform: rotate(90deg) scale(1.1); }
-  .send-btn:active { transform: scale(0.9); }
+  .core-input::placeholder { color: rgba(255,255,255,0.4); font-size: 14px;}
 
-  /* 載入動畫 - 呼吸燈 */
-  .system-overlay {
+  .transmit-btn {
+    background: transparent; border: none; color: rgba(255,255,255,0.5);
+    font-size: 13px; cursor: pointer; transition: 0.3s;
+    font-family: 'Space Grotesk', sans-serif; letter-spacing: 1px; font-weight: 700;
+  }
+  .transmit-btn:hover { color: var(--accent); text-shadow: 0 0 8px var(--glow); }
+
+  /* --- 動畫 & 狀態 --- */
+  @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+  @keyframes driftUp { from { opacity: 0; transform: translateY(20px); filter: blur(5px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+
+  /* 載入畫面 */
+  .boot-screen {
     position: fixed; inset: 0; background: #000; z-index: 9999;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    transition: opacity 0.8s;
+    font-family: 'Space Grotesk', monospace;
   }
-  .breathing-logo {
-    width: 60px; height: 60px; background: white; border-radius: 50%;
-    animation: breathe 2s infinite ease-in-out;
-    box-shadow: 0 0 50px rgba(255,255,255,0.5);
+  .glitch-text {
+    font-size: 26px; letter-spacing: 3px; color: #fff;
+    animation: glitch 1s infinite;
   }
-  
-  @keyframes popIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-  @keyframes breathe { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 80px rgba(255,255,255,0.8); } }
+  @keyframes glitch { 0% { opacity: 1; } 50% { opacity: 0.8; text-shadow: 2px 0 red, -2px 0 blue; } 100% { opacity: 1; } }
 
-  #demoControls { position: fixed; top: 70px; left: 24px; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 50;}
+  /* 演示控制 */
+  #demoControls { position: fixed; top: 80px; left: 24px; z-index: 50; opacity: 0; pointer-events: none; transition: 0.3s; }
   #demoControls.show { opacity: 1; pointer-events: auto; }
-  .industry-select {
-    padding: 10px 16px; border-radius: 20px; background: rgba(255,255,255,0.1); 
-    backdrop-filter: blur(20px); color: white; border: 1px solid rgba(255,255,255,0.3);
-    font-size: 14px; outline: none; appearance: none; cursor: pointer;
-    font-weight: 600;
+  .matrix-select {
+    background: rgba(0,0,0,0.8); border: 1px solid #444; color: #eee; padding: 8px 12px;
+    font-family: inherit; font-size: 13px; backdrop-filter: blur(5px);
   }
-  .industry-select option { background: #222; color: white; }
 </style>
 </head>
 <body>
 
-<!-- 流體動態背景 -->
-<div class="liquid-bg">
-  <div class="color-overlay" id="themeOverlay"></div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="noise-layer"></div>
+<div class="aether-void" id="aetherBg"></div>
+<div class="noise-overlay"></div>
+
+<div class="boot-screen" id="bootLayer">
+  <div class="glitch-text">AETHER_OS</div>
+  <div style="margin-top:20px; font-size:12px; color:#666; letter-spacing:1px;">系統核心啟動中...</div>
 </div>
 
-<div class="system-overlay" id="loadingLayer">
-  <div class="breathing-logo"></div>
-  <p style="margin-top:30px; font-size:12px; color:rgba(255,255,255,0.5); letter-spacing: 3px; font-weight:600;">AWAKENING</p>
-</div>
-
-<div class="top-nav">
-  <div class="brand-title" id="brandTitle">Loading...</div>
-  <div style="display:flex; gap:8px;">
-    <a href="#" class="capsule-btn" id="btnPhone"><i class="fas fa-phone"></i> CALL</a>
-    <a href="#" class="capsule-btn" id="btnLine"><i class="fab fa-line"></i> LINE</a>
+<div class="hud-top">
+  <div class="brand-logo">
+    <div class="status-light" id="statusLight"></div>
+    <span id="brandTitle">系統待機</span>
+  </div>
+  <div class="nav-actions">
+    <a href="#" class="nav-btn" id="btnPhone"><i class="fas fa-phone"></i> 通話</a>
+    <a href="#" class="nav-btn" id="btnLine"><i class="fab fa-line"></i> LINE</a>
   </div>
 </div>
 
 <div id="demoControls">
-  <select class="industry-select" onchange="manualSwitch(this.value)">
-    <option value="pc_repair">電腦維修</option>
-    <option value="restaurant">餐飲美食</option>
-    <option value="beauty">美容美髮</option>
-    <option value="real_estate">房產顧問</option>
-    <option value="gym">健身教練</option>
-    <option value="car">汽車保修</option>
-    <option value="shop">網拍客服</option>
-    <option value="clinic">診所掛號</option>
-    <option value="plumbing">水電維修</option>
-    <option value="tutor">補習班</option>
+  <select class="matrix-select" onchange="manualSwitch(this.value)">
+    <option value="pc_repair">01 / 電腦維修 / 科技青</option>
+    <option value="restaurant">02 / 餐飲美食 / 琥珀橘</option>
+    <option value="beauty">03 / 時尚美學 / 霓虹紫</option>
+    <option value="real_estate">04 / 房產顧問 / 奢華金</option>
+    <option value="gym">05 / 健身教練 / 毒液綠</option>
+    <option value="car">06 / 汽車保修 / 鋼鐵藍</option>
+    <option value="shop">07 / 網拍客服 / 珊瑚紅</option>
+    <option value="clinic">08 / 診所掛號 / 醫療青</option>
+    <option value="plumbing">09 / 水電維修 / 深海藍</option>
+    <option value="tutor">10 / 補習班 / 智慧靛</option>
   </select>
 </div>
 
-<div class="chat-viewport" id="chatBody"></div>
+<div class="stream-viewport" id="chatBody"></div>
 
-<div class="bottom-dock">
-  <div class="quick-actions-bar" id="quickActions"></div>
-  <div class="input-wrapper">
-    <input type="text" class="text-input" id="userInput" placeholder="Ask anything..." autocomplete="off">
-    <button class="send-btn" onclick="handleSend()"><i class="fas fa-arrow-up"></i></button>
+<div class="monolith-dock">
+  <div class="orbit-bar" id="quickActions"></div>
+  <div class="core-input-wrapper">
+    <input type="text" class="core-input" id="userInput" placeholder="輸入訊息..." autocomplete="off">
+    <button class="transmit-btn" onclick="handleSend()">發送</button>
   </div>
 </div>
 
 <script>
 // 🔴 你的 GAS API 🔴
 const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZoqtIy9g7r-YPB1Xx_31gZhkhvZ01N8LTux5jqIzULXdvXw/exec"; 
-
 const urlParams = new URLSearchParams(window.location.search);
 const CLIENT_ID = urlParams.get('id');
 
-// ★★★ 核心美學：定義每個行業的「氛圍色」 (Atmosphere Colors) ★★★
-// 使用 rgba 疊加，讓背後的流動光球產生不同的色調變化
-const industries = {
+// ★★★ AETHER 中文版變量 ★★★
+const themes = {
   pc_repair: { 
-    name: "Tech Support", 
-    color: "linear-gradient(to bottom right, rgba(15, 32, 39, 0.9), rgba(32, 58, 67, 0.8))", // Deep Tech Blue
-    welcome: "系統檢測中... 您的電腦遇到什麼狀況？", 
-    faqs: [{q:"開不了機",a:"請檢查電源..."}, {q:"電腦變慢",a:"建議清理磁碟"}, {q:"中毒",a:"請立即斷網"}] 
+    name: "電腦維修 // TECH", 
+    vars: { "--aurora-1": "#00f260", "--aurora-2": "#0575e6", "--aurora-3": "#00f260", "--accent": "#00f260", "--glow": "rgba(0, 242, 96, 0.4)" },
+    welcome: "系統檢測中... 請問您的電腦遇到什麼狀況？", 
+    faqs: [{q:"無法開機",a:"請檢查電源插頭與指示燈是否亮起。"}, {q:"電腦變慢",a:"建議清理磁碟或升級 SSD 硬碟。"}, {q:"疑似中毒",a:"請立即斷開網路並重新啟動。"}] 
   },
   restaurant: { 
-    name: "Fine Dining", 
-    color: "linear-gradient(to bottom right, rgba(75, 18, 8, 0.8), rgba(164, 69, 45, 0.6))", // Warm Ember
+    name: "精緻餐飲 // FOOD", 
+    vars: { "--aurora-1": "#ff416c", "--aurora-2": "#ff4b1f", "--aurora-3": "#ff9068", "--accent": "#ff9068", "--glow": "rgba(255, 144, 104, 0.4)" },
     welcome: "歡迎光臨，為您安排美好的一餐。", 
-    faqs: [{q:"我要訂位",a:"請告知人數..."}, {q:"本日推薦",a:"今日主廚推薦：松露燉飯"}] 
+    faqs: [{q:"我要訂位",a:"請告知用餐人數與時間。"}, {q:"主廚推薦",a:"今日推薦：黑松露野菇燉飯。"}] 
   },
   beauty: { 
-    name: "Vogue Salon", 
-    color: "linear-gradient(to bottom right, rgba(46, 15, 41, 0.8), rgba(138, 59, 118, 0.6))", // Royal Magenta
-    welcome: "想換個新造型嗎？", 
-    faqs: [{q:"預約剪髮",a:"想預約哪位設計師？"}, {q:"價目表",a:"洗剪 800 元起。"}] 
+    name: "時尚美學 // VOGUE", 
+    vars: { "--aurora-1": "#833ab4", "--aurora-2": "#fd1d1d", "--aurora-3": "#fcb045", "--accent": "#da77f2", "--glow": "rgba(218, 119, 242, 0.4)" },
+    welcome: "您好，想換個新造型嗎？", 
+    faqs: [{q:"預約剪髮",a:"請問想預約哪位設計師？"}, {q:"價目表",a:"洗剪服務 800 元起。"}] 
   },
   real_estate: { 
-    name: "Luxury Estate", 
-    color: "linear-gradient(to bottom right, rgba(35, 37, 38, 0.9), rgba(65, 67, 69, 0.8))", // Slate Gold
-    welcome: "為您尋找夢想家園。", 
-    faqs: [{q:"最新物件",a:"市中心有幾間..."}, {q:"預約看房",a:"請留下聯絡方式"}] 
+    name: "房產顧問 // ESTATE", 
+    vars: { "--aurora-1": "#CAC531", "--aurora-2": "#F3F9A7", "--aurora-3": "#8E8D8A", "--accent": "#F3F9A7", "--glow": "rgba(243, 249, 167, 0.4)" },
+    welcome: "正在為您搜尋理想物件。", 
+    faqs: [{q:"最新物件",a:"目前市中心有幾間不錯的物件..."}, {q:"預約看房",a:"請留下您的聯絡電話。"}] 
   },
   gym: { 
-    name: "Iron Gym", 
-    color: "linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgba(23, 77, 43, 0.7))", // Neon Carbon
+    name: "健身教練 // GYM", 
+    vars: { "--aurora-1": "#11998e", "--aurora-2": "#38ef7d", "--aurora-3": "#000000", "--accent": "#38ef7d", "--glow": "rgba(56, 239, 125, 0.4)" },
     welcome: "準備好流汗了嗎？", 
-    faqs: [{q:"會籍費用",a:"月費 988 元起"}, {q:"私人教練",a:"體驗課程優惠中"}] 
+    faqs: [{q:"會籍費用",a:"月費 988 元起，免入會費。"}, {q:"私人教練",a:"目前有體驗課程優惠中。"}] 
   },
   car: { 
-    name: "Auto Service", 
-    color: "linear-gradient(to bottom right, rgba(20, 30, 48, 0.9), rgba(36, 59, 85, 0.8))", // Gunmetal
+    name: "汽車保修 // AUTO", 
+    vars: { "--aurora-1": "#2C3E50", "--aurora-2": "#4CA1AF", "--aurora-3": "#C4E0E5", "--accent": "#4CA1AF", "--glow": "rgba(76, 161, 175, 0.4)" },
     welcome: "車子有異音？該保養了？", 
-    faqs: [{q:"預約保養",a:"每5000公里..."}, {q:"道路救援",a:"請撥打..."}] 
+    faqs: [{q:"定期保養",a:"建議每 5000 公里回廠保養。"}, {q:"道路救援",a:"緊急情況請撥打客服電話。"}] 
   },
   shop: { 
-    name: "Boutique", 
-    color: "linear-gradient(to bottom right, rgba(97, 30, 30, 0.8), rgba(196, 104, 90, 0.6))", // Coral Pink
-    welcome: "您好！關於訂單或退換貨？", 
-    faqs: [{q:"訂單查詢",a:"請提供編號"}, {q:"退換貨",a:"七天內可退換"}] 
+    name: "網拍客服 // SHOP", 
+    vars: { "--aurora-1": "#FF512F", "--aurora-2": "#DD2476", "--aurora-3": "#FF512F", "--accent": "#FF512F", "--glow": "rgba(255, 81, 47, 0.4)" },
+    welcome: "您好！關於訂單或退換貨問題？", 
+    faqs: [{q:"訂單查詢",a:"請提供您的訂單編號。"}, {q:"退換貨",a:"七天鑑賞期內可申請退換。"}] 
   },
   clinic: { 
-    name: "Medical Center", 
-    color: "linear-gradient(to bottom right, rgba(15, 46, 46, 0.8), rgba(48, 126, 126, 0.7))", // Clean Teal
-    welcome: "早安，需要掛號或諮詢嗎？", 
-    faqs: [{q:"門診時間",a:"早診 9:00 - 12:00"}, {q:"預約掛號",a:"請提供身分證"}] 
+    name: "診所掛號 // MED", 
+    vars: { "--aurora-1": "#00d2ff", "--aurora-2": "#3a7bd5", "--aurora-3": "#00d2ff", "--accent": "#00d2ff", "--glow": "rgba(0, 210, 255, 0.4)" },
+    welcome: "早安，需要掛號或健康諮詢嗎？", 
+    faqs: [{q:"門診時間",a:"早診 9:00 - 12:00，午診 14:00 - 17:00。"}, {q:"掛號",a:"請提供身分證字號。"}] 
   },
   plumbing: { 
-    name: "Pro Fix", 
-    color: "linear-gradient(to bottom right, rgba(0, 31, 63, 0.9), rgba(0, 64, 128, 0.7))", // Deep Ocean
-    welcome: "哪裡漏水了？我們馬上處理。", 
-    faqs: [{q:"馬桶不通",a:"可協助疏通"}, {q:"更換水龍頭",a:"多種款式可選"}] 
+    name: "水電維修 // FIX", 
+    vars: { "--aurora-1": "#1A2980", "--aurora-2": "#26D0CE", "--aurora-3": "#1A2980", "--accent": "#26D0CE", "--glow": "rgba(38, 208, 206, 0.4)" },
+    welcome: "哪裡漏水了？我們馬上過去處理。", 
+    faqs: [{q:"馬桶不通",a:"我們有專業設備可協助疏通。"}, {q:"更換水龍頭",a:"有多種款式可供選擇。"}] 
   },
   tutor: { 
-    name: "Study Center", 
-    color: "linear-gradient(to bottom right, rgba(26, 26, 46, 0.9), rgba(15, 52, 96, 0.8))", // Wisdom Indigo
+    name: "補習班 // STUDY", 
+    vars: { "--aurora-1": "#4776E6", "--aurora-2": "#8E54E9", "--aurora-3": "#4776E6", "--accent": "#8E54E9", "--glow": "rgba(142, 84, 233, 0.4)" },
     welcome: "想了解什麼課程？", 
-    faqs: [{q:"課程試聽",a:"歡迎預約"}, {q:"收費方式",a:"請洽櫃台"}] 
+    faqs: [{q:"課程試聽",a:"歡迎預約免費試聽課程。"}, {q:"收費方式",a:"詳細費用請洽櫃台諮詢。"}] 
   }
 };
 
 let currentKey = "pc_repair";
-let currentData = industries.pc_repair;
+let currentData = themes.pc_repair;
 
 async function init() {
   if (!CLIENT_ID) {
-    document.querySelector('#loadingLayer p').innerText = "DEMO MODE";
+    // 演示模式
     setTimeout(() => {
-      document.getElementById("loadingLayer").style.opacity = 0;
-      setTimeout(()=> document.getElementById("loadingLayer").style.display = "none", 800);
+      document.getElementById("bootLayer").style.opacity = 0;
+      setTimeout(()=> document.getElementById("bootLayer").style.display = "none", 1000);
       document.getElementById("demoControls").classList.add("show");
-      
-      manualSwitch('beauty'); 
-    }, 1200);
+      applyTheme('pc_repair'); 
+    }, 2000);
     return;
   }
 
+  // 真實連線
   try {
     const res = await fetch(`${API_URL}?action=check_auth&client_id=${CLIENT_ID}`);
     const data = await res.json();
 
     if (data.status === 'error' || data.status === 'expired') {
-      document.querySelector('#loadingLayer p').innerText = "ACCESS DENIED";
+      document.querySelector('.glitch-text').innerText = "ACCESS_DENIED";
+      document.querySelector('.glitch-text').style.color = "#ff3b30";
       return;
     }
 
@@ -362,68 +338,78 @@ async function init() {
       btn.href = data.line; btn.style.display = "flex";
     }
 
-    if (data.industry && industries[data.industry]) {
+    if (data.industry && themes[data.industry]) {
       currentKey = data.industry;
-      if (data.shop_name) industries[currentKey].name = data.shop_name;
-      if (data.custom_qa) industries[currentKey].faqs = data.custom_qa;
+      // 保持中文標題的顯示邏輯
+      if (data.shop_name) themes[currentKey].name = data.shop_name;
+      if (data.custom_qa) themes[currentKey].faqs = data.custom_qa;
     }
 
-    updateUI(true);
+    applyTheme(currentKey);
 
     setTimeout(() => {
-      document.getElementById("loadingLayer").style.opacity = 0;
-      setTimeout(()=> document.getElementById("loadingLayer").style.display = "none", 800);
-    }, 1000);
+      document.getElementById("bootLayer").style.opacity = 0;
+      setTimeout(()=> document.getElementById("bootLayer").style.display = "none", 1000);
+    }, 1500);
 
   } catch (e) {
-    document.querySelector('#loadingLayer p').innerText = "CONNECTION ERROR";
+    document.querySelector('.glitch-text').innerText = "CONNECTION_FAIL";
   }
 }
 
 function manualSwitch(key) {
   currentKey = key;
-  updateUI(false);
+  applyTheme(key);
 }
 
-function updateUI(isFirstLoad) {
-  currentData = industries[currentKey];
+function applyTheme(key) {
+  currentData = themes[key];
+  const root = document.documentElement;
   
-  // ★★★ 切換氛圍色 ★★★
-  const themeOverlay = document.getElementById("themeOverlay");
-  themeOverlay.style.background = currentData.color || "rgba(0,0,0,0.8)";
-
+  // 設置 CSS 變量
+  const vars = currentData.vars;
+  for (const [k, v] of Object.entries(vars)) {
+    root.style.setProperty(k, v);
+  }
+  
   document.getElementById("brandTitle").innerText = currentData.name;
   document.title = currentData.name;
-
-  const chatBody = document.getElementById("chatBody");
-  if(!isFirstLoad) chatBody.innerHTML = "";
   
-  if (chatBody.children.length === 0) {
-    addBotMsg(currentData.welcome);
-  }
+  // 狀態燈
+  document.getElementById("statusLight").style.backgroundColor = vars["--accent"];
+  document.getElementById("statusLight").style.boxShadow = `0 0 10px ${vars["--accent"]}`;
 
-  updateQuickMenu(currentData.faqs);
+  // 清空聊天
+  const chatBody = document.getElementById("chatBody");
+  chatBody.innerHTML = "";
+  
+  setTimeout(() => {
+     addNode("bot", currentData.welcome);
+  }, 500);
+
+  updateOrbit(currentData.faqs);
 }
 
-function updateQuickMenu(faqs) {
-  const menu = document.getElementById("quickActions");
-  menu.innerHTML = "";
+function updateOrbit(faqs) {
+  const bar = document.getElementById("quickActions");
+  bar.innerHTML = "";
   faqs.forEach(item => {
-    const btn = document.createElement("button");
-    btn.className = "action-chip";
-    btn.innerText = item.q;
-    btn.onclick = () => handleChipClick(item.q, item.a);
-    menu.appendChild(btn);
+    const chip = document.createElement("button");
+    chip.className = "orbit-chip";
+    chip.innerText = item.q;
+    chip.onclick = () => handleInput(item.q, item.a);
+    bar.appendChild(chip);
   });
 }
 
-function handleChipClick(q, a) {
-  addUserMsg(q);
-  showTyping();
+function handleInput(q, a) {
+  addNode("user", q);
+  showProcessing();
+  
   setTimeout(() => {
-    hideTyping();
-    addBotMsg(a);
-  }, 600);
+    removeProcessing();
+    addNode("bot", a);
+  }, 800);
 }
 
 function handleSend() {
@@ -431,19 +417,19 @@ function handleSend() {
   const text = input.value.trim();
   if(!text) return;
 
-  addUserMsg(text);
+  addNode("user", text);
   input.value = "";
-  showTyping();
+  showProcessing();
 
-  let ans = "如需詳細服務，請點擊上方聯絡按鈕。";
+  let ans = "如需詳細服務，請點擊上方按鈕聯絡專人。";
   for(let f of currentData.faqs) {
     if(text.includes(f.q)) ans = f.a;
   }
 
   setTimeout(() => {
-    hideTyping();
-    addBotMsg(ans);
-  }, 800);
+    removeProcessing();
+    addNode("bot", ans);
+  }, 1000);
 
   if (CLIENT_ID) {
     fetch(API_URL, {
@@ -454,15 +440,16 @@ function handleSend() {
   }
 }
 
-function addBotMsg(text) {
-  const chatBody = document.getElementById("chatBody");
-  const div = document.createElement("div");
-  div.className = "message bot";
-  div.innerHTML = `<div class="bubble">${text}</div>`;
-  chatBody.appendChild(div);
-  scrollToBottom();
+function addNode(role, text) {
+  const body = document.getElementById("chatBody");
+  const node = document.createElement("div");
+  node.className = `node ${role}`;
+  node.innerHTML = `<div class="node-text">${text}</div>`;
+  body.appendChild(node);
   
-  if (CLIENT_ID) {
+  body.scrollTop = body.scrollHeight;
+  
+  if (role === 'bot' && CLIENT_ID) {
      fetch(API_URL, {
       method: 'POST', mode: 'no-cors',
       headers: {'Content-Type': 'application/json'},
@@ -471,33 +458,19 @@ function addBotMsg(text) {
   }
 }
 
-function addUserMsg(text) {
-  const chatBody = document.getElementById("chatBody");
-  const div = document.createElement("div");
-  div.className = "message user";
-  div.innerHTML = `<div class="bubble">${text}</div>`;
-  chatBody.appendChild(div);
-  scrollToBottom();
+function showProcessing() {
+  const body = document.getElementById("chatBody");
+  const node = document.createElement("div");
+  node.id = "procNode";
+  node.className = "node bot";
+  node.innerHTML = `<div class="node-text" style="opacity:0.6; font-size:12px; letter-spacing:1px;">運算中...</div>`;
+  body.appendChild(node);
+  body.scrollTop = body.scrollHeight;
 }
 
-function showTyping() {
-  const chatBody = document.getElementById("chatBody");
-  const div = document.createElement("div");
-  div.id = "typingIndicator";
-  div.className = "message bot";
-  div.innerHTML = `<div class="bubble" style="color:rgba(255,255,255,0.7); font-size:12px;">● ● ●</div>`;
-  chatBody.appendChild(div);
-  scrollToBottom();
-}
-
-function hideTyping() {
-  const el = document.getElementById("typingIndicator");
+function removeProcessing() {
+  const el = document.getElementById("procNode");
   if(el) el.remove();
-}
-
-function scrollToBottom() {
-  const chatBody = document.getElementById("chatBody");
-  chatBody.scrollTop = chatBody.scrollHeight;
 }
 
 document.getElementById("userInput").addEventListener("keypress", (e) => {

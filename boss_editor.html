@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AETHER CORE | God Mode</title>
-<!-- 引入與前台一致的字體 -->
+<!-- 引入字體 -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
@@ -17,7 +17,7 @@
     --accent: #fff;
     --glow: rgba(255, 255, 255, 0.3);
     
-    /* 預設極光變量 */
+    /* 動態變量 */
     --aurora-1: #4776E6; 
     --aurora-2: #8E54E9; 
     --aurora-3: #4776E6;
@@ -34,7 +34,7 @@
     display: flex;
   }
 
-  /* --- 背景引擎 (與前台一致，但更深沈) --- */
+  /* --- 背景引擎 --- */
   .core-bg {
     position: absolute; inset: 0;
     background: radial-gradient(circle at 10% 10%, #1a1a1a, #000);
@@ -53,7 +53,7 @@
   /* --- 佈局 --- */
   .layout { display: flex; width: 100%; height: 100%; position: relative; z-index: 1; }
 
-  /* 左側：控制甲板 (Control Deck) */
+  /* 左側：控制甲板 */
   .deck {
     flex: 1; display: flex; flex-direction: column;
     border-right: 1px solid var(--border);
@@ -74,7 +74,7 @@
   .deck-scroll::-webkit-scrollbar { width: 4px; }
   .deck-scroll::-webkit-scrollbar-thumb { background: #333; }
 
-  /* 輸入模組 (Modules) */
+  /* 輸入模組 */
   .section-title {
     font-size: 12px; color: var(--text-mute); letter-spacing: 2px;
     margin-bottom: 20px; text-transform: uppercase; border-left: 2px solid var(--accent);
@@ -92,6 +92,12 @@
   }
   .god-input:focus { border-bottom-color: var(--accent); background: rgba(255,255,255,0.06); padding-left: 10px;}
   .god-input::placeholder { color: rgba(255,255,255,0.2); }
+
+  /* ★★★ 唯讀鎖定樣式 (修正點) ★★★ */
+  .god-input.locked {
+    color: var(--accent); opacity: 0.8; font-weight: 700; cursor: not-allowed;
+    border-bottom: 1px dashed var(--border);
+  }
 
   /* QA 編輯器 */
   .qa-card {
@@ -131,20 +137,19 @@
   .btn-main:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255,255,255,0.3); }
   .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* 右側：全息投影 (Holographic Preview) */
+  /* 右側：全息投影 */
   .preview-deck {
     flex: 1; display: flex; align-items: center; justify-content: center;
     background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%);
     position: relative;
   }
 
-  /* 手機外框 */
   .phone-frame {
     width: 360px; height: 720px;
     background: #000; border-radius: 40px;
     border: 8px solid #222;
     position: relative; overflow: hidden;
-    box-shadow: 0 0 50px rgba(0,0,0,0.5), 0 0 100px var(--aurora-1); /* 光暈隨主題變 */
+    box-shadow: 0 0 50px rgba(0,0,0,0.5), 0 0 100px var(--aurora-1);
     transition: box-shadow 1s ease;
   }
   .notch {
@@ -153,7 +158,7 @@
     border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 99;
   }
 
-  /* --- 模擬前台 CSS (嵌入式) --- */
+  /* 模擬前台 CSS */
   .sim-screen {
     height: 100%; width: 100%; display: flex; flex-direction: column;
     color: #fff; position: relative;
@@ -204,12 +209,11 @@
 
 <div class="uplink-layer" id="uplinkLayer">
   <div class="loader-ring"></div>
-  <div style="margin-top:20px; letter-spacing: 3px; font-size: 12px;">ESTABLISHING UPLINK...</div>
+  <div style="margin-top:20px; letter-spacing: 3px; font-size: 12px;">SYSTEM SYNC...</div>
 </div>
 
 <div class="layout">
   
-  <!-- 左側：造物主控制台 -->
   <div class="deck">
     <div class="deck-header">
       <div class="brand">AETHER CORE</div>
@@ -218,23 +222,12 @@
 
     <div class="deck-scroll">
       
-      <!-- 1. 生態系設定 -->
-      <div class="section-title">01 / ECOSYSTEM VARIABLES (生態系設定)</div>
+      <div class="section-title">01 / SYSTEM PROTOCOL (系統識別)</div>
       
+      <!-- ★★★ 修正：移除下拉選單，改為唯讀鎖定顯示 ★★★ -->
       <div class="input-group">
-        <label class="label">INDUSTRY PRESET (行業模板)</label>
-        <select class="god-input" id="industrySelect" onchange="manualSwitch(this.value)" style="background:#000;">
-           <option value="pc_repair">電腦維修 (Tech)</option>
-           <option value="restaurant">精緻餐飲 (Food)</option>
-           <option value="beauty">時尚美學 (Vogue)</option>
-           <option value="real_estate">房產顧問 (Estate)</option>
-           <option value="gym">健身教練 (Gym)</option>
-           <option value="car">汽車保修 (Auto)</option>
-           <option value="shop">網拍客服 (Shop)</option>
-           <option value="clinic">診所掛號 (Med)</option>
-           <option value="plumbing">水電維修 (Fix)</option>
-           <option value="tutor">補習班 (Study)</option>
-        </select>
+        <label class="label">DETECTED INDUSTRY (行業協定)</label>
+        <input type="text" class="god-input locked" id="industryDisplay" value="SCANNING..." readonly>
       </div>
 
       <div class="input-group">
@@ -253,24 +246,20 @@
         </div>
       </div>
 
-      <!-- 2. 神經網絡回應 -->
       <div class="section-title" style="margin-top:40px;">02 / NEURAL RESPONSES (對話邏輯)</div>
       
-      <div id="qaList">
-        <!-- JS 生成 QA 卡片 -->
-      </div>
+      <div id="qaList"></div>
 
       <div class="action-deck">
         <button class="btn-ghost" onclick="addQA()">+ ADD NODE</button>
       </div>
 
-      <button class="btn-main" id="saveBtn" onclick="saveData()">DEPLOY CHANGES (部署更新)</button>
-      <div style="text-align:center; margin-top:15px; font-size:10px; color:#555;">SECURE CONNECTION VIA GOOGLE APPS SCRIPT</div>
+      <button class="btn-main" id="saveBtn" onclick="saveData()">DEPLOY CHANGES</button>
+      <div style="text-align:center; margin-top:15px; font-size:10px; color:#555;">SECURE CONNECTION VIA GOOGLE CLOUD</div>
 
     </div>
   </div>
 
-  <!-- 右側：全息預覽 -->
   <div class="preview-deck">
     <div class="phone-frame" id="phoneFrame">
       <div class="notch"></div>
@@ -286,7 +275,7 @@
         </div>
 
         <div class="sim-chat">
-          <div class="sim-node" id="simWelcome">System initializing...</div>
+          <div class="sim-node" id="simWelcome">Initializing...</div>
         </div>
 
         <div class="sim-dock">
@@ -308,18 +297,18 @@ const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZ
 const urlParams = new URLSearchParams(window.location.search);
 const CLIENT_ID = urlParams.get('id');
 
-// ★★★ 主題變量 (與前台一致) ★★★
+// 主題配置 (與前台完全對應)
 const themes = {
-  pc_repair: { name: "電腦維修", vars: { "--aurora-1": "#00f260", "--aurora-2": "#0575e6", "--aurora-3": "#00f260" }, welcome: "系統檢測中...", faqs: [{q:"無法開機",a:"檢查電源..."}] },
-  restaurant: { name: "精緻餐飲", vars: { "--aurora-1": "#ff416c", "--aurora-2": "#ff4b1f", "--aurora-3": "#ff9068" }, welcome: "歡迎光臨...", faqs: [{q:"訂位",a:"幾位用餐？"}] },
-  beauty: { name: "時尚美學", vars: { "--aurora-1": "#833ab4", "--aurora-2": "#fd1d1d", "--aurora-3": "#fcb045" }, welcome: "想換個造型嗎？", faqs: [{q:"預約",a:"哪位設計師？"}] },
-  real_estate: { name: "房產顧問", vars: { "--aurora-1": "#CAC531", "--aurora-2": "#F3F9A7", "--aurora-3": "#8E8D8A" }, welcome: "尋找物件...", faqs: [{q:"新物件",a:"市中心..."}] },
-  gym: { name: "健身教練", vars: { "--aurora-1": "#11998e", "--aurora-2": "#38ef7d", "--aurora-3": "#000000" }, welcome: "準備流汗？", faqs: [{q:"費用",a:"988起..."}] },
-  car: { name: "汽車保修", vars: { "--aurora-1": "#2C3E50", "--aurora-2": "#4CA1AF", "--aurora-3": "#C4E0E5" }, welcome: "車子異音？", faqs: [{q:"保養",a:"5000公里..."}] },
-  shop: { name: "網拍客服", vars: { "--aurora-1": "#FF512F", "--aurora-2": "#DD2476", "--aurora-3": "#FF512F" }, welcome: "訂單問題？", faqs: [{q:"查單",a:"給編號..."}] },
-  clinic: { name: "診所掛號", vars: { "--aurora-1": "#00d2ff", "--aurora-2": "#3a7bd5", "--aurora-3": "#00d2ff" }, welcome: "早安...", faqs: [{q:"掛號",a:"身分證..."}] },
-  plumbing: { name: "水電維修", vars: { "--aurora-1": "#1A2980", "--aurora-2": "#26D0CE", "--aurora-3": "#1A2980" }, welcome: "哪裡漏水？", faqs: [{q:"馬桶",a:"疏通..."}] },
-  tutor: { name: "補習班", vars: { "--aurora-1": "#4776E6", "--aurora-2": "#8E54E9", "--aurora-3": "#4776E6" }, welcome: "課程諮詢？", faqs: [{q:"試聽",a:"歡迎..."}] }
+  pc_repair: { name: "電腦維修 // TECH", vars: { "--aurora-1": "#00f260", "--aurora-2": "#0575e6", "--aurora-3": "#00f260" }, welcome: "系統檢測中...", faqs: [{q:"無法開機",a:"檢查電源..."}] },
+  restaurant: { name: "精緻餐飲 // FOOD", vars: { "--aurora-1": "#ff416c", "--aurora-2": "#ff4b1f", "--aurora-3": "#ff9068" }, welcome: "歡迎光臨...", faqs: [{q:"訂位",a:"幾位用餐？"}] },
+  beauty: { name: "時尚美學 // VOGUE", vars: { "--aurora-1": "#833ab4", "--aurora-2": "#fd1d1d", "--aurora-3": "#fcb045" }, welcome: "想換個造型嗎？", faqs: [{q:"預約",a:"哪位設計師？"}] },
+  real_estate: { name: "房產顧問 // ESTATE", vars: { "--aurora-1": "#CAC531", "--aurora-2": "#F3F9A7", "--aurora-3": "#8E8D8A" }, welcome: "尋找物件...", faqs: [{q:"新物件",a:"市中心..."}] },
+  gym: { name: "健身教練 // GYM", vars: { "--aurora-1": "#11998e", "--aurora-2": "#38ef7d", "--aurora-3": "#000000" }, welcome: "準備流汗？", faqs: [{q:"費用",a:"988起..."}] },
+  car: { name: "汽車保修 // AUTO", vars: { "--aurora-1": "#2C3E50", "--aurora-2": "#4CA1AF", "--aurora-3": "#C4E0E5" }, welcome: "車子異音？", faqs: [{q:"保養",a:"5000公里..."}] },
+  shop: { name: "網拍客服 // SHOP", vars: { "--aurora-1": "#FF512F", "--aurora-2": "#DD2476", "--aurora-3": "#FF512F" }, welcome: "訂單問題？", faqs: [{q:"查單",a:"給編號..."}] },
+  clinic: { name: "診所掛號 // MED", vars: { "--aurora-1": "#00d2ff", "--aurora-2": "#3a7bd5", "--aurora-3": "#00d2ff" }, welcome: "早安...", faqs: [{q:"掛號",a:"身分證..."}] },
+  plumbing: { name: "水電維修 // FIX", vars: { "--aurora-1": "#1A2980", "--aurora-2": "#26D0CE", "--aurora-3": "#1A2980" }, welcome: "哪裡漏水？", faqs: [{q:"馬桶",a:"疏通..."}] },
+  tutor: { name: "補習班 // STUDY", vars: { "--aurora-1": "#4776E6", "--aurora-2": "#8E54E9", "--aurora-3": "#4776E6" }, welcome: "課程諮詢？", faqs: [{q:"試聽",a:"歡迎..."}] }
 };
 
 let appState = {
@@ -331,14 +320,13 @@ let appState = {
   welcome: ''
 };
 
-// --- 核心邏輯 ---
 async function init() {
   if (!CLIENT_ID) {
-    document.querySelector('.uplink-layer').innerHTML = "<div style='color:red'>NO ID DETECTED (DEMO MODE)</div>";
-    setTimeout(() => {
-      document.getElementById('uplinkLayer').style.display = 'none';
-      manualSwitch('pc_repair');
-    }, 1500);
+    // Demo 模式：允許切換以便展示
+    document.getElementById('uplinkLayer').style.display = 'none';
+    document.getElementById('industryDisplay').value = "DEMO MODE (PC REPAIR)";
+    document.getElementById('industryDisplay').readOnly = false; // Demo可改，但這裡只是文字
+    manualSwitch('pc_repair');
     return;
   }
   
@@ -365,11 +353,12 @@ async function init() {
       appState.qaList = [{q:"範例", a:"回答"}];
     }
     
-    // 歡迎語
     appState.welcome = themes[appState.industry].welcome;
 
-    // 填充 UI
-    document.getElementById('industrySelect').value = appState.industry;
+    // ★★★ 修正邏輯：鎖定行業，只顯示名稱 ★★★
+    const themeName = themes[appState.industry].name;
+    document.getElementById('industryDisplay').value = themeName; // 顯示中文名稱
+    
     document.getElementById('shopNameInput').value = appState.shopName;
     document.getElementById('phoneInput').value = appState.phone;
     document.getElementById('lineInput').value = appState.line;
@@ -385,12 +374,12 @@ async function init() {
   }
 }
 
+// 僅供內部初始調用
 function manualSwitch(key) {
   appState.industry = key;
   appState.qaList = themes[key].faqs;
   appState.welcome = themes[key].welcome;
   
-  // 更新預設值
   if(!appState.shopName) document.getElementById('shopNameInput').value = themes[key].name;
   
   renderQA();
@@ -402,12 +391,12 @@ function applyTheme(key) {
   const t = themes[key];
   const root = document.documentElement;
   
-  // 更新後台背景
+  // 更新變量 (極光色)
   for (const [k, v] of Object.entries(t.vars)) {
     root.style.setProperty(k, v);
   }
   
-  // 更新手機光暈
+  // 手機光暈
   const frame = document.getElementById('phoneFrame');
   frame.style.boxShadow = `0 0 50px rgba(0,0,0,0.5), 0 0 80px ${t.vars["--aurora-1"]}`;
 }
@@ -450,14 +439,11 @@ function delQA(index) {
   }
 }
 
-// ★★★ 核心：即時同步 (Real-time Sync) ★★★
 function syncPreview() {
-  // 抓取當前輸入值
   const name = document.getElementById('shopNameInput').value || themes[appState.industry].name;
   const ph = document.getElementById('phoneInput').value;
   const ln = document.getElementById('lineInput').value;
   
-  // 更新預覽
   document.getElementById('simTitle').innerText = name;
   document.getElementById('simWelcome').innerText = appState.welcome;
   
@@ -478,10 +464,9 @@ async function saveData() {
   const btn = document.getElementById('saveBtn');
   const oldText = btn.innerText;
   
-  btn.innerText = "UPLOADING TO CLOUD...";
+  btn.innerText = "UPLOADING...";
   btn.disabled = true;
   
-  // 抓取最終資料
   const finalData = {
     action: 'save_qa',
     client_id: CLIENT_ID,
@@ -499,7 +484,7 @@ async function saveData() {
     });
     
     setTimeout(() => {
-      btn.innerText = "DEPLOYMENT SUCCESSFUL";
+      btn.innerText = "SUCCESS";
       btn.style.background = "#00ff88";
       btn.style.color = "#000";
       setTimeout(() => {

@@ -3,559 +3,230 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>各行各業老闆小副手 - SaaS 商業版</title>
+<title>老闆小副手 - 智能客服</title>
 <style>
-  /* ============================
-     1. 銀行風格 UI 設計 (CSS)
-     ============================ */
-  :root {
-    --primary-color: #005bac; /* 預設銀行藍 */
-    --secondary-color: #e6f3ff;
-    --text-color: #333;
-    --shadow: 0 4px 20px rgba(0,0,0,0.15);
-    --radius: 16px;
-  }
+  :root { --primary-color: #005bac; --text-color: #333; }
+  body { font-family: "Microsoft JhengHei", sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
 
-  body {
-    font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
-    background: #f0f2f5;
-    margin: 0;
-    padding: 20px;
-  }
+  /* 演示面板 (預設顯示，驗證成功後隱藏) */
+  .admin-panel { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+  .industry-select { padding: 10px; width: 100%; max-width: 300px; font-size: 16px; margin-top: 10px;}
 
-  /* 模擬後台控制區 (SaaS 演示用) */
-  .admin-panel {
-    max-width: 800px;
-    margin: 0 auto 40px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border-left: 5px solid #ff9800;
-  }
-  .admin-panel h3 { margin-top: 0; color: #555; }
-  .industry-select {
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    width: 100%;
-    max-width: 300px;
-  }
+  /* 歡迎訊息 (驗證後顯示) */
+  .welcome-panel { display: none; text-align: center; margin-top: 100px; color: #555; }
+  .welcome-panel h2 { font-size: 28px; color: var(--primary-color); margin-bottom: 10px; }
 
-  /* 系統狀態燈號 */
-  .status-dot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #ccc;
-    margin-right: 5px;
-  }
-  .status-online { background: #4caf50; } /* 綠燈 */
-  .status-offline { background: #f44336; } /* 紅燈 */
-
-  /* ============================
-     2. 懸浮按鈕與聊天視窗
-     ============================ */
-  .float-btn {
-    position: fixed;
-    bottom: 30px;
-    right: 30px; 
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: var(--primary-color);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    cursor: pointer;
-    z-index: 9999;
-    transition: transform 0.3s;
-  }
+  /* 懸浮按鈕 */
+  .float-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor: pointer; z-index: 9999; transition: transform 0.3s; }
   .float-btn:hover { transform: scale(1.1); }
 
-  .chat-window {
-    position: fixed;
-    bottom: 100px;
-    right: 30px;
-    width: 380px;
-    max-width: 90vw;
-    height: 600px;
-    max-height: 80vh;
-    background: white;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    display: none; /* 預設隱藏 */
-    flex-direction: column;
-    overflow: hidden;
-    z-index: 9998;
-    border: 1px solid #e0e0e0;
-  }
-
-  /* 標題列 */
-  .chat-header {
-    background: var(--primary-color);
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: bold;
-    font-size: 18px;
-  }
-  .close-chat {
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-  }
-
-  /* 隱私聲明 */
-  .privacy-notice {
-    background: #fffbe6;
-    border-bottom: 1px solid #ffe58f;
-    padding: 10px 15px;
-    font-size: 13px;
-    color: #856404;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .privacy-notice button {
-    background: #856404;
-    color: white;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-  }
-
-  /* 聊天內容區 */
-  .chat-body {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-    background: #f9f9f9;
-  }
-
-  .message {
-    display: flex;
-    margin-bottom: 15px;
-    align-items: flex-start;
-  }
+  /* 聊天視窗 */
+  .chat-window { position: fixed; bottom: 100px; right: 30px; width: 380px; max-width: 90vw; height: 600px; max-height: 80vh; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: none; flex-direction: column; overflow: hidden; z-index: 9998; border: 1px solid #e0e0e0; }
+  .chat-header { background: var(--primary-color); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+  .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f9f9f9; }
+  .message { display: flex; margin-bottom: 15px; }
   .message.user { justify-content: flex-end; }
-  
-  .avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 10px;
-    font-size: 20px;
-    flex-shrink: 0;
-    border: 1px solid #ccc;
-  }
-  
-  .bubble {
-    max-width: 75%;
-    padding: 10px 14px;
-    border-radius: 12px;
-    font-size: 15px;
-    line-height: 1.5;
-    position: relative;
-    word-wrap: break-word;
-  }
-  
-  .bot .bubble {
-    background: white;
-    border: 1px solid #eee;
-    border-top-left-radius: 2px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  }
-  
-  .user .bubble {
-    background: var(--primary-color);
-    color: white;
-    border-top-right-radius: 2px;
-  }
-
-  /* 快速選單 (橫向捲動) */
-  .quick-menu {
-    padding: 10px;
-    background: white;
-    border-top: 1px solid #eee;
-    white-space: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .menu-btn {
-    display: inline-block;
-    padding: 8px 16px;
-    margin-right: 8px;
-    background: white;
-    border: 1px solid var(--primary-color);
-    color: var(--primary-color);
-    border-radius: 20px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-  .menu-btn:hover {
-    background: var(--primary-color);
-    color: white;
-  }
-
-  /* 輸入區 */
-  .input-area {
-    padding: 10px;
-    background: white;
-    border-top: 1px solid #eee;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .icon-btn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: #888;
-    padding: 5px;
-  }
-  .icon-btn:hover { color: var(--primary-color); }
-  
-  .text-input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    outline: none;
-    font-size: 14px;
-    background: #f5f5f5;
-  }
-  .text-input:focus { background: white; border-color: var(--primary-color); }
-  
-  .send-btn {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-
+  .bubble { max-width: 75%; padding: 10px 14px; border-radius: 12px; font-size: 15px; line-height: 1.5; word-wrap: break-word; }
+  .bot .bubble { background: white; border: 1px solid #eee; }
+  .user .bubble { background: var(--primary-color); color: white; }
+  .quick-menu { padding: 10px; background: white; white-space: nowrap; overflow-x: auto; border-top: 1px solid #eee; }
+  .menu-btn { display: inline-block; padding: 8px 16px; margin-right: 8px; background: white; border: 1px solid var(--primary-color); color: var(--primary-color); border-radius: 20px; cursor: pointer; }
+  .input-area { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 8px; }
+  .text-input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #ddd; outline: none; }
+  .send-btn { background: var(--primary-color); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; }
 </style>
 </head>
 <body>
 
-<!-- 模擬 SaaS 後台：老闆選擇行業 -->
-<div class="admin-panel">
-  <h2>💼 老闆小副手 - SaaS 商業模式演示</h2>
-  <div style="padding:10px; background:#f0f0f0; border-radius:8px; margin-bottom:15px; font-size:14px;">
-    <strong>系統狀態：</strong> 
-    <span id="systemStatusText">檢查中...</span>
+<!-- 1. 演示面板 (只有還沒驗證成功時顯示) -->
+<div class="admin-panel" id="adminPanel">
+  <h2>💼 老闆小副手 - 系統連線中</h2>
+  <div style="padding:10px; background:#f0f0f0; border-radius:8px; margin-bottom:15px;">
+    <strong>系統狀態：</strong> <span id="statusText">正在呼叫 Google 總部...</span>
   </div>
-  
-  <p>此區塊模擬客人購買後，在後台選擇自己的行業類別。</p>
-  <label><strong>請選擇行業模板：</strong></label>
-  <br><br>
-  <select class="industry-select" id="industrySelect" onchange="switchIndustry()">
-    <option value="pc_repair">1. 電腦維修 (3C風格)</option>
-    <option value="restaurant">2. 餐飲美食 (溫暖橘)</option>
-    <option value="beauty">3. 美容美髮 (時尚粉)</option>
-    <option value="real_estate">4. 房地產仲介 (專業金)</option>
-    <option value="gym">5. 健身房/教練 (活力綠)</option>
-    <option value="car">6. 汽車保修 (金屬灰)</option>
-    <option value="shop">7. 網拍/代購 (購物紅)</option>
-    <option value="clinic">8. 診所/掛號 (醫療綠)</option>
-    <option value="plumbing">9. 水電維修 (工程藍)</option>
-    <option value="tutor">10. 補習班/家教 (學術紫)</option>
-  </select>
-  <p>👉 <strong>請點擊右下角的 💬 按鈕開始體驗</strong></p>
+  <div id="demoControls">
+    <label>演示模式切換：</label><br>
+    <select class="industry-select" id="industrySelect" onchange="manualSwitch()">
+      <option value="pc_repair">1. 電腦維修</option>
+      <option value="restaurant">2. 餐飲美食</option>
+      <option value="beauty">3. 美容美髮</option>
+      <option value="real_estate">4. 房地產</option>
+      <option value="gym">5. 健身房</option>
+      <option value="car">6. 汽車保修</option>
+      <option value="shop">7. 網拍電商</option>
+      <option value="clinic">8. 診所掛號</option>
+      <option value="plumbing">9. 水電維修</option>
+      <option value="tutor">10. 補習班</option>
+    </select>
+  </div>
 </div>
 
-<!-- 右下角浮動按鈕 -->
+<!-- 2. 歡迎面板 (驗證成功後顯示) -->
+<div class="welcome-panel" id="welcomePanel">
+  <h2 id="welcomeTitle">👋 歡迎使用</h2>
+  <p>系統連線成功，請點擊右下角按鈕開始服務。</p>
+</div>
+
+<!-- 3. 聊天組件 -->
 <div class="float-btn" id="floatBtn" onclick="toggleChat()">💬</div>
 
-<!-- 聊天視窗 -->
 <div class="chat-window" id="chatWindow">
   <div class="chat-header">
-    <span id="botTitle">💻 電腦維修 小副手</span>
-    <button class="close-chat" onclick="toggleChat()">✕</button>
+    <span id="botTitle">客服助手</span>
+    <span style="cursor:pointer" onclick="toggleChat()">✕</span>
   </div>
-  
-  <div class="privacy-notice" id="privacyNotice">
-    <span>🔒 本對話受 SSL 加密保護，請安心使用。</span>
-    <button onclick="this.parentElement.style.display='none'">我知道了</button>
-  </div>
-
-  <div class="chat-body" id="chatBody">
-    <!-- 歡迎訊息由 JS 產生 -->
-  </div>
-
-  <div class="quick-menu" id="quickMenu">
-    <!-- 按鈕由 JS 產生 -->
-  </div>
-
+  <div class="chat-body" id="chatBody"></div>
+  <div class="quick-menu" id="quickMenu"></div>
   <div class="input-area">
-    <button class="icon-btn" title="上傳圖片 (AI識別)">📷</button>
-    <button class="icon-btn" title="上傳文件">📎</button>
-    <input type="text" class="text-input" id="userInput" placeholder="請輸入您的問題...">
+    <input type="text" class="text-input" id="userInput" placeholder="請輸入問題...">
     <button class="send-btn" onclick="sendMessage()">➤</button>
   </div>
 </div>
 
 <script>
-/* =========================================================
-   💡 這裡是【設定區】 - 只有這裡需要你未來填寫
-   ========================================================= */
-
-// 1. 如果你已經部署了 GAS，請把網址貼在下面的雙引號內
-// 例如： "https://script.google.com/macros/s/xxxxxx/exec"
-// 如果還沒，請保持這樣，系統會自動跑演示模式。
+// 🔴 請在這裡填入你的 GAS 網址 🔴
 const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZoqtIy9g7r-YPB1Xx_31gZhkhvZ01N8LTux5jqIzULXdvXw/exec"; 
 
-// 2. 這是客人的 ID (未來每個客人都不同)
+// 從網址取得 ID
 const urlParams = new URLSearchParams(window.location.search);
-const CLIENT_ID = urlParams.get('id') || "test-user-001"; 
+const CLIENT_ID = urlParams.get('id');
 
-/* =========================================================
-   以下程式碼完全不用動！
-   ========================================================= */
-
-// 10大行業資料庫
+// 預設資料庫
 const industries = {
   pc_repair: { name: "電腦維修 小副手", color: "#005bac", icon: "💻", welcome: "嗨！電腦開不了機還是中毒？我是老闆的數位分身，這裡可以幫你快速診斷！", faqs: [{q:"開不了機",a:"開不了機？先檢查插頭鬆了沒！如果風扇有轉螢幕黑，可能是顯卡問題。"},{q:"跑超慢",a:"電腦跑很慢通常是硬碟老化，建議找老闆升級 SSD，速度快5倍！"},{q:"重灌多少錢",a:"系統重灌基本費 800 元，含驅動與常用軟體，約需 2 小時。"},{q:"螢幕黑屏",a:"螢幕黑屏但有聲音？試試看重接螢幕線，不行就是螢幕或顯卡壞了。"}] },
-  restaurant: { name: "美味食堂 訂位幫手", color: "#ff6b35", icon: "🍔", welcome: "歡迎光臨！想訂位還是看菜單？告訴我人數，我幫您安排！", faqs: [{q:"我要訂位",a:"沒問題！請問您預計「幾月幾號」以及「幾位」用餐？"},{q:"推薦菜色",a:"第一次來嗎？推薦必點「招牌厚切豬排」和「松露燉飯」！"},{q:"營業時間",a:"我們每天 11:00 - 21:00 營業，最後點餐時間為 20:30。"},{q:"有無素食",a:"有的！我們有專屬的蛋奶素與全素菜單，歡迎索取。"}] },
-  beauty: { name: "時尚美學 預約助理", color: "#e91e63", icon: "💅", welcome: "哈囉～想換個新造型嗎？我可以幫您查詢設計師空檔或價目表喔！", faqs: [{q:"預約剪髮",a:"好的，請問您想指定哪位設計師？或由我為您推薦？"},{q:"價目表",a:"洗+剪 600元，染髮短髮 1500 起，燙髮 2000 起。"},{q:"設計師作品",a:"您可以點擊相機按鈕，我傳作品集給您看。"},{q:"染髮時間",a:"一般染髮約需 2-3 小時，若需漂髮則需 4-5 小時喔。"}] },
-  real_estate: { name: "幸福成家 房產顧問", color: "#c5a059", icon: "🏠", welcome: "您好，我是您的專屬房產顧問。想買房、賣房，還是查詢實價登錄？", faqs: [{q:"最新物件",a:"本週新進：市中心三房車位、捷運旁小豪宅，想看哪一類？"},{q:"我要賣房",a:"我們可以免費幫您估價，並提供稅務試算，歡迎預約。"},{q:"仲介費",a:"依規定，買方收取 2%，賣方收取 4% 服務費。"},{q:"實價登錄",a:"想查哪一區的行情？我可以提供最近三個月的成交均價。"}] },
-  gym: { name: "極限健身 智能教練", color: "#4caf50", icon: "💪", welcome: "動起來！想了解會籍方案、團課課表，還是預約參觀？", faqs: [{q:"會籍費用",a:"目前推廣方案：單月 1288，年約每月 988，免入會費！"},{q:"團課課表",a:"瑜珈、拳擊有氧、飛輪課表已更新，我可以傳圖檔給您。"},{q:"私人教練",a:"一對一教練課單堂 1500，買 10 送 1，歡迎體驗。"},{q:"營業時間",a:"我們是 24 小時營業，刷卡即可入場，隨時都能練！"}] },
-  car: { name: "御車維修 車主管家", color: "#607d8b", icon: "🚗", welcome: "車子有異音？該保養了？別擔心，讓我來協助您排除問題。", faqs: [{q:"定期保養",a:"建議每 5000 公里或半年進行一次小保養，換機油與濾心。"},{q:"輪胎價格",a:"請問您的輪胎規格？(例如 205/55/16)，我幫您報價。"},{q:"異音檢查",a:"是底盤扣扣聲還是引擎室聲音？建議現場試車比較準確。"},{q:"冷氣不冷",a:"可能是冷媒不足或壓縮機問題，檢測費 300 元。"}] },
-  shop: { name: "好物購 客服小幫手", color: "#d32f2f", icon: "🛍️", welcome: "您好！關於訂單進度、商品尺寸或退換貨，我都能幫您處理！", faqs: [{q:"訂單查詢",a:"請給我您的「訂單編號」，我立刻幫您查出貨了沒。"},{q:"運費計算",a:"全館滿 1000 免運，未滿則超商 60、宅配 100 元。"},{q:"退換貨",a:"收到商品 7 天內可退換，請保持包裝完整喔。"},{q:"現貨嗎",a:"網頁顯示可下單的通常都有現貨，下單後 2 天內出貨。"}] },
-  clinic: { name: "安心診所 掛號助理", color: "#009688", icon: "🏥", welcome: "早安，這裡是安心診所。需要查詢門診時間或預約掛號嗎？", faqs: [{q:"門診時間",a:"早診 09:00-12:00，午診 14:30-17:30，晚診 18:30-21:30。"},{q:"預約掛號",a:"初診需現場填表，複診可透過 LINE 或電話預約。"},{q:"醫師班表",a:"王醫師看診時間為週一、三、五；李醫師為週二、四、六。"},{q:"自費疫苗",a:"目前有流感疫苗、帶狀皰疹疫苗，歡迎現場諮詢。"}] },
-  plumbing: { name: "大力水電 急修助手", color: "#1976d2", icon: "🔧", welcome: "水管漏水？跳電？別慌，告訴我狀況，師傅盡快過去！", faqs: [{q:"馬桶不通",a:"請勿再沖水！我們可以通馬桶，費用約 1500-2000 元。"},{q:"家裡跳電",a:"是全家沒電還是單一插座？可能是負載過大或短路。"},{q:"水管漏水",a:"請先關閉總水源開關！我們會帶儀器去抓漏。"},{q:"更換龍頭",a:"更換面盆水龍頭連工帶料約 2500 元起。"}] },
-  tutor: { name: "狀元補習 課程顧問", color: "#673ab7", icon: "📚", welcome: "家長您好！想了解國高中課程、升學資訊或試聽安排嗎？", faqs: [{q:"課程費用",a:"國中全科班一學期 35000，單科 8000，含教材費。"},{q:"試聽安排",a:"歡迎免費試聽一堂！請告訴我孩子年級與想試聽科目。"},{q:"上課時間",a:"平日晚上 18:30 - 21:30，週六為全天衝刺班。"},{q:"師資介紹",a:"我們聘請補教界名師，數學王牌 A 老師、英文 B 老師。"}] }
+  restaurant: { name: "美味食堂 訂位幫手", color: "#ff6b35", icon: "🍔", welcome: "歡迎光臨！想訂位還是看菜單？告訴我人數，我幫您安排！", faqs: [{q:"我要訂位",a:"沒問題！請問您預計「幾月幾號」以及「幾位」用餐？"},{q:"推薦菜色",a:"第一次來嗎？推薦必點「招牌厚切豬排」和「松露燉飯」！"},{q:"營業時間",a:"我們每天 11:00 - 21:00 營業，最後點餐時間為 20:30。"}] },
+  beauty: { name: "時尚美學 預約助理", color: "#e91e63", icon: "💅", welcome: "哈囉～想換個新造型嗎？我可以幫您查詢設計師空檔或價目表喔！", faqs: [{q:"預約剪髮",a:"好的，請問您想指定哪位設計師？"},{q:"價目表",a:"洗+剪 600元，染髮短髮 1500 起，燙髮 2000 起。"}] },
+  real_estate: { name: "房產顧問", color: "#c5a059", icon: "🏠", welcome: "您好，想買房、賣房，還是查詢實價登錄？", faqs: [{q:"最新物件",a:"本週新進：市中心三房車位、捷運旁小豪宅。"},{q:"我要賣房",a:"我們可以免費幫您估價，歡迎預約。"}] },
+  gym: { name: "健身教練", color: "#4caf50", icon: "💪", welcome: "動起來！想了解會籍方案還是預約參觀？", faqs: [{q:"會籍費用",a:"目前推廣方案：單月 1288，年約每月 988。"},{q:"團課課表",a:"瑜珈、拳擊有氧課表已更新，我可以傳給您。"}] },
+  car: { name: "汽車保修", color: "#607d8b", icon: "🚗", welcome: "車子有異音？該保養了？", faqs: [{q:"定期保養",a:"建議每 5000 公里換機油。"},{q:"輪胎價格",a:"請問您的輪胎規格？我幫您報價。"}] },
+  shop: { name: "網拍客服", color: "#d32f2f", icon: "🛍️", welcome: "您好！關於訂單進度或退換貨，我都能處理！", faqs: [{q:"訂單查詢",a:"請給我訂單編號，我幫您查。"},{q:"運費計算",a:"滿 1000 免運。"}] },
+  clinic: { name: "診所掛號", color: "#009688", icon: "🏥", welcome: "早安，需要查詢門診時間或掛號嗎？", faqs: [{q:"門診時間",a:"早診 09:00-12:00，午診 14:30-17:30。"},{q:"預約掛號",a:"初診需現場填表，複診可透過 LINE 預約。"}] },
+  plumbing: { name: "水電維修", color: "#1976d2", icon: "🔧", welcome: "水管漏水？跳電？師傅盡快過去！", faqs: [{q:"馬桶不通",a:"我們可以通馬桶，費用約 1500 元。"},{q:"家裡跳電",a:"可能是負載過大或短路。"}] },
+  tutor: { name: "補習班", color: "#673ab7", icon: "📚", welcome: "家長您好！想了解課程或試聽安排嗎？", faqs: [{q:"課程費用",a:"國中全科班一學期 35000。"},{q:"試聽安排",a:"歡迎免費試聽一堂！"}] }
 };
 
-let currentIndustryKey = "pc_repair";
+let currentKey = "pc_repair";
 
-// 系統初始化：這是連接雲端的關鍵
-async function initSystem() {
-  const statusText = document.getElementById("systemStatusText");
-  
-  // 檢查是否有填寫 API 網址 (防呆設計)
-  if (!API_URL || API_URL.includes("請將您的_GAS_網址_貼在這裡")) {
-    console.log("未設定 API，切換為離線演示模式 (Offline Demo Mode)");
-    statusText.innerHTML = "<span class='status-dot status-offline'></span> 離線演示模式 (尚未連接 Google Sheet)";
-    switchIndustry(); // 直接載入預設畫面
+async function init() {
+  // 如果沒有 ID，就維持演示模式
+  if (!CLIENT_ID) {
+    document.getElementById("statusText").innerHTML = "🔴 演示模式 (網址無 ID)";
+    manualSwitch();
     return;
   }
 
-  statusText.innerHTML = "<span class='status-dot' style='background:orange'></span> 連線驗證中...";
-  console.log("正在連線至 Google 雲端...");
-
   try {
-    const response = await fetch(`${API_URL}?action=check_auth&client_id=${CLIENT_ID}`);
-    const data = await response.json(); // 原本的程式碼
+    const res = await fetch(`${API_URL}?action=check_auth&client_id=${CLIENT_ID}`);
+    const data = await res.json();
 
-    // ===================================
-    // 🟢 新增：檢查是否有客製化內容
-    // ===================================
-    if (data.custom_qa) {
-      console.log("偵測到客戶自訂內容，正在覆蓋預設值...");
-      // 如果這是一間電腦公司，我們就把預設的 pc_repair 裡的問答換掉
-      if (data.industry && industries[data.industry]) {
-        industries[data.industry].faqs = data.custom_qa;
-      }
-    }
-    // ===================================
-
-    if (data.status === 'expired') { ... // 接回原本的程式碼
-
-    
-      alert("⚠️ 老闆小副手試用期已結束！請聯絡客服付費解鎖。");
-      document.getElementById('floatBtn').style.display = 'none'; // 隱藏按鈕
-      statusText.innerHTML = "<span class='status-dot status-offline'></span> 帳號已過期";
+    if (data.status === 'error') {
+      alert("無效的 ID");
       return;
-    } else if (data.status === 'error') {
-      alert("⚠️ 無效的用戶 ID");
+    }
+    if (data.status === 'expired') {
+      document.getElementById("statusText").innerHTML = "🔴 帳號已過期";
+      alert("試用期已過");
       return;
     }
 
-    // 驗證成功
-    statusText.innerHTML = `<span class='status-dot status-online'></span> 已連線 (方案: ${data.plan})`;
-    console.log("驗證成功！方案：", data.plan);
+    // 🟢 驗證成功：隱藏演示面板，顯示歡迎面板
+    document.getElementById("adminPanel").style.display = "none";
+    document.getElementById("welcomePanel").style.display = "block";
+    document.getElementById("statusText").innerHTML = "🟢 已連線";
 
-    // ============================================
-    // 💡 修正：針對付費客戶的「專注模式」
-    // ============================================
+    // 載入客製化問答
+    if (data.custom_qa && data.industry && industries[data.industry]) {
+       industries[data.industry].faqs = data.custom_qa;
+    }
+
+    // 切換行業
     if (data.industry && industries[data.industry]) {
-      // 1. 強制鎖定他的行業
-      document.getElementById("industrySelect").value = data.industry;
-      switchIndustry();
-
-      // 2. 隱藏那個「SaaS 演示」的控制面板 (關鍵！)
-      // 陳老闆不需要看到選單，他只需要看到聊天按鈕
-      document.querySelector('.admin-panel').style.display = 'none';
-
-      // 3. (選用) 顯示一個簡單的歡迎字樣，取代原本的控制面板
-      const welcomeDiv = document.createElement("div");
-      welcomeDiv.style = "text-align:center; margin-top:100px; font-size:24px; color:#555;";
-      welcomeDiv.innerHTML = `
-        <h2>👋 歡迎使用 ${industries[data.industry].name}</h2>
-        <p>系統已就緒，請點擊右下角按鈕開始服務客戶。</p>
-      `;
-      document.body.prepend(welcomeDiv);
-
-    } else {
-      // 如果資料庫沒設定行業 (或是測試帳號)，才顯示選單給他選
-      switchIndustry();
+      currentKey = data.industry;
+      document.getElementById("welcomeTitle").innerText = `👋 歡迎使用 ${industries[currentKey].name}`;
+      updateChatUI();
     }
-    // ============================================
 
-  } catch (error) {
-    console.error("連線失敗:", error);
-    statusText.innerHTML = "<span class='status-dot status-offline'></span> 連線失敗，切換回單機演示";
-    alert("無法連接到伺服器，將使用演示模式運行。");
-    switchIndustry();
+  } catch (e) {
+    console.error(e);
+    document.getElementById("statusText").innerHTML = "⚠️ 連線失敗 (請檢查 API 網址)";
   }
 }
 
-// 切換行業邏輯
-function switchIndustry() {
-  const select = document.getElementById("industrySelect");
-  currentIndustryKey = select.value;
-  const data = industries[currentIndustryKey];
+function manualSwitch() {
+  currentKey = document.getElementById("industrySelect").value;
+  updateChatUI();
+}
 
-  // 變更 CSS 變數
+function updateChatUI() {
+  const data = industries[currentKey];
   document.documentElement.style.setProperty('--primary-color', data.color);
-  
-  // 變更介面文字與圖示
   document.getElementById("botTitle").innerText = `${data.icon} ${data.name}`;
   
-  // 變更歡迎詞
-  const chatBody = document.getElementById("chatBody");
-  chatBody.innerHTML = `
+  // 更新歡迎詞
+  document.getElementById("chatBody").innerHTML = `
     <div class="message bot">
-      <div class="avatar">${data.icon}</div>
-      <div class="bubble">
-        ${data.welcome}<br>
-        <span style="font-size:12px; color:#888; margin-top:5px; display:block;">
-          (您可以點選下方按鈕，或使用相機圖示傳圖詢問)
-        </span>
-      </div>
+      <div class="bubble">${data.welcome}</div>
     </div>
   `;
-
-  // 重新產生按鈕選單
+  
+  // 更新按鈕
   const menu = document.getElementById("quickMenu");
-  menu.innerHTML = ""; 
-  data.faqs.forEach(faq => {
+  menu.innerHTML = "";
+  data.faqs.forEach(item => {
     const btn = document.createElement("button");
     btn.className = "menu-btn";
-    btn.innerText = faq.q;
-    btn.onclick = () => sendQuery(faq.q, faq.a);
+    btn.innerText = item.q;
+    btn.onclick = () => {
+      addMsg("user", item.q);
+      setTimeout(() => addMsg("bot", item.a), 500);
+    };
     menu.appendChild(btn);
   });
 }
 
 function toggleChat() {
   const win = document.getElementById("chatWindow");
-  if (win.style.display === "flex") {
-    win.style.display = "none";
-  } else {
-    win.style.display = "flex";
-    document.getElementById("userInput").focus();
-  }
+  win.style.display = win.style.display === "flex" ? "none" : "flex";
 }
 
 function sendMessage() {
   const input = document.getElementById("userInput");
-  const text = input.value.trim();
-  if (!text) return;
+  if(!input.value) return;
+  addMsg("user", input.value);
   
-  addMessage("user", text);
+  // 簡單關鍵字搜尋
+  let ans = "建議您直接聯繫專人。";
+  const data = industries[currentKey];
+  for(let f of data.faqs) {
+    if(input.value.includes(f.q)) ans = f.a;
+  }
+  
+  setTimeout(() => addMsg("bot", ans), 500);
   input.value = "";
-
-  setTimeout(() => {
-    const answer = findAnswer(text);
-    addMessage("bot", answer);
-  }, 500);
 }
 
-function sendQuery(question, answer) {
-  addMessage("user", question);
-  setTimeout(() => {
-    addMessage("bot", answer);
-  }, 500);
-}
-
-function addMessage(role, text) {
-  const chatBody = document.getElementById("chatBody");
+function addMsg(role, text) {
   const div = document.createElement("div");
   div.className = `message ${role}`;
+  div.innerHTML = `<div class="bubble">${text}</div>`;
+  document.getElementById("chatBody").appendChild(div);
+  document.getElementById("chatBody").scrollTop = 9999;
   
-  if (role === "bot") {
-    const icon = industries[currentIndustryKey].icon;
-    div.innerHTML = `
-      <div class="avatar">${icon}</div>
-      <div class="bubble">${text}</div>
-    `;
-  } else {
-    div.innerHTML = `
-      <div class="bubble">${text}</div>
-      <div class="avatar" style="margin-right:0; margin-left:10px;">👤</div>
-    `;
+  // 紀錄對話
+  if (CLIENT_ID) {
+    fetch(API_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action: 'log_chat', client_id: CLIENT_ID, type: role, message: text })
+    });
   }
-  
-  chatBody.appendChild(div);
-  chatBody.scrollTop = chatBody.scrollHeight;
-  logToGoogle(role, text);
 }
 
-function findAnswer(text) {
-  const data = industries[currentIndustryKey];
-  for (let item of data.faqs) {
-    if (text.includes(item.q)) return item.a;
-  }
-  return `關於「${text}」的問題，建議您直接點擊相機圖示傳送照片，或撥打專線，我們幫您確認！`;
-}
-
-document.getElementById("userInput").addEventListener("keypress", function(e) {
-  if (e.key === "Enter") sendMessage();
+document.getElementById("userInput").addEventListener("keypress", (e) => {
+  if(e.key==="Enter") sendMessage();
 });
 
-// 啟動系統
-initSystem();
-
-function logToGoogle(role, text) {
-  // 不等待回應，背景發送即可
-  fetch(API_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      action: 'log_chat',
-      client_id: CLIENT_ID, // 這是全域變數
-      type: role,
-      message: text
-    })
-  });
-}
-
+init();
 </script>
 </body>
 </html>

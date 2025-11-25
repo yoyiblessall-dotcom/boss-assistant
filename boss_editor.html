@@ -7,78 +7,99 @@
 <style>
   body { font-family: "Microsoft JhengHei", sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
   .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-  h2 { border-bottom: 2px solid #005bac; padding-bottom: 10px; color: #333; }
+  h2 { border-bottom: 2px solid #005bac; padding-bottom: 10px; color: #333; margin-top: 0; }
   
-  .qa-item { display: flex; gap: 10px; margin-bottom: 15px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; align-items: flex-start; }
+  .qa-item { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; display: flex; gap: 15px; align-items: start; }
   .qa-content { flex: 1; }
-  input, textarea { width: 100%; padding: 8px; margin-bottom: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-  textarea { height: 60px; resize: vertical; }
-  label { font-size: 12px; color: #666; font-weight: bold; }
+  .qa-num { font-weight: bold; color: #005bac; padding-top: 5px; min-width: 30px; }
   
-  .btn-del { background: #ff4d4f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; height: 30px; }
+  label { display: block; font-size: 12px; color: #666; font-weight: bold; margin-bottom: 4px; margin-top: 8px; }
+  input[type="text"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-weight: bold; color: #333; }
+  textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; height: 60px; resize: vertical; }
+  
+  .btn-del { background: #ff4d4f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 30px; }
+  .btn-del:hover { background: #d9363e; }
+  
+  .controls { margin-top: 20px; text-align: right; border-top: 1px solid #eee; padding-top: 20px; }
   .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px;}
   .btn-save { background: #005bac; color: white; border: none; padding: 10px 30px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+  .btn-save:disabled { background: #ccc; }
   
-  .loading { color: #888; font-style: italic; }
-  .status-bar { margin-top: 20px; padding: 10px; text-align: center; border-radius: 5px; display: none; }
+  .loading { text-align: center; color: #888; padding: 20px; }
 </style>
 </head>
 <body>
 
 <div class="container">
   <h2>🛠️ 內容編輯後台</h2>
-  <p>這是您的專屬後台，您可以隨時修改機器人的問答內容。</p>
+  <div id="infoBar" style="margin-bottom:20px; font-size:14px; color:#666;">
+    正在讀取您的資料...
+  </div>
   
   <div id="qaList">
-    <!-- 問答列表會顯示在這裡 -->
-    <div class="loading">正在讀取您的設定...</div>
+    <div class="loading">⏳ 載入中...</div>
   </div>
 
-  <div style="margin-top: 20px; text-align: right;">
-    <button class="btn-add" onclick="addQA()">+ 新增問題</button>
+  <div class="controls">
+    <button class="btn-add" onclick="addQA()">+ 新增按鈕</button>
     <button class="btn-save" onclick="saveQA()">💾 儲存修改</button>
   </div>
-  
-  <div id="statusBar" class="status-bar"></div>
 </div>
 
 <script>
-  // 🔴 請填入你的 GAS 網址 🔴
+  // 🔴 請在這裡填入你的 GAS 網址 🔴
   const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZoqtIy9g7r-YPB1Xx_31gZhkhvZ01N8LTux5jqIzULXdvXw/exec"; 
 
-  // 自動抓取網址上的 ?id=...
   const urlParams = new URLSearchParams(window.location.search);
   const CLIENT_ID = urlParams.get('id');
 
+  // 為了讓後台知道預設問題是什麼，我們必須把預設資料也放進來
+  const industries = {
+    pc_repair: { name: "電腦維修", faqs: [{q:"開不了機",a:"開不了機？先檢查插頭鬆了沒！如果風扇有轉螢幕黑，可能是顯卡問題。"},{q:"跑超慢",a:"電腦跑很慢通常是硬碟老化，建議找老闆升級 SSD，速度快5倍！"},{q:"重灌多少錢",a:"系統重灌基本費 800 元，含驅動與常用軟體，約需 2 小時。"},{q:"螢幕黑屏",a:"螢幕黑屏但有聲音？試試看重接螢幕線，不行就是螢幕或顯卡壞了。"}] },
+    restaurant: { name: "餐飲美食", faqs: [{q:"我要訂位",a:"沒問題！請問您預計「幾月幾號」以及「幾位」用餐？"},{q:"推薦菜色",a:"第一次來嗎？推薦必點「招牌厚切豬排」和「松露燉飯」！"},{q:"營業時間",a:"我們每天 11:00 - 21:00 營業，最後點餐時間為 20:30。"}] },
+    beauty: { name: "美容美髮", faqs: [{q:"預約剪髮",a:"好的，請問您想指定哪位設計師？"},{q:"價目表",a:"洗+剪 600元，染髮短髮 1500 起，燙髮 2000 起。"}] },
+    real_estate: { name: "房產顧問", faqs: [{q:"最新物件",a:"本週新進：市中心三房車位、捷運旁小豪宅。"},{q:"我要賣房",a:"我們可以免費幫您估價，歡迎預約。"}] },
+    gym: { name: "健身教練", faqs: [{q:"會籍費用",a:"目前推廣方案：單月 1288，年約每月 988。"},{q:"團課課表",a:"瑜珈、拳擊有氧課表已更新，我可以傳給您。"}] },
+    car: { name: "汽車保修", faqs: [{q:"定期保養",a:"建議每 5000 公里換機油。"},{q:"輪胎價格",a:"請問您的輪胎規格？我幫您報價。"}] },
+    shop: { name: "網拍客服", faqs: [{q:"訂單查詢",a:"請給我訂單編號，我幫您查。"},{q:"運費計算",a:"滿 1000 免運。"}] },
+    clinic: { name: "診所掛號", faqs: [{q:"門診時間",a:"早診 09:00-12:00，午診 14:30-17:30。"},{q:"預約掛號",a:"初診需現場填表，複診可透過 LINE 預約。"}] },
+    plumbing: { name: "水電維修", faqs: [{q:"馬桶不通",a:"我們可以通馬桶，費用約 1500 元。"},{q:"家裡跳電",a:"可能是負載過大或短路。"}] },
+    tutor: { name: "補習班", faqs: [{q:"課程費用",a:"國中全科班一學期 35000。"},{q:"試聽安排",a:"歡迎免費試聽一堂！"}] }
+  };
+
   let currentQA = [];
 
-  // 初始化：讀取目前的設定
   async function init() {
-    if (!CLIENT_ID) return alert("錯誤：網址缺少客戶 ID");
+    if (!CLIENT_ID) return alert("網址錯誤：缺少 ID");
     
     try {
-      // 呼叫 GAS 讀取資料 (這裡我們共用 check_auth 介面，它現在會回傳 custom_qa)
       const res = await fetch(`${API_URL}?action=check_auth&client_id=${CLIENT_ID}`);
       const data = await res.json();
       
       if (data.status === 'error') return alert("無效的客戶 ID");
 
-      // 如果客戶有自訂過，就用自訂的；如果沒有，就先給他空的 (或是你可以預載預設值)
-      // 這裡為了簡單，如果是第一次，我們給他一個範例
+      document.getElementById("infoBar").innerText = `您好，這裡是【${data.industry}】機器人的編輯後台`;
+
+      // 1. 如果有自訂過，用自訂的
       if (data.custom_qa) {
         currentQA = data.custom_qa;
-      } else {
-        currentQA = [
-          { q: "範例問題：營業時間？", a: "範例回答：早上9點到晚上6點" }
-        ];
+      } 
+      // 2. 如果沒自訂過，載入預設行業的問題 (修正了之前空白的問題)
+      else if (data.industry && industries[data.industry]) {
+        currentQA = industries[data.industry].faqs;
+      } 
+      // 3. 萬一都沒有
+      else {
+        currentQA = [{q: "範例問題", a: "範例回答"}];
       }
+      
       render();
+      
     } catch (e) {
-      alert("連線失敗：" + e);
+      alert("連線錯誤：" + e);
     }
   }
 
-  // 渲染畫面
   function render() {
     const list = document.getElementById('qaList');
     list.innerHTML = "";
@@ -87,8 +108,9 @@
       const div = document.createElement('div');
       div.className = 'qa-item';
       div.innerHTML = `
+        <div class="qa-num">#${index+1}</div>
         <div class="qa-content">
-          <label>客戶會問：</label>
+          <label>按鈕文字 (客人點的)：</label>
           <input type="text" value="${item.q}" onchange="updateItem(${index}, 'q', this.value)">
           <label>機器人回答：</label>
           <textarea onchange="updateItem(${index}, 'a', this.value)">${item.a}</textarea>
@@ -104,12 +126,12 @@
   }
 
   function addQA() {
-    currentQA.push({ q: "", a: "" });
+    currentQA.push({ q: "新按鈕", a: "請輸入回答" });
     render();
   }
 
   function delQA(index) {
-    if (confirm("確定刪除此問題？")) {
+    if (confirm("確定刪除？")) {
       currentQA.splice(index, 1);
       render();
     }
@@ -117,12 +139,10 @@
 
   async function saveQA() {
     const btn = document.querySelector('.btn-save');
-    const status = document.getElementById('statusBar');
     btn.innerText = "儲存中...";
     btn.disabled = true;
 
     try {
-      // 送出資料到 GAS
       await fetch(API_URL, {
         method: 'POST',
         mode: 'no-cors',
@@ -133,11 +153,8 @@
           qa_list: currentQA
         })
       });
-
-      status.style.display = 'block';
-      status.style.background = '#d4edda';
-      status.style.color = '#155724';
-      status.innerText = "✅ 儲存成功！客戶端的機器人已立即更新。";
+      
+      alert("✅ 儲存成功！機器人已更新。");
       
     } catch (e) {
       alert("儲存失敗");

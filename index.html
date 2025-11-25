@@ -385,13 +385,32 @@ async function initSystem() {
     statusText.innerHTML = `<span class='status-dot status-online'></span> 已連線 (方案: ${data.plan})`;
     console.log("驗證成功！方案：", data.plan);
 
-    // 如果後台有指定行業，就自動切換 (這就是 SaaS 的精髓)
+    // ============================================
+    // 💡 修正：針對付費客戶的「專注模式」
+    // ============================================
     if (data.industry && industries[data.industry]) {
+      // 1. 強制鎖定他的行業
       document.getElementById("industrySelect").value = data.industry;
       switchIndustry();
+
+      // 2. 隱藏那個「SaaS 演示」的控制面板 (關鍵！)
+      // 陳老闆不需要看到選單，他只需要看到聊天按鈕
+      document.querySelector('.admin-panel').style.display = 'none';
+
+      // 3. (選用) 顯示一個簡單的歡迎字樣，取代原本的控制面板
+      const welcomeDiv = document.createElement("div");
+      welcomeDiv.style = "text-align:center; margin-top:100px; font-size:24px; color:#555;";
+      welcomeDiv.innerHTML = `
+        <h2>👋 歡迎使用 ${industries[data.industry].name}</h2>
+        <p>系統已就緒，請點擊右下角按鈕開始服務客戶。</p>
+      `;
+      document.body.prepend(welcomeDiv);
+
     } else {
+      // 如果資料庫沒設定行業 (或是測試帳號)，才顯示選單給他選
       switchIndustry();
     }
+    // ============================================
 
   } catch (error) {
     console.error("連線失敗:", error);

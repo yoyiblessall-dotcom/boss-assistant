@@ -369,9 +369,23 @@ async function initSystem() {
 
   try {
     const response = await fetch(`${API_URL}?action=check_auth&client_id=${CLIENT_ID}`);
-    const data = await response.json();
+    const data = await response.json(); // 原本的程式碼
 
-    if (data.status === 'expired') {
+    // ===================================
+    // 🟢 新增：檢查是否有客製化內容
+    // ===================================
+    if (data.custom_qa) {
+      console.log("偵測到客戶自訂內容，正在覆蓋預設值...");
+      // 如果這是一間電腦公司，我們就把預設的 pc_repair 裡的問答換掉
+      if (data.industry && industries[data.industry]) {
+        industries[data.industry].faqs = data.custom_qa;
+      }
+    }
+    // ===================================
+
+    if (data.status === 'expired') { ... // 接回原本的程式碼
+
+    
       alert("⚠️ 老闆小副手試用期已結束！請聯絡客服付費解鎖。");
       document.getElementById('floatBtn').style.display = 'none'; // 隱藏按鈕
       statusText.innerHTML = "<span class='status-dot status-offline'></span> 帳號已過期";
@@ -509,6 +523,7 @@ function addMessage(role, text) {
   
   chatBody.appendChild(div);
   chatBody.scrollTop = chatBody.scrollHeight;
+  logToGoogle(role, text);
 }
 
 function findAnswer(text) {
@@ -525,6 +540,21 @@ document.getElementById("userInput").addEventListener("keypress", function(e) {
 
 // 啟動系統
 initSystem();
+
+function logToGoogle(role, text) {
+  // 不等待回應，背景發送即可
+  fetch(API_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'log_chat',
+      client_id: CLIENT_ID, // 這是全域變數
+      type: role,
+      message: text
+    })
+  });
+}
 
 </script>
 </body>

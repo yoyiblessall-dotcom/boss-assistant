@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>老闆小副手 - 內容編輯後台</title>
+<style>
+  body { font-family: "Microsoft JhengHei", sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+  .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+  h2 { border-bottom: 2px solid #005bac; padding-bottom: 10px; color: #333; }
+  
+  .qa-item { display: flex; gap: 10px; margin-bottom: 15px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; align-items: flex-start; }
+  .qa-content { flex: 1; }
+  input, textarea { width: 100%; padding: 8px; margin-bottom: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+  textarea { height: 60px; resize: vertical; }
+  label { font-size: 12px; color: #666; font-weight: bold; }
+  
+  .btn-del { background: #ff4d4f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; height: 30px; }
+  .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px;}
+  .btn-save { background: #005bac; color: white; border: none; padding: 10px 30px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+  
+  .loading { color: #888; font-style: italic; }
+  .status-bar { margin-top: 20px; padding: 10px; text-align: center; border-radius: 5px; display: none; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>🛠️ 內容編輯後台</h2>
+  <p>這是您的專屬後台，您可以隨時修改機器人的問答內容。</p>
+  
+  <div id="qaList">
+    <!-- 問答列表會顯示在這裡 -->
+    <div class="loading">正在讀取您的設定...</div>
+  </div>
+
+  <div style="margin-top: 20px; text-align: right;">
+    <button class="btn-add" onclick="addQA()">+ 新增問題</button>
+    <button class="btn-save" onclick="saveQA()">💾 儲存修改</button>
+  </div>
+  
+  <div id="statusBar" class="status-bar"></div>
+</div>
+
+<script>
+  // 🔴 請填入你的 GAS 網址 🔴
+  const API_URL = "https://script.google.com/macros/s/你的GAS網址/exec"; 
+
+  // 自動抓取網址上的 ?id=...
+  const urlParams = new URLSearchParams(window.location.search);
+  const CLIENT_ID = urlParams.get('id');
+
+  let currentQA = [];
+
+  // 初始化：讀取目前的設定
+  async function init() {
+    if (!CLIENT_ID) return alert("錯誤：網址缺少客戶 ID");
+    
+    try {
+      // 呼叫 GAS 讀取資料 (這裡我們共用 check_auth 介面，它現在會回傳 custom_qa)
+      const res = await fetch(`${API_URL}?action=check_auth&client_id=${CLIENT_ID}`);
+      const data = await res.json();
+      
+      if (data.status === 'error') return alert("無效的客戶 ID");
+
+      // 如果客戶有自訂過，就用自訂的；如果沒有，就先給他空的 (或是你可以預載預設值)
+      // 這裡為了簡單，如果是第一次，我們給他一個範例
+      if (data.custom_qa) {
+        currentQA = data.custom_qa;
+      } else {
+        currentQA = [
+          { q: "範例問題：營業時間？", a: "範例回答：早上9點到晚上6點" }
+        ];
+      }
+      render();
+    } catch (e) {
+      alert("連線失敗：" + e);
+    }
+  }
+
+  // 渲染畫面
+  function render() {
+    const list = document.getElementById('qaList');
+    list.innerHTML = "";
+    
+    currentQA.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = 'qa-item';
+      div.innerHTML = `
+        <div class="qa-content">
+          <label>客戶會問：</label>
+          <input type="text" value="${item.q}" onchange="updateItem(${index}, 'q', this.value)">
+          <label>機器人回答：</label>
+          <textarea onchange="updateItem(${index}, 'a', this.value)">${item.a}</textarea>
+        </div>
+        <button class="btn-del" onclick="delQA(${index})">刪除</button>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function updateItem(index, key, value) {
+    currentQA[index][key] = value;
+  }
+
+  function addQA() {
+    currentQA.push({ q: "", a: "" });
+    render();
+  }
+
+  function delQA(index) {
+    if (confirm("確定刪除此問題？")) {
+      currentQA.splice(index, 1);
+      render();
+    }
+  }
+
+  async function saveQA() {
+    const btn = document.querySelector('.btn-save');
+    const status = document.getElementById('statusBar');
+    btn.innerText = "儲存中...";
+    btn.disabled = true;
+
+    try {
+      // 送出資料到 GAS
+      await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save_qa',
+          client_id: CLIENT_ID,
+          qa_list: currentQA
+        })
+      });
+
+      status.style.display = 'block';
+      status.style.background = '#d4edda';
+      status.style.color = '#155724';
+      status.innerText = "✅ 儲存成功！客戶端的機器人已立即更新。";
+      
+    } catch (e) {
+      alert("儲存失敗");
+    }
+
+    btn.innerText = "💾 儲存修改";
+    btn.disabled = false;
+  }
+
+  init();
+</script>
+</body>
+</html>

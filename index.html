@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>智能客服</title>
+<title>智能客服助手</title>
 <style>
   :root { --primary-color: #005bac; --text-color: #333; }
   body { font-family: "Microsoft JhengHei", sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
 
-  /* 演示面板 */
+  /* 演示面板 (僅Demo時顯示) */
   .admin-panel { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
   .industry-select { padding: 10px; width: 100%; max-width: 300px; font-size: 16px; margin-top: 10px;}
 
-  /* 歡迎面板 */
+  /* 歡迎面板 (Live時顯示) */
   .welcome-panel { display: none; text-align: center; margin-top: 100px; color: #555; }
   .welcome-panel h2 { font-size: 28px; color: var(--primary-color); margin-bottom: 10px; }
 
@@ -23,37 +23,41 @@
   /* 聊天視窗 */
   .chat-window { position: fixed; bottom: 100px; right: 30px; width: 380px; max-width: 90vw; height: 600px; max-height: 80vh; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: none; flex-direction: column; overflow: hidden; z-index: 9998; border: 1px solid #e0e0e0; }
   .chat-header { background: var(--primary-color); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-
-  /* 🟢 新增：聯絡工具列 */
-  .contact-bar { display: none; padding: 10px; background: #f1f8ff; border-bottom: 1px solid #e0e0e0; gap: 10px; }
-  .contact-btn { flex: 1; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; color: white; }
+  
+  /* 聯絡工具列 (電話/LINE) */
+  .contact-bar { display: none; padding: 10px; background: #f8f9fa; border-bottom: 1px solid #eee; gap: 10px; }
+  .contact-btn { flex: 1; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; color: white; transition: 0.2s; }
   .btn-phone { background: #4caf50; }
+  .btn-phone:hover { background: #43a047; }
   .btn-line { background: #00c300; }
-  .contact-btn:hover { opacity: 0.9; }
-
+  .btn-line:hover { background: #00b300; }
 
   .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f9f9f9; }
   .message { display: flex; margin-bottom: 15px; }
   .message.user { justify-content: flex-end; }
-  .bubble { max-width: 75%; padding: 10px 14px; border-radius: 12px; font-size: 15px; line-height: 1.5; word-wrap: break-word; }
-  .bot .bubble { background: white; border: 1px solid #eee; }
-  .user .bubble { background: var(--primary-color); color: white; }
+  .bubble { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 15px; line-height: 1.5; word-wrap: break-word; }
+  .bot .bubble { background: white; border: 1px solid #eee; border-top-left-radius: 2px; }
+  .user .bubble { background: var(--primary-color); color: white; border-top-right-radius: 2px; }
+  
   .quick-menu { padding: 10px; background: white; white-space: nowrap; overflow-x: auto; border-top: 1px solid #eee; }
-  .menu-btn { display: inline-block; padding: 8px 16px; margin-right: 8px; background: white; border: 1px solid var(--primary-color); color: var(--primary-color); border-radius: 20px; cursor: pointer; }
+  .menu-btn { display: inline-block; padding: 8px 16px; margin-right: 8px; background: white; border: 1px solid var(--primary-color); color: var(--primary-color); border-radius: 20px; cursor: pointer; font-size: 13px; }
+  .menu-btn:hover { background: var(--primary-color); color: white; }
+  
   .input-area { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 8px; }
   .text-input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #ddd; outline: none; }
-  .send-btn { background: var(--primary-color); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; }
+  .send-btn { background: var(--primary-color); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;}
 </style>
 </head>
 <body>
 
+<!-- 1. 演示面板 -->
 <div class="admin-panel" id="adminPanel">
   <h2>💼 老闆小副手 - 系統連線中</h2>
   <div style="padding:10px; background:#f0f0f0; border-radius:8px; margin-bottom:15px;">
-    <strong>系統狀態：</strong> <span id="statusText">正在連線 祐逸yoyi 服務器...</span>
+    <strong>系統狀態：</strong> <span id="statusText">正在呼叫 祐逸yoyi 服務端...</span>
   </div>
   <div id="demoControls">
-    <label>專屬貴賓模式：</label><br>
+    <label>專屬貴賓切換：</label><br>
     <select class="industry-select" id="industrySelect" onchange="manualSwitch()">
       <option value="pc_repair">1. 電腦維修</option>
       <option value="restaurant">2. 餐飲美食</option>
@@ -69,21 +73,22 @@
   </div>
 </div>
 
+<!-- 2. 歡迎面板 -->
 <div class="welcome-panel" id="welcomePanel">
   <h2 id="welcomeTitle">👋 歡迎使用</h2>
   <p>系統連線成功，請點擊右下角按鈕開始服務。</p>
 </div>
 
+<!-- 3. 聊天主體 -->
 <div class="float-btn" id="floatBtn" onclick="toggleChat()">💬</div>
 
 <div class="chat-window" id="chatWindow">
   <div class="chat-header">
-    <!-- 🟢 這裡的標題會被 JS 動態換掉 -->
     <span id="botTitle">客服助手</span>
     <span style="cursor:pointer" onclick="toggleChat()">✕</span>
   </div>
-
-  <!-- 🟢 新增：聯絡工具列容器 -->
+  
+  <!-- 聯絡工具列 -->
   <div class="contact-bar" id="contactBar">
     <a href="#" class="contact-btn btn-phone" id="btnPhone">📞 撥打電話</a>
     <a href="#" class="contact-btn btn-line" id="btnLine" target="_blank">💬 加 LINE</a>
@@ -105,21 +110,22 @@ const urlParams = new URLSearchParams(window.location.search);
 const CLIENT_ID = urlParams.get('id');
 
 const industries = {
-  pc_repair: { name: "電腦維修 小副手", color: "#005bac", icon: "💻", welcome: "嗨！電腦開不了機還是中毒？我是老闆的數位分身，這裡可以幫你快速診斷！", faqs: [{q:"開不了機",a:"開不了機？先檢查插頭鬆了沒！如果風扇有轉螢幕黑，可能是顯卡問題。"},{q:"跑超慢",a:"電腦跑很慢通常是硬碟老化，建議找老闆升級 SSD，速度快5倍！"}] },
-  restaurant: { name: "美味食堂 小幫手", color: "#ff6b35", icon: "🍔", welcome: "歡迎光臨！想訂位還是看菜單？告訴我人數，我幫您安排！", faqs: [{q:"我要訂位",a:"沒問題！請問您預計「幾月幾號」以及「幾位」用餐？"}] },
-  beauty: { name: "時尚美學 小助理", color: "#e91e63", icon: "💅", welcome: "哈囉～想換個新造型嗎？我可以幫您查詢設計師空檔或價目表喔！", faqs: [{q:"預約剪髮",a:"好的，請問您想指定哪位設計師？"}] },
-  real_estate: { name: "房產顧問", color: "#c5a059", icon: "🏠", welcome: "您好，想買房、賣房，還是查詢實價登錄？", faqs: [{q:"最新物件",a:"本週新進：市中心三房車位、捷運旁小豪宅。"}] },
-  gym: { name: "健身教練", color: "#4caf50", icon: "💪", welcome: "動起來！想了解會籍方案還是預約參觀？", faqs: [{q:"會籍費用",a:"目前推廣方案：單月 1288，年約每月 988。"}] },
-  car: { name: "汽車保修", color: "#607d8b", icon: "🚗", welcome: "車子有異音？該保養了？", faqs: [{q:"定期保養",a:"建議每 5000 公里換機油。"}] },
-  shop: { name: "網拍客服", color: "#d32f2f", icon: "🛍️", welcome: "您好！關於訂單進度或退換貨，我都能處理！", faqs: [{q:"訂單查詢",a:"請給我訂單編號，我幫您查。"}] },
-  clinic: { name: "診所掛號", color: "#009688", icon: "🏥", welcome: "早安，需要查詢門診時間或掛號嗎？", faqs: [{q:"門診時間",a:"早診 09:00-12:00，午診 14:30-17:30。"}] },
-  plumbing: { name: "水電維修", color: "#1976d2", icon: "🔧", welcome: "水管漏水？跳電？師傅盡快過去！", faqs: [{q:"馬桶不通",a:"我們可以通馬桶，費用約 1500 元。"}] },
-  tutor: { name: "補習班", color: "#673ab7", icon: "📚", welcome: "家長您好！想了解課程或試聽安排嗎？", faqs: [{q:"課程費用",a:"國中全科班一學期 35000。"}] }
+  pc_repair: { name: "電腦維修 小副手", color: "#005bac", icon: "💻", welcome: "嗨！電腦開不了機還是中毒？", faqs: [{q:"開不了機",a:"請檢查插頭..."}] },
+  restaurant: { name: "美味食堂", color: "#ff6b35", icon: "🍔", welcome: "歡迎光臨！想訂位還是看菜單？", faqs: [{q:"我要訂位",a:"請告知人數..."}] },
+  beauty: { name: "時尚美學", color: "#e91e63", icon: "💅", welcome: "哈囉～想換個新造型嗎？", faqs: [{q:"預約剪髮",a:"想預約哪位設計師？"}] },
+  real_estate: { name: "房產顧問", color: "#c5a059", icon: "🏠", welcome: "您好，想買房還是賣房？", faqs: [{q:"最新物件",a:"目前有..."}] },
+  gym: { name: "健身教練", color: "#4caf50", icon: "💪", welcome: "動起來！想了解會籍方案嗎？", faqs: [{q:"會籍費用",a:"月費988..."}] },
+  car: { name: "汽車保修", color: "#607d8b", icon: "🚗", welcome: "車子有異音？該保養了？", faqs: [{q:"定期保養",a:"建議5000公里..."}] },
+  shop: { name: "網拍客服", color: "#d32f2f", icon: "🛍️", welcome: "您好！關於訂單或退換貨？", faqs: [{q:"訂單查詢",a:"請提供編號..."}] },
+  clinic: { name: "診所掛號", color: "#009688", icon: "🏥", welcome: "早安，需要掛號嗎？", faqs: [{q:"門診時間",a:"早診9-12..."}] },
+  plumbing: { name: "水電維修", color: "#1976d2", icon: "🔧", welcome: "水管漏水？馬上過去！", faqs: [{q:"馬桶不通",a:"我們可以疏通..."}] },
+  tutor: { name: "補習班", color: "#673ab7", icon: "📚", welcome: "想了解課程嗎？", faqs: [{q:"課程試聽",a:"歡迎預約..."}] }
 };
 
 let currentKey = "pc_repair";
 
 async function init() {
+  // 無 ID -> 演示模式
   if (!CLIENT_ID) {
     document.getElementById("statusText").innerHTML = "🔴 演示模式 (網址無 ID)";
     manualSwitch();
@@ -131,17 +137,21 @@ async function init() {
     const data = await res.json();
 
     if (data.status === 'error') return alert("無效的 ID");
+    
+    // 🔒 自動鎖定機制
     if (data.status === 'expired') {
       document.getElementById("statusText").innerHTML = "🔴 帳號已過期";
-      alert("⚠️ 試用期已過，請續費");
+      document.getElementById("floatBtn").style.display = "none"; // 隱藏按鈕
+      alert("⚠️ 試用期已過，請續費以繼續使用服務。");
       return;
     }
 
+    // 驗證成功：切換介面
     document.getElementById("adminPanel").style.display = "none";
     document.getElementById("welcomePanel").style.display = "block";
     document.getElementById("statusText").innerHTML = "🟢 已連線";
 
-    // 🟢 處理聯絡資訊
+    // 🟢 處理聯絡資訊 (電話/LINE)
     const contactBar = document.getElementById("contactBar");
     const btnPhone = document.getElementById("btnPhone");
     const btnLine = document.getElementById("btnLine");
@@ -162,30 +172,22 @@ async function init() {
     } else {
       btnLine.style.display = "none";
     }
-
-    // 如果有任一聯絡方式，顯示工具列
     contactBar.style.display = hasContact ? "flex" : "none";
 
-
-    // 1. 載入客製化問答
+    // 載入 QA
     if (data.custom_qa && data.industry && industries[data.industry]) {
        industries[data.industry].faqs = data.custom_qa;
     }
 
-    // 2. 切換行業
+    // 切換行業 & 店名
     if (data.industry && industries[data.industry]) {
       currentKey = data.industry;
       const industryData = industries[currentKey];
       
-      // 🟢 3. 處理店名 (如果有自訂，就用自訂的，否則用預設的)
-      let displayTitle = industryData.name;
-      if (data.shop_name) {
-        displayTitle = data.shop_name; // 覆蓋
-      }
+      // 優先使用自訂店名
+      let displayTitle = data.shop_name || industryData.name;
       
       document.getElementById("welcomeTitle").innerText = `👋 歡迎使用 ${displayTitle}`;
-      
-      // 更新全域變數
       industries[currentKey].name = displayTitle; 
       
       updateChatUI();
@@ -193,7 +195,6 @@ async function init() {
 
   } catch (e) {
     console.error(e);
-    document.getElementById("statusText").innerHTML = "⚠️ 連線失敗";
   }
 }
 
@@ -205,10 +206,8 @@ function manualSwitch() {
 function updateChatUI() {
   const data = industries[currentKey];
   document.documentElement.style.setProperty('--primary-color', data.color);
-  
-  // 更新標題 (這裡會自動讀取剛剛被覆蓋過的 name)
   document.getElementById("botTitle").innerText = `${data.icon} ${data.name}`;
-  document.title = data.name; // 順便連瀏覽器分頁標題也改了
+  document.title = data.name;
   
   document.getElementById("chatBody").innerHTML = `
     <div class="message bot">

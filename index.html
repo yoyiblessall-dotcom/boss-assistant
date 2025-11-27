@@ -42,7 +42,7 @@
       var(--aurora-3) 300deg,
       transparent 360deg
     );
-    filter: blur(90px); /* 增加模糊度讓中文閱讀更舒適 */
+    filter: blur(90px);
     opacity: 0.35;
     animation: rotateVoid 30s linear infinite;
     z-index: -1;
@@ -107,7 +107,7 @@
   .node-text {
     font-size: 15px; line-height: 1.7; font-weight: 400;
     text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-    letter-spacing: 0.5px; /* 中文不需要太大間距 */
+    letter-spacing: 0.5px;
   }
   .node.bot .node-text { color: rgba(255,255,255,0.95); }
   .node.user .node-text { color: var(--accent); text-align: right; }
@@ -137,7 +137,7 @@
     cursor: pointer; transition: 0.3s;
     backdrop-filter: blur(10px);
     position: relative; overflow: hidden;
-    font-family: inherit; /* 繼承中文字體 */
+    font-family: inherit;
   }
   .orbit-chip:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 15px var(--glow); background: rgba(255,255,255,0.1); }
 
@@ -304,7 +304,7 @@ const themes = {
 };
 
 let currentKey = "pc_repair";
-let currentData = themes.pc_repair;
+let currentData = themes.pc_repair; // 儲存內容數據
 
 async function init() {
   if (!CLIENT_ID) {
@@ -313,7 +313,7 @@ async function init() {
       document.getElementById("bootLayer").style.opacity = 0;
       setTimeout(()=> document.getElementById("bootLayer").style.display = "none", 1000);
       document.getElementById("demoControls").classList.add("show");
-      applyTheme('pc_repair'); 
+      manualSwitch('pc_repair'); 
     }, 2000);
     return;
   }
@@ -338,14 +338,30 @@ async function init() {
       btn.href = data.line; btn.style.display = "flex";
     }
 
+    // ★★★ 核心邏輯升級：視覺與內容分離 ★★★
+    
+    // 1. 決定行業 (內容基礎)
+    let industryKey = "pc_repair";
     if (data.industry && themes[data.industry]) {
-      currentKey = data.industry;
-      // 保持中文標題的顯示邏輯
-      if (data.shop_name) themes[currentKey].name = data.shop_name;
-      if (data.custom_qa) themes[currentKey].faqs = data.custom_qa;
+      industryKey = data.industry;
     }
 
-    applyTheme(currentKey);
+    // 2. 決定視覺 (如果有偏好設定則覆蓋，否則跟隨行業)
+    let visualKey = industryKey;
+    if (data.theme_preference && themes[data.theme_preference]) {
+      visualKey = data.theme_preference;
+    }
+
+    // 3. 準備內容數據 (Content Data)
+    const baseContent = themes[industryKey];
+    currentData = {
+      name: data.shop_name || baseContent.name,
+      welcome: baseContent.welcome,
+      faqs: data.custom_qa || baseContent.faqs
+    };
+
+    // 4. 應用變更
+    applySeparatedTheme(visualKey, currentData);
 
     setTimeout(() => {
       document.getElementById("bootLayer").style.opacity = 0;
@@ -353,53 +369,59 @@ async function init() {
     }, 1500);
 
   } catch (e) {
+    console.error(e);
     document.querySelector('.glitch-text').innerText = "CONNECTION_FAIL";
   }
 }
 
+// 演示模式用的切換 (視覺與內容同步)
 function manualSwitch(key) {
   currentKey = key;
-  applyTheme(key);
+  currentData = themes[key];
+  applySeparatedTheme(key, currentData);
 }
 
-function applyTheme(key) {
-  currentData = themes[key];
+// 新的應用函數：同時處理視覺與內容
+function applySeparatedTheme(visualKey, contentData) {
   const root = document.documentElement;
-  
-  // 設置 CSS 變量
-  const vars = currentData.vars;
-  for (const [k, v] of Object.entries(vars)) {
+  const visualVars = themes[visualKey].vars;
+
+  // 1. 注入 CSS 變量 (顏色、極光)
+  for (const [k, v] of Object.entries(visualVars)) {
     root.style.setProperty(k, v);
   }
   
-  document.getElementById("brandTitle").innerText = currentData.name;
-  document.title = currentData.name;
+  // 2. 注入文字內容
+  document.getElementById("brandTitle").innerText = contentData.name;
+  document.title = contentData.name;
   
-  // 狀態燈
-  document.getElementById("statusLight").style.backgroundColor = vars["--accent"];
-  document.getElementById("statusLight").style.boxShadow = `0 0 10px ${vars["--accent"]}`;
+  // 3. 狀態燈顏色 (跟隨視覺)
+  document.getElementById("statusLight").style.backgroundColor = visualVars["--accent"];
+  document.getElementById("statusLight").style.boxShadow = `0 0 10px ${visualVars["--accent"]}`;
 
-  // 清空聊天
+  // 4. 重置對話框
   const chatBody = document.getElementById("chatBody");
   chatBody.innerHTML = "";
   
   setTimeout(() => {
-     addNode("bot", currentData.welcome);
+     addNode("bot", contentData.welcome);
   }, 500);
 
-  updateOrbit(currentData.faqs);
+  updateOrbit(contentData.faqs);
 }
 
 function updateOrbit(faqs) {
   const bar = document.getElementById("quickActions");
   bar.innerHTML = "";
-  faqs.forEach(item => {
-    const chip = document.createElement("button");
-    chip.className = "orbit-chip";
-    chip.innerText = item.q;
-    chip.onclick = () => handleInput(item.q, item.a);
-    bar.appendChild(chip);
-  });
+  if(faqs && faqs.length > 0) {
+    faqs.forEach(item => {
+      const chip = document.createElement("button");
+      chip.className = "orbit-chip";
+      chip.innerText = item.q;
+      chip.onclick = () => handleInput(item.q, item.a);
+      bar.appendChild(chip);
+    });
+  }
 }
 
 function handleInput(q, a) {
@@ -422,8 +444,10 @@ function handleSend() {
   showProcessing();
 
   let ans = "如需詳細服務，請點擊上方按鈕聯絡專人。";
-  for(let f of currentData.faqs) {
-    if(text.includes(f.q)) ans = f.a;
+  if (currentData.faqs) {
+    for(let f of currentData.faqs) {
+        if(text.includes(f.q)) ans = f.a;
+    }
   }
 
   setTimeout(() => {

@@ -92,11 +92,30 @@
   }
   .god-input:focus { border-bottom-color: var(--accent); background: rgba(255,255,255,0.06); padding-left: 10px;}
   .god-input::placeholder { color: rgba(255,255,255,0.2); }
-
-  /* ★★★ 唯讀鎖定樣式 (修正點) ★★★ */
+  
   .god-input.locked {
     color: var(--accent); opacity: 0.8; font-weight: 700; cursor: not-allowed;
     border-bottom: 1px dashed var(--border);
+  }
+
+  /* ★★★ 視覺核心選擇器 (Visual Core) CSS ★★★ */
+  .color-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;
+    margin-top: 15px;
+  }
+  .color-orb {
+    width: 40px; height: 40px; border-radius: 50%;
+    cursor: pointer; position: relative;
+    border: 2px solid rgba(255,255,255,0.1);
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .color-orb:hover { transform: scale(1.2); z-index: 10; }
+  .color-orb.active {
+    border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.5); transform: scale(1.1);
+  }
+  .color-orb::after {
+    content: ''; position: absolute; inset: 0; border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.4), transparent);
   }
 
   /* QA 編輯器 */
@@ -224,7 +243,6 @@
       
       <div class="section-title">01 / SYSTEM PROTOCOL (系統識別)</div>
       
-      <!-- ★★★ 修正：移除下拉選單，改為唯讀鎖定顯示 ★★★ -->
       <div class="input-group">
         <label class="label">DETECTED INDUSTRY (行業協定)</label>
         <input type="text" class="god-input locked" id="industryDisplay" value="SCANNING..." readonly>
@@ -234,6 +252,17 @@
         <label class="label">DISPLAY NAME (顯示名稱)</label>
         <input type="text" class="god-input" id="shopNameInput" oninput="syncPreview()">
       </div>
+
+      <!-- ★★★ 新增：視覺核心選擇器 ★★★ -->
+      <div class="section-title" style="margin-top:40px;">01.5 / VISUAL CORE (視覺氛圍)</div>
+      <div class="input-group">
+        <label class="label">ATMOSPHERE SELECTION (點擊色球切換氛圍)</label>
+        <div class="color-grid" id="themeGrid">
+          <!-- JS 自動生成 -->
+        </div>
+        <input type="hidden" id="themeOverrideInput">
+      </div>
+      <!-- ★★★ 結束新增 ★★★ -->
 
       <div style="display:flex; gap:20px;">
         <div class="input-group" style="flex:1">
@@ -297,7 +326,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZ
 const urlParams = new URLSearchParams(window.location.search);
 const CLIENT_ID = urlParams.get('id');
 
-// 主題配置 (與前台完全對應)
+// 主題配置
 const themes = {
   pc_repair: { name: "電腦維修 // TECH", vars: { "--aurora-1": "#00f260", "--aurora-2": "#0575e6", "--aurora-3": "#00f260" }, welcome: "系統檢測中...", faqs: [{q:"無法開機",a:"檢查電源..."}] },
   restaurant: { name: "精緻餐飲 // FOOD", vars: { "--aurora-1": "#ff416c", "--aurora-2": "#ff4b1f", "--aurora-3": "#ff9068" }, welcome: "歡迎光臨...", faqs: [{q:"訂位",a:"幾位用餐？"}] },
@@ -317,15 +346,15 @@ let appState = {
   phone: '',
   line: '',
   qaList: [],
-  welcome: ''
+  welcome: '',
+  themeOverride: '' // 新增：視覺偏好
 };
 
 async function init() {
   if (!CLIENT_ID) {
-    // Demo 模式：允許切換以便展示
     document.getElementById('uplinkLayer').style.display = 'none';
     document.getElementById('industryDisplay').value = "DEMO MODE (PC REPAIR)";
-    document.getElementById('industryDisplay').readOnly = false; // Demo可改，但這裡只是文字
+    document.getElementById('industryDisplay').readOnly = false;
     manualSwitch('pc_repair');
     return;
   }
@@ -338,65 +367,90 @@ async function init() {
 
     if (data.status === 'error') return alert("ACCESS DENIED");
 
-    // 載入資料
     appState.industry = data.industry || 'pc_repair';
     appState.shopName = data.shop_name || '';
     appState.phone = data.phone || '';
     appState.line = data.line || '';
+    appState.themeOverride = data.theme_preference || ''; // 讀取設定
 
-    // QA 邏輯
     if (data.custom_qa && data.custom_qa.length > 0) {
       appState.qaList = data.custom_qa;
     } else if (themes[appState.industry]) {
       appState.qaList = themes[appState.industry].faqs;
-    } else {
-      appState.qaList = [{q:"範例", a:"回答"}];
     }
     
     appState.welcome = themes[appState.industry].welcome;
 
-    // ★★★ 修正邏輯：鎖定行業，只顯示名稱 ★★★
+    // 顯示邏輯
     const themeName = themes[appState.industry].name;
-    document.getElementById('industryDisplay').value = themeName; // 顯示中文名稱
-    
+    document.getElementById('industryDisplay').value = themeName;
     document.getElementById('shopNameInput').value = appState.shopName;
     document.getElementById('phoneInput').value = appState.phone;
     document.getElementById('lineInput').value = appState.line;
 
     renderQA();
-    applyTheme(appState.industry);
+    renderThemeSelector(); // 渲染色球
+    
+    // 預覽邏輯：如果有 override，用 override 的顏色，否則用行業顏色
+    applyVisuals(appState.themeOverride || appState.industry); 
     syncPreview();
 
     document.getElementById('uplinkLayer').style.display = 'none';
 
   } catch (e) {
+    console.error(e);
     alert("CONNECTION FAILED");
   }
 }
 
-// 僅供內部初始調用
 function manualSwitch(key) {
   appState.industry = key;
   appState.qaList = themes[key].faqs;
   appState.welcome = themes[key].welcome;
-  
   if(!appState.shopName) document.getElementById('shopNameInput').value = themes[key].name;
   
   renderQA();
-  applyTheme(key);
+  renderThemeSelector();
+  applyVisuals(key);
   syncPreview();
 }
 
-function applyTheme(key) {
+// 渲染色球選擇器
+function renderThemeSelector() {
+  const grid = document.getElementById('themeGrid');
+  grid.innerHTML = "";
+  
+  for (const [key, val] of Object.entries(themes)) {
+    const btn = document.createElement('div');
+    // 如果有 override，選 override；沒有 override，則選 industry 預設
+    const isActive = (appState.themeOverride === key) || (!appState.themeOverride && appState.industry === key);
+    
+    btn.className = `color-orb ${isActive ? 'active' : ''}`;
+    btn.style.background = `conic-gradient(${val.vars['--aurora-1']}, ${val.vars['--aurora-2']})`;
+    btn.title = val.name; // 滑鼠懸停提示
+    
+    btn.onclick = () => {
+      document.querySelectorAll('.color-orb').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      appState.themeOverride = key;
+      document.getElementById('themeOverrideInput').value = key;
+      applyVisuals(key); // 立即預覽變色
+    };
+    grid.appendChild(btn);
+  }
+}
+
+// 只改變視覺，不改變內容
+function applyVisuals(key) {
   const t = themes[key];
   const root = document.documentElement;
   
-  // 更新變量 (極光色)
   for (const [k, v] of Object.entries(t.vars)) {
     root.style.setProperty(k, v);
   }
   
-  // 手機光暈
+  // 手機預覽框光暈
   const frame = document.getElementById('phoneFrame');
   frame.style.boxShadow = `0 0 50px rgba(0,0,0,0.5), 0 0 80px ${t.vars["--aurora-1"]}`;
 }
@@ -473,7 +527,8 @@ async function saveData() {
     qa_list: appState.qaList,
     shop_name: document.getElementById('shopNameInput').value,
     phone: document.getElementById('phoneInput').value,
-    line: document.getElementById('lineInput').value
+    line: document.getElementById('lineInput').value,
+    theme_preference: appState.themeOverride // 傳送視覺偏好
   };
 
   try {

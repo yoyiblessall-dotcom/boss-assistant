@@ -431,9 +431,25 @@ function handleInput(q, a) {
   setTimeout(() => {
     removeProcessing();
     addNode("bot", a);
+    
+    // ★★★ 記錄：這是按鈕點擊 (type: 'button') ★★★
+    if (CLIENT_ID) {
+      fetch(API_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ 
+          action: 'log_chat', 
+          client_id: CLIENT_ID, 
+          type: 'button',  // 關鍵標記
+          message: q,
+          bot_response: a
+        })
+      });
+    }
   }, 800);
 }
 
+// 替換原本的 handleSend
 function handleSend() {
   const input = document.getElementById("userInput");
   const text = input.value.trim();
@@ -453,15 +469,22 @@ function handleSend() {
   setTimeout(() => {
     removeProcessing();
     addNode("bot", ans);
-  }, 1000);
 
-  if (CLIENT_ID) {
-    fetch(API_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ action: 'log_chat', client_id: CLIENT_ID, type: 'user', message: text })
-    });
-  }
+    // ★★★ 記錄：這是文字輸入 (type: 'text') ★★★
+    if (CLIENT_ID) {
+      fetch(API_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ 
+          action: 'log_chat', 
+          client_id: CLIENT_ID, 
+          type: 'text',  // 關鍵標記
+          message: text,
+          bot_response: ans
+        })
+      });
+    }
+  }, 1000);
 }
 
 function addNode(role, text) {

@@ -291,10 +291,10 @@
           <input type="text" class="god-input" id="phoneInput" oninput="syncPreview()">
         </div>
         
-        <!-- ★★★ 關鍵修改點：更新了 Placeholder 提示 ★★★ -->
+        <!-- ★★★ 關鍵修改點：友善化 Input 提示 ★★★ -->
         <div class="input-group" style="flex:1">
-          <label class="label">DATA LINK (LINE 完整網址)</label>
-          <input type="text" class="god-input" id="lineInput" oninput="syncPreview()" placeholder="請貼上 https://line.me/... 連結">
+          <label class="label">DATA LINK (LINE 設定)</label>
+          <input type="text" class="god-input" id="lineInput" oninput="syncPreview()" placeholder="輸入 ID (如 myid123 或 @shop)">
         </div>
       </div>
 
@@ -428,6 +428,8 @@ async function init() {
     document.getElementById('industryDisplay').value = themeName;
     document.getElementById('shopNameInput').value = appState.shopName;
     document.getElementById('phoneInput').value = appState.phone;
+    
+    // ★ 載入時，不管原本存的是網址還是ID，都顯示出來，但如果是網址，可以只顯示後段給用戶看(這裡為了簡單，直接顯示完整值)
     document.getElementById('lineInput').value = appState.line;
 
     renderQA();
@@ -550,27 +552,28 @@ function syncPreview() {
   });
 }
 
-// ★★★ 核心修改：智慧儲存與防呆機制 ★★★
+// ★★★ 核心修改：智慧連結產生器 (Apple Style Magic) ★★★
 async function saveData() {
   const btn = document.getElementById('saveBtn');
   const oldText = btn.innerText;
   
-  // 1. 取得 LINE 欄位原始資料
   let rawLine = document.getElementById('lineInput').value.trim();
-  
-  // 2. 智慧偵測：如果使用者有填資料，但沒有填入 http (代表可能只填了 ID)
-  if (rawLine && !rawLine.startsWith('http') && !rawLine.startsWith('line://')) {
-    // 雖然我們可以自動補上，但怕是官方帳號格式不同，所以採取「警告」策略最安全
-    alert("⚠️ LINE 設定格式錯誤！\n\n您填寫的看起來是 ID 而不是網址。\n請填入完整的連結，例如：\nhttps://line.me/ti/p/~你的ID\n或是\nhttps://lin.ee/xxxxx (官方帳號)");
-    
-    // 將焦點移回該欄位，並停止儲存
-    document.getElementById('lineInput').focus();
-    document.getElementById('lineInput').style.borderBottom = "1px solid #ff3b30";
-    return; 
-  }
+  let finalLineUrl = rawLine;
 
-  // 如果格式正確，恢復樣式
-  document.getElementById('lineInput').style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+  // 🔴 智慧判斷邏輯 🔴
+  // 1. 如果有內容，且不是以 http 或 line:// 開頭，我們就假設它是 ID
+  if (rawLine && !rawLine.startsWith('http') && !rawLine.startsWith('line://')) {
+    
+    // 2. 判斷是否為官方帳號 (通常以 @ 開頭)
+    if (rawLine.startsWith('@')) {
+       // 官方帳號格式: https://line.me/R/ti/p/@id
+       finalLineUrl = `https://line.me/R/ti/p/${rawLine}`;
+    } else {
+       // 個人帳號/一般ID格式: https://line.me/ti/p/~id
+       // 注意：這種格式在使用者有開啟「允許利用ID加入好友」時有效
+       finalLineUrl = `https://line.me/ti/p/~${rawLine}`;
+    }
+  }
 
   btn.innerText = "UPLOADING...";
   btn.disabled = true;
@@ -581,7 +584,7 @@ async function saveData() {
     qa_list: appState.qaList,
     shop_name: document.getElementById('shopNameInput').value,
     phone: document.getElementById('phoneInput').value,
-    line: rawLine, // 使用檢查後的變數
+    line: finalLineUrl, // ★ 這裡傳送轉換後的網址給後端
     theme_preference: appState.themeOverride 
   };
 
@@ -600,6 +603,9 @@ async function saveData() {
         btn.innerText = oldText;
         btn.style.background = "#fff";
         btn.disabled = false;
+        
+        // 可選：如果你想讓使用者看到轉換後的結果，可以更新 input
+        // document.getElementById('lineInput').value = finalLineUrl; 
       }, 2000);
     }, 1000);
 

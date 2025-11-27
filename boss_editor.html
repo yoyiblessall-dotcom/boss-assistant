@@ -98,7 +98,7 @@
     border-bottom: 1px dashed var(--border);
   }
 
-  /* ★★★ 視覺核心選擇器 (Visual Core) CSS ★★★ */
+  /* 視覺核心選擇器 */
   .color-grid {
     display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;
     margin-top: 15px;
@@ -156,7 +156,7 @@
   .btn-main:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255,255,255,0.3); }
   .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* ★★★ 新增：數據儀表板樣式 (INSIGHTS) ★★★ */
+  /* 數據儀表板樣式 */
   .insight-card {
     background: rgba(255,255,255,0.02); border: 1px solid var(--border);
     padding: 20px; margin-bottom: 20px; border-radius: 8px;
@@ -170,13 +170,11 @@
   }
   .btn-refresh:hover { opacity: 1; transform: rotate(180deg); }
 
-  /* 長條圖 */
   .stat-row { margin-bottom: 12px; }
   .stat-label { font-size: 12px; color: rgba(255,255,255,0.8); margin-bottom: 4px; display: flex; justify-content: space-between;}
   .stat-bar-bg { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
   .stat-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 1s ease; box-shadow: 0 0 10px var(--aurora-1); }
 
-  /* 文字紀錄 */
   .log-item {
     border-bottom: 1px solid rgba(255,255,255,0.05); padding: 10px 0;
     display: flex; flex-direction: column; gap: 4px;
@@ -206,7 +204,6 @@
     border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 99;
   }
 
-  /* 模擬前台 CSS */
   .sim-screen {
     height: 100%; width: 100%; display: flex; flex-direction: column;
     color: #fff; position: relative;
@@ -237,7 +234,6 @@
     display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.5);
   }
 
-  /* 載入層 */
   .uplink-layer {
     position: fixed; inset: 0; background: #000; z-index: 9999;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -282,13 +278,10 @@
         <input type="text" class="god-input" id="shopNameInput" oninput="syncPreview()">
       </div>
 
-      <!-- 視覺核心選擇器 -->
       <div class="section-title" style="margin-top:40px;">01.5 / VISUAL CORE (視覺氛圍)</div>
       <div class="input-group">
         <label class="label">ATMOSPHERE SELECTION (點擊色球切換氛圍)</label>
-        <div class="color-grid" id="themeGrid">
-          <!-- JS 自動生成 -->
-        </div>
+        <div class="color-grid" id="themeGrid"></div>
         <input type="hidden" id="themeOverrideInput">
       </div>
 
@@ -297,9 +290,11 @@
           <label class="label">VOICE UPLINK (電話)</label>
           <input type="text" class="god-input" id="phoneInput" oninput="syncPreview()">
         </div>
+        
+        <!-- ★★★ 關鍵修改點：更新了 Placeholder 提示 ★★★ -->
         <div class="input-group" style="flex:1">
-          <label class="label">DATA LINK (LINE)</label>
-          <input type="text" class="god-input" id="lineInput" oninput="syncPreview()">
+          <label class="label">DATA LINK (LINE 完整網址)</label>
+          <input type="text" class="god-input" id="lineInput" oninput="syncPreview()" placeholder="請貼上 https://line.me/... 連結">
         </div>
       </div>
 
@@ -311,7 +306,6 @@
         <button class="btn-ghost" onclick="addQA()">+ ADD NODE</button>
       </div>
 
-      <!-- ★★★ 新增：數據洞察區塊 (Data Insights) ★★★ -->
       <div class="section-title" style="margin-top:40px;">03 / DATA INSIGHTS (客人都在問什麼?)</div>
       
       <div class="insight-card">
@@ -332,7 +326,6 @@
            <div style="text-align:center; padding:20px; color:#666;">WAITING FOR SYNC...</div>
         </div>
       </div>
-      <!-- ★★★ 結束新增 ★★★ -->
 
       <button class="btn-main" id="saveBtn" onclick="saveData()">DEPLOY CHANGES</button>
       <div style="text-align:center; margin-top:15px; font-size:10px; color:#555;">SECURE CONNECTION VIA GOOGLE CLOUD</div>
@@ -377,7 +370,6 @@ const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZ
 const urlParams = new URLSearchParams(window.location.search);
 const CLIENT_ID = urlParams.get('id');
 
-// 主題配置
 const themes = {
   pc_repair: { name: "電腦維修 // TECH", vars: { "--aurora-1": "#00f260", "--aurora-2": "#0575e6", "--aurora-3": "#00f260" }, welcome: "系統檢測中...", faqs: [{q:"無法開機",a:"檢查電源..."}] },
   restaurant: { name: "精緻餐飲 // FOOD", vars: { "--aurora-1": "#ff416c", "--aurora-2": "#ff4b1f", "--aurora-3": "#ff9068" }, welcome: "歡迎光臨...", faqs: [{q:"訂位",a:"幾位用餐？"}] },
@@ -443,8 +435,6 @@ async function init() {
     
     applyVisuals(appState.themeOverride || appState.industry); 
     syncPreview();
-
-    // ★ 載入分析數據
     loadAnalytics();
 
     document.getElementById('uplinkLayer').style.display = 'none';
@@ -494,11 +484,9 @@ function renderThemeSelector() {
 function applyVisuals(key) {
   const t = themes[key];
   const root = document.documentElement;
-  
   for (const [k, v] of Object.entries(t.vars)) {
     root.style.setProperty(k, v);
   }
-  
   const frame = document.getElementById('phoneFrame');
   frame.style.boxShadow = `0 0 50px rgba(0,0,0,0.5), 0 0 80px ${t.vars["--aurora-1"]}`;
 }
@@ -562,10 +550,28 @@ function syncPreview() {
   });
 }
 
+// ★★★ 核心修改：智慧儲存與防呆機制 ★★★
 async function saveData() {
   const btn = document.getElementById('saveBtn');
   const oldText = btn.innerText;
   
+  // 1. 取得 LINE 欄位原始資料
+  let rawLine = document.getElementById('lineInput').value.trim();
+  
+  // 2. 智慧偵測：如果使用者有填資料，但沒有填入 http (代表可能只填了 ID)
+  if (rawLine && !rawLine.startsWith('http') && !rawLine.startsWith('line://')) {
+    // 雖然我們可以自動補上，但怕是官方帳號格式不同，所以採取「警告」策略最安全
+    alert("⚠️ LINE 設定格式錯誤！\n\n您填寫的看起來是 ID 而不是網址。\n請填入完整的連結，例如：\nhttps://line.me/ti/p/~你的ID\n或是\nhttps://lin.ee/xxxxx (官方帳號)");
+    
+    // 將焦點移回該欄位，並停止儲存
+    document.getElementById('lineInput').focus();
+    document.getElementById('lineInput').style.borderBottom = "1px solid #ff3b30";
+    return; 
+  }
+
+  // 如果格式正確，恢復樣式
+  document.getElementById('lineInput').style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+
   btn.innerText = "UPLOADING...";
   btn.disabled = true;
   
@@ -575,7 +581,7 @@ async function saveData() {
     qa_list: appState.qaList,
     shop_name: document.getElementById('shopNameInput').value,
     phone: document.getElementById('phoneInput').value,
-    line: document.getElementById('lineInput').value,
+    line: rawLine, // 使用檢查後的變數
     theme_preference: appState.themeOverride 
   };
 
@@ -603,13 +609,10 @@ async function saveData() {
   }
 }
 
-// ★★★ 新增：獲取分析數據 ★★★
 async function loadAnalytics() {
   if (!CLIENT_ID) return;
-  
   const barContainer = document.getElementById('statsBarChart');
   const logContainer = document.getElementById('textLogs');
-  
   barContainer.innerHTML = `<div class="loader-ring" style="width:20px;height:20px;margin:10px auto;"></div>`;
   
   try {
@@ -617,13 +620,11 @@ async function loadAnalytics() {
     const data = await res.json();
     
     if (data.status === 'success') {
-      // 1. 渲染長條圖
       if (data.top_buttons.length === 0) {
         barContainer.innerHTML = `<div style="text-align:center;font-size:12px;opacity:0.5;">NO DATA YET</div>`;
       } else {
         barContainer.innerHTML = "";
         const maxCount = data.top_buttons[0].count;
-        
         data.top_buttons.forEach(item => {
           const percent = (item.count / maxCount) * 100;
           const row = document.createElement('div');
@@ -635,8 +636,6 @@ async function loadAnalytics() {
           barContainer.appendChild(row);
         });
       }
-
-      // 2. 渲染文字紀錄
       if (data.recent_texts.length === 0) {
         logContainer.innerHTML = `<div style="text-align:center;font-size:12px;opacity:0.5;">NO TEXT INPUTS</div>`;
       } else {

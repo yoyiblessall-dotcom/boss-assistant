@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>STANDALONE OS | Localized</title>
-<!-- 引入科技感英文字體 + 系統中文字體優化 -->
+<title>STANDALONE OS | User Interface</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
@@ -20,7 +19,6 @@
 
   body {
     margin: 0; padding: 0;
-    /* 優先使用系統高品質中文字體 */
     font-family: 'Space Grotesk', -apple-system, "Microsoft JhengHei", "Heiti TC", sans-serif;
     background-color: var(--bg-deep);
     color: #fff;
@@ -29,32 +27,20 @@
     overflow: hidden;
   }
 
-  /* --- 極光引擎 (Aurora Engine) --- */
+  /* --- 極光引擎 --- */
   .aether-void {
     position: absolute; inset: -50%;
     background: conic-gradient(
-      from 0deg,
-      transparent 0deg,
-      var(--aurora-1) 60deg,
-      transparent 120deg,
-      var(--aurora-2) 180deg,
-      transparent 240deg,
-      var(--aurora-3) 300deg,
-      transparent 360deg
+      from 0deg, transparent 0deg, var(--aurora-1) 60deg, transparent 120deg, var(--aurora-2) 180deg, transparent 240deg, var(--aurora-3) 300deg, transparent 360deg
     );
-    filter: blur(90px);
-    opacity: 0.35;
-    animation: rotateVoid 30s linear infinite;
-    z-index: -1;
-    transition: all 2s ease;
+    filter: blur(90px); opacity: 0.35;
+    animation: rotateVoid 30s linear infinite; z-index: -1; transition: all 2s ease;
   }
-  
   .noise-overlay {
     position: absolute; inset: 0;
     background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
     pointer-events: none; z-index: -1;
   }
-
   @keyframes rotateVoid { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
   /* --- 頂部導航 --- */
@@ -63,29 +49,16 @@
     display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid rgba(255,255,255,0.05);
     background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-    backdrop-filter: blur(10px);
-    z-index: 10;
+    backdrop-filter: blur(10px); z-index: 10;
   }
-
-  .brand-logo {
-    font-size: 16px; letter-spacing: 1px; font-weight: 700;
-    color: rgba(255,255,255,0.95);
-    display: flex; align-items: center; gap: 10px;
-  }
-  .status-light {
-    width: 6px; height: 6px; background: #00ff88; border-radius: 50%;
-    box-shadow: 0 0 10px #00ff88; animation: pulse 2s infinite;
-  }
-
+  .brand-logo { font-size: 16px; letter-spacing: 1px; font-weight: 700; color: rgba(255,255,255,0.95); display: flex; align-items: center; gap: 10px; }
+  .status-light { width: 6px; height: 6px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 10px #00ff88; animation: pulse 2s infinite; }
   .nav-actions { display: flex; gap: 8px; }
   .nav-btn {
-    background: var(--glass); border: 1px solid var(--border);
-    color: rgba(255,255,255,0.9); text-decoration: none;
-    font-size: 11px; font-weight: 500;
-    padding: 6px 14px; border-radius: 4px;
+    background: var(--glass); border: 1px solid var(--border); color: rgba(255,255,255,0.9);
+    text-decoration: none; font-size: 11px; font-weight: 500; padding: 6px 14px; border-radius: 4px;
     transition: 0.3s; display: none; align-items: center; gap: 6px;
   }
-  .nav-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
 
   /* --- 對話流 --- */
   .stream-viewport {
@@ -95,96 +68,74 @@
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
     scroll-behavior: smooth;
   }
-  .stream-viewport::-webkit-scrollbar { display: none; }
-
-  .node {
-    display: flex; flex-direction: column; max-width: 88%;
-    animation: driftUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
+  .node { display: flex; flex-direction: column; max-width: 88%; animation: driftUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
   .node.bot { align-self: flex-start; border-left: 2px solid var(--accent); padding-left: 18px; }
   .node.user { align-self: flex-end; align-items: flex-end; border-right: 2px solid rgba(255,255,255,0.3); padding-right: 18px; }
-
-  .node-text {
-    font-size: 15px; line-height: 1.7; font-weight: 400;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-    letter-spacing: 0.5px;
-  }
+  .node-text { font-size: 15px; line-height: 1.7; font-weight: 400; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
   .node.bot .node-text { color: rgba(255,255,255,0.95); }
   .node.user .node-text { color: var(--accent); text-align: right; }
 
-  /* --- 底部控制台 --- */
+  /* --- 底部控制台 (含修復的滑動選單) --- */
   .monolith-dock {
-    flex: 0 0 auto;
-    padding: 0 0 30px 0;
+    flex: 0 0 auto; padding: 0 0 30px 0;
     background: linear-gradient(to top, #000 30%, transparent);
-    display: flex; flex-direction: column; gap: 15px;
-    z-index: 20;
+    display: flex; flex-direction: column; gap: 15px; z-index: 20;
   }
 
+  /* 🔴 關鍵修復：滑動容器與提示箭頭 🔴 */
+  .orbit-wrapper {
+    position: relative; width: 100%; display: flex; align-items: center;
+  }
+  .orbit-wrapper::after {
+    content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 50px;
+    background: linear-gradient(to right, transparent, #000); pointer-events: none; z-index: 2;
+  }
+  
   .orbit-bar {
     display: flex; gap: 10px; overflow-x: auto; padding: 5px 24px;
-    scrollbar-width: none;
+    scrollbar-width: none; flex: 1; scroll-behavior: smooth;
   }
   .orbit-bar::-webkit-scrollbar { display: none; }
 
   .orbit-chip {
-    flex: 0 0 auto;
-    padding: 10px 20px;
-    background: rgba(0,0,0,0.6);
-    border: 1px solid var(--border);
-    color: rgba(255,255,255,0.9);
-    font-size: 13px; letter-spacing: 1px;
-    cursor: pointer; transition: 0.3s;
-    backdrop-filter: blur(10px);
-    position: relative; overflow: hidden;
-    font-family: inherit;
+    flex: 0 0 auto; padding: 10px 20px;
+    background: rgba(0,0,0,0.6); border: 1px solid var(--border);
+    color: rgba(255,255,255,0.9); font-size: 13px; letter-spacing: 1px;
+    cursor: pointer; transition: 0.3s; backdrop-filter: blur(10px);
+    white-space: nowrap; font-family: inherit;
   }
-  .orbit-chip:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 15px var(--glow); background: rgba(255,255,255,0.1); }
+  .orbit-chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,255,255,0.1); }
+
+  /* 右滑提示按鈕 */
+  .scroll-btn-right {
+    position: absolute; right: 10px; z-index: 10;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); border: 1px solid var(--border);
+    color: var(--accent); display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(5px); cursor: pointer;
+    box-shadow: 0 0 15px rgba(0,0,0,0.8);
+    animation: bounceRight 2s infinite;
+  }
+  @keyframes bounceRight { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
 
   .core-input-wrapper {
     margin: 0 24px; height: 50px;
     border-bottom: 1px solid rgba(255,255,255,0.2);
     display: flex; align-items: center; gap: 15px; transition: 0.3s;
   }
-  .core-input-wrapper:focus-within { border-bottom-color: var(--accent); }
+  .core-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
+  .transmit-btn { background: transparent; border: none; color: rgba(255,255,255,0.5); font-size: 13px; cursor: pointer; }
 
-  .core-input {
-    flex: 1; background: transparent; border: none;
-    color: white; font-size: 16px; outline: none; letter-spacing: 1px;
-    font-family: inherit;
-  }
-  .core-input::placeholder { color: rgba(255,255,255,0.4); font-size: 14px;}
-
-  .transmit-btn {
-    background: transparent; border: none; color: rgba(255,255,255,0.5);
-    font-size: 13px; cursor: pointer; transition: 0.3s;
-    font-family: 'Space Grotesk', sans-serif; letter-spacing: 1px; font-weight: 700;
-  }
-  .transmit-btn:hover { color: var(--accent); text-shadow: 0 0 8px var(--glow); }
-
-  /* --- 動畫 & 狀態 --- */
   @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
   @keyframes driftUp { from { opacity: 0; transform: translateY(20px); filter: blur(5px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
 
-  /* 載入畫面 */
-  .boot-screen {
-    position: fixed; inset: 0; background: #000; z-index: 9999;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-family: 'Space Grotesk', monospace;
-  }
-  .glitch-text {
-    font-size: 26px; letter-spacing: 3px; color: #fff;
-    animation: glitch 1s infinite;
-  }
+  .boot-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Space Grotesk', monospace; }
+  .glitch-text { font-size: 26px; letter-spacing: 3px; color: #fff; animation: glitch 1s infinite; }
   @keyframes glitch { 0% { opacity: 1; } 50% { opacity: 0.8; text-shadow: 2px 0 red, -2px 0 blue; } 100% { opacity: 1; } }
 
-  /* 演示控制 */
   #demoControls { position: fixed; top: 80px; left: 24px; z-index: 50; opacity: 0; pointer-events: none; transition: 0.3s; }
   #demoControls.show { opacity: 1; pointer-events: auto; }
-  .matrix-select {
-    background: rgba(0,0,0,0.8); border: 1px solid #444; color: #eee; padding: 8px 12px;
-    font-family: inherit; font-size: 13px; backdrop-filter: blur(5px);
-  }
+  .matrix-select { background: rgba(0,0,0,0.8); border: 1px solid #444; color: #eee; padding: 8px 12px; font-family: inherit; font-size: 13px; backdrop-filter: blur(5px); }
 </style>
 </head>
 <body>
@@ -208,6 +159,7 @@
   </div>
 </div>
 
+<!-- 演示選單 (僅在無 ID 時顯示) -->
 <div id="demoControls">
   <select class="matrix-select" onchange="manualSwitch(this.value)">
     <option value="pc_repair">01 / 電腦維修 / 科技青</option>
@@ -226,7 +178,14 @@
 <div class="stream-viewport" id="chatBody"></div>
 
 <div class="monolith-dock">
-  <div class="orbit-bar" id="quickActions"></div>
+  <!-- 🔴 這裡加入了滑動按鈕結構 🔴 -->
+  <div class="orbit-wrapper">
+    <div class="orbit-bar" id="quickActions"></div>
+    <button class="scroll-btn-right" id="scrollArrow" onclick="scrollMenu()" style="display:none;">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+  
   <div class="core-input-wrapper">
     <input type="text" class="core-input" id="userInput" placeholder="輸入訊息..." autocomplete="off">
     <button class="transmit-btn" onclick="handleSend()">發送</button>
@@ -239,13 +198,12 @@ const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZ
 const urlParams = new URLSearchParams(window.location.search);
 const CLIENT_ID = urlParams.get('id');
 
-// ★★★ STANDALONE 中文版變量 ★★★
 const themes = {
   pc_repair: { 
     name: "電腦維修 // TECH", 
     vars: { "--aurora-1": "#00f260", "--aurora-2": "#0575e6", "--aurora-3": "#00f260", "--accent": "#00f260", "--glow": "rgba(0, 242, 96, 0.4)" },
     welcome: "系統檢測中... 請問您的電腦遇到什麼狀況？", 
-    faqs: [{q:"無法開機",a:"請檢查電源插頭與指示燈是否亮起。"}, {q:"電腦變慢",a:"建議清理磁碟或升級 SSD 硬碟。"}, {q:"疑似中毒",a:"請立即斷開網路並重新啟動。"}] 
+    faqs: [{q:"無法開機",a:"請檢查電源插頭與指示燈是否亮起。"}, {q:"電腦變慢",a:"建議清理磁碟或升級 SSD 硬碟。"}, {q:"疑似中毒",a:"請立即斷開網路並重新啟動。"}, {q:"資料救援",a:"請勿再寫入任何資料，立即送修。"}, {q:"到府維修",a:"請提供您的地址，我們將安排工程師。"}] 
   },
   restaurant: { 
     name: "精緻餐飲 // FOOD", 
@@ -304,7 +262,7 @@ const themes = {
 };
 
 let currentKey = "pc_repair";
-let currentData = themes.pc_repair; // 儲存內容數據
+let currentData = themes.pc_repair;
 
 async function init() {
   if (!CLIENT_ID) {
@@ -337,22 +295,16 @@ async function init() {
       const btn = document.getElementById("btnLine");
       btn.href = data.line; btn.style.display = "flex";
     }
-
-    // ★★★ 核心邏輯升級：視覺與內容分離 ★★★
     
-    // 1. 決定行業 (內容基礎)
     let industryKey = "pc_repair";
     if (data.industry && themes[data.industry]) {
       industryKey = data.industry;
     }
-
-    // 2. 決定視覺 (如果有偏好設定則覆蓋，否則跟隨行業)
     let visualKey = industryKey;
     if (data.theme_preference && themes[data.theme_preference]) {
       visualKey = data.theme_preference;
     }
 
-    // 3. 準備內容數據 (Content Data)
     const baseContent = themes[industryKey];
     currentData = {
       name: data.shop_name || baseContent.name,
@@ -360,7 +312,6 @@ async function init() {
       faqs: data.custom_qa || baseContent.faqs
     };
 
-    // 4. 應用變更
     applySeparatedTheme(visualKey, currentData);
 
     setTimeout(() => {
@@ -374,32 +325,25 @@ async function init() {
   }
 }
 
-// 演示模式用的切換 (視覺與內容同步)
 function manualSwitch(key) {
   currentKey = key;
   currentData = themes[key];
   applySeparatedTheme(key, currentData);
 }
 
-// 新的應用函數：同時處理視覺與內容
 function applySeparatedTheme(visualKey, contentData) {
   const root = document.documentElement;
   const visualVars = themes[visualKey].vars;
 
-  // 1. 注入 CSS 變量 (顏色、極光)
   for (const [k, v] of Object.entries(visualVars)) {
     root.style.setProperty(k, v);
   }
   
-  // 2. 注入文字內容
   document.getElementById("brandTitle").innerText = contentData.name;
   document.title = contentData.name;
-  
-  // 3. 狀態燈顏色 (跟隨視覺)
   document.getElementById("statusLight").style.backgroundColor = visualVars["--accent"];
   document.getElementById("statusLight").style.boxShadow = `0 0 10px ${visualVars["--accent"]}`;
 
-  // 4. 重置對話框
   const chatBody = document.getElementById("chatBody");
   chatBody.innerHTML = "";
   
@@ -410,8 +354,10 @@ function applySeparatedTheme(visualKey, contentData) {
   updateOrbit(contentData.faqs);
 }
 
+// 🔴 這裡包含箭頭顯示的邏輯 🔴
 function updateOrbit(faqs) {
   const bar = document.getElementById("quickActions");
+  const arrow = document.getElementById("scrollArrow");
   bar.innerHTML = "";
   if(faqs && faqs.length > 0) {
     faqs.forEach(item => {
@@ -421,35 +367,51 @@ function updateOrbit(faqs) {
       chip.onclick = () => handleInput(item.q, item.a);
       bar.appendChild(chip);
     });
+    // 檢查是否需要箭頭
+    setTimeout(() => {
+        if(bar.scrollWidth > bar.clientWidth) {
+            arrow.style.display = "flex";
+        } else {
+            arrow.style.display = "none";
+        }
+    }, 100);
+  } else {
+      arrow.style.display = "none";
   }
 }
+
+function scrollMenu() {
+    const bar = document.getElementById("quickActions");
+    bar.scrollBy({ left: 150, behavior: 'smooth' });
+}
+
+// 監聽滑動以隱藏箭頭
+document.getElementById("quickActions").addEventListener("scroll", function() {
+   const bar = this;
+   const arrow = document.getElementById("scrollArrow");
+   if(bar.scrollLeft + bar.clientWidth >= bar.scrollWidth - 10) {
+       arrow.style.opacity = "0.3"; 
+   } else {
+       arrow.style.opacity = "1";
+   }
+});
 
 function handleInput(q, a) {
   addNode("user", q);
   showProcessing();
-  
   setTimeout(() => {
     removeProcessing();
     addNode("bot", a);
-    
-    // ★★★ 記錄：這是按鈕點擊 (type: 'button') ★★★
     if (CLIENT_ID) {
       fetch(API_URL, {
         method: 'POST', mode: 'no-cors',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ 
-          action: 'log_chat', 
-          client_id: CLIENT_ID, 
-          type: 'button',  // 關鍵標記
-          message: q,
-          bot_response: a
-        })
+        body: JSON.stringify({ action: 'log_chat', client_id: CLIENT_ID, type: 'button', message: q, bot_response: a })
       });
     }
   }, 800);
 }
 
-// 替換原本的 handleSend
 function handleSend() {
   const input = document.getElementById("userInput");
   const text = input.value.trim();
@@ -469,19 +431,11 @@ function handleSend() {
   setTimeout(() => {
     removeProcessing();
     addNode("bot", ans);
-
-    // ★★★ 記錄：這是文字輸入 (type: 'text') ★★★
     if (CLIENT_ID) {
       fetch(API_URL, {
         method: 'POST', mode: 'no-cors',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ 
-          action: 'log_chat', 
-          client_id: CLIENT_ID, 
-          type: 'text',  // 關鍵標記
-          message: text,
-          bot_response: ans
-        })
+        body: JSON.stringify({ action: 'log_chat', client_id: CLIENT_ID, type: 'text', message: text, bot_response: ans })
       });
     }
   }, 1000);
@@ -493,9 +447,7 @@ function addNode(role, text) {
   node.className = `node ${role}`;
   node.innerHTML = `<div class="node-text">${text}</div>`;
   body.appendChild(node);
-  
   body.scrollTop = body.scrollHeight;
-  
   if (role === 'bot' && CLIENT_ID) {
      fetch(API_URL, {
       method: 'POST', mode: 'no-cors',
@@ -515,17 +467,10 @@ function showProcessing() {
   body.scrollTop = body.scrollHeight;
 }
 
-function removeProcessing() {
-  const el = document.getElementById("procNode");
-  if(el) el.remove();
-}
-
-document.getElementById("userInput").addEventListener("keypress", (e) => {
-  if(e.key==="Enter") handleSend();
-});
+function removeProcessing() { const el = document.getElementById("procNode"); if(el) el.remove(); }
+document.getElementById("userInput").addEventListener("keypress", (e) => { if(e.key==="Enter") handleSend(); });
 
 init();
-
 </script>
 </body>
 </html>

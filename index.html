@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>祐逸 YOYI | 你的社群智能分身</title>
+<!-- 繼承 AETHER 家族字體 -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<!-- Three.js 引擎 -->
+<script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+
+<style>
+    :root {
+        /* 讓背景完全依賴 Canvas，但預設為深黑 */
+        --bg-deep: #020205; 
+        --text-main: #ffffff;
+        --text-sub: #b0b0b0; 
+        --accent: #4776E6; 
+        --glass: rgba(255, 255, 255, 0.05);
+        --border: rgba(255, 255, 255, 0.1);
+        --active-color: #00f260; 
+        --active-glow: rgba(0, 242, 96, 0.4);
+    }
+
+    /* 隱形捲軸 */
+    html { scrollbar-width: none; }
+    body::-webkit-scrollbar { display: none; }
+    
+    * { box-sizing: border-box; outline: none; }
+    
+    body {
+        margin: 0; padding: 0;
+        font-family: 'Inter', "Microsoft JhengHei", sans-serif;
+        background-color: var(--bg-deep);
+        color: var(--text-main);
+        overflow-x: hidden;
+    }
+
+    /* --- 核心：動態背景畫布 --- */
+    canvas { 
+        display: block; 
+        position: fixed; 
+        top: 0; left: 0; 
+        z-index: -1; 
+    }
+
+    /* 新增：自動演示時的高亮效果 (模擬手指按壓) */
+    .sim-chip.auto-active {
+        background: rgba(255, 255, 255, 0.9);
+        color: #000;
+        box-shadow: 0 0 15px var(--accent);
+        transform: scale(1.1);
+        border-color: #fff;
+    }
+
+    /* --- HERO SECTION --- */
+    .hero {
+        min-height: 100vh;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        position: relative; padding: 100px 20px 40px; text-align: center;
+    }
+
+    .pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 50px;
+        font-size: 13px; margin-bottom: 20px; border: 1px solid var(--border);
+        backdrop-filter: blur(5px);
+        animation: float 3s ease-in-out infinite;
+    }
+    .pill i { color: #00ff88; }
+    
+    h1 {
+        font-family: 'Space Grotesk', sans-serif; font-size: clamp(3rem, 6vw, 5rem);
+        line-height: 1.1; margin: 0 0 20px 0;
+        text-shadow: 0 10px 40px rgba(0,0,0,0.8); /* 加強陰影，讓字體在深色背景更立體 */
+        background: linear-gradient(180deg, #fff 0%, #a5a5a5 100%); 
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    
+    p.subhead { 
+        font-size: 1.2rem; 
+        color: var(--text-sub);
+        max-width: 600px; line-height: 1.6; margin-bottom: 40px; 
+        text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+    }
+
+    /* --- DEMO STAGE --- */
+    .demo-stage { display: flex; flex-wrap: wrap; justify-content: center; gap: 60px; width: 100%; max-width: 1200px; margin-top: 40px; align-items: center; }
+    .demo-controls { flex: 1; min-width: 300px; text-align: left; }
+    
+    .industry-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 30px; }
+    .ind-btn {
+        background: rgba(255, 255, 255, 0.03); 
+        border: 1px solid var(--border); color: #fff;
+        padding: 20px; border-radius: 16px; cursor: pointer; transition: 0.3s;
+        display: flex; align-items: center; gap: 10px; font-size: 15px;
+        backdrop-filter: blur(8px);
+    }
+    .ind-btn:hover { background: rgba(255,255,255,0.08); transform: translateY(-3px); border-color: rgba(255,255,255,0.3); }
+    .ind-btn.active { border-color: var(--active-color); box-shadow: 0 0 25px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.05); background: rgba(0,0,0,0.4); }
+    
+    .phone-wrapper {
+        position: relative; width: 320px; height: 650px; border-radius: 40px;
+        background: #000; border: 8px solid #1a1a1a; 
+        box-shadow: 0 30px 80px rgba(0,0,0,0.8); /* 更深的陰影 */
+        overflow: hidden;
+    }
+    .sim-screen { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; transition: 0.5s; }
+    .sim-aurora {
+        position: absolute; inset: -50%;
+        background: conic-gradient(from 0deg, transparent, var(--s-c1) 60deg, transparent, var(--s-c2) 180deg, transparent, var(--s-c3) 300deg, transparent);
+        filter: blur(60px); opacity: 0.5; animation: rotate 20s linear infinite; z-index: 0;
+    }
+    
+    .sim-header { position: relative; z-index: 2; padding: 40px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; }
+    .sim-brand { font-weight: 700; font-size: 14px; letter-spacing: 1px; }
+    .sim-actions { display: flex; gap: 8px; }
+    .sim-icon-btn { width: 28px; height: 28px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; cursor: pointer; transition: 0.3s; }
+    .sim-icon-btn:hover { background: rgba(255,255,255,0.3); }
+
+    .sim-chat { flex: 1; position: relative; z-index: 1; padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: hidden; }
+    .msg { max-width: 85%; padding: 10px 15px; border-radius: 12px; font-size: 13px; line-height: 1.5; animation: popUp 0.4s ease; }
+    .msg.bot { align-self: flex-start; border-left: 2px solid var(--s-accent); color: rgba(255,255,255,0.9); background: rgba(30,30,30,0.8); backdrop-filter: blur(5px); }
+    .msg.user { align-self: flex-end; color: var(--s-accent); text-align: right; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+    .sim-footer { position: relative; z-index: 2; padding: 15px; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+    .sim-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; } 
+    .sim-chips::-webkit-scrollbar { display: none; }
+    .sim-chip { flex: 0 0 auto; font-size: 11px; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; color: rgba(255,255,255,0.7); cursor: pointer; background: rgba(0,0,0,0.4); }
+
+    /* --- FEATURES SECTION --- */
+    .features-section {
+        padding: 150px 20px;
+        /* 漸層黑，讓底部稍微暗一點，連接 Footer */
+        background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.8) 100%); 
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+    }
+    .journey-container { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 150px; }
+    
+    .journey-step {
+        display: flex; align-items: center; justify-content: space-between; gap: 60px;
+        opacity: 0; transform: translateY(50px); transition: all 1s ease;
+    }
+    .journey-step.visible { opacity: 1; transform: translateY(0); }
+    .journey-step:nth-child(even) { flex-direction: row-reverse; }
+
+    .step-content { flex: 1; }
+    .step-visual { flex: 1; position: relative; display: flex; justify-content: center; }
+
+    .step-number { font-family: 'Space Grotesk'; font-size: 6rem; font-weight: 700; color: rgba(255,255,255,0.03); line-height: 1; position: absolute; top: -40px; left: -20px; z-index: -1; }
+    .step-title { font-size: 2rem; font-weight: 700; margin-bottom: 20px; background: linear-gradient(90deg, #fff, #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+    .step-desc { font-size: 1.1rem; color: rgba(255,255,255,0.6); line-height: 1.8; }
+    
+    .visual-card {
+        width: 100%; max-width: 350px;
+        background: rgba(10, 10, 10, 0.6);
+        border: 1px solid var(--border); border-radius: 24px;
+        padding: 40px; text-align: center;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        transition: transform 0.5s ease;
+        position: relative; overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+    .visual-card:hover { transform: scale(1.02); border-color: var(--accent); background: rgba(20, 20, 20, 0.8); }
+    
+    .visual-icon { font-size: 60px; color: var(--accent); margin-bottom: 20px; display: block; filter: drop-shadow(0 0 15px var(--accent)); }
+    .visual-tag { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: 2px; text-transform: uppercase; }
+
+    /* --- CTA --- */
+    .cta-sec { 
+        padding: 100px 20px; text-align: center; 
+        background: transparent; /* 讓動態背景透出來 */
+        position: relative; z-index: 1;
+    }
+    
+    .cta-btn { display: inline-block; background: #fff; color: #000; padding: 20px 60px; font-size: 18px; font-weight: 700; border-radius: 50px; text-decoration: none; transition: 0.3s; box-shadow: 0 0 30px rgba(255,255,255,0.1); }
+    .cta-btn:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(255,255,255,0.4); }
+
+    /* RWD */
+    @media (max-width: 900px) {
+        .demo-stage { flex-direction: column-reverse; }
+        .journey-step, .journey-step:nth-child(even) { flex-direction: column; text-align: center; gap: 40px; }
+        .step-number { left: 50%; transform: translateX(-50%); top: -50px; }
+    }
+
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    @keyframes breath { 0%, 100% { opacity: 0.8; transform: translateX(-50%) scale(1); } 50% { opacity: 1; transform: translateX(-50%) scale(1.1); } }
+    @keyframes popUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+        // SHADER: DEEP MIND (深空智能)
+        // 修正：完全移除暖色/橘色，改為冷色系深邃風格
+        const fragmentShader = `
+            uniform float uTime;
+            uniform vec2 uResolution;
+            uniform vec2 uMouse;
+
+            float hash(float n) { return fract(sin(n) * 43758.5453123); }
+            float noise(vec2 x) {
+                vec2 p = floor(x);
+                vec2 f = fract(x);
+                f = f * f * (3.0 - 2.0 * f);
+                float n = p.x + p.y * 57.0;
+                return mix(mix(hash(n + 0.0), hash(n + 1.0), f.x),
+                           mix(hash(n + 57.0), hash(n + 58.0), f.x), f.y);
+            }
+
+            float fbm(vec2 p) {
+                float f = 0.0;
+                f += 0.50000 * noise(p); p *= 2.02;
+                f += 0.25000 * noise(p); p *= 2.03;
+                f += 0.12500 * noise(p); p *= 2.01;
+                return f;
+            }
+
+            void main() {
+                vec2 uv = gl_FragCoord.xy / uResolution.xy;
+                
+                // --- COLOR PALETTE FIX (賈伯斯修正版) ---
+                // 捨棄原本的 Peach/Orange
+                // 改為 Deep Void (黑) -> Midnight Navy (深藍) -> Subtle Cyber (微光)
+                
+                vec3 topColor = vec3(0.0, 0.0, 0.02);      // 極致深黑 (頂部)
+                vec3 midColor = vec3(0.01, 0.03, 0.12);    // 深海軍藍
+                vec3 botColor = vec3(0.05, 0.15, 0.30);    // 底部微微泛起的科技藍光
+                
+                // 背景漸層
+                vec3 bg = mix(topColor, midColor, smoothstep(0.3, 0.8, 1.0 - uv.y));
+                bg = mix(bg, botColor, smoothstep(0.0, 0.6, 1.0 - uv.y));
+
+                // 光束效果 (Rays)
+                vec2 rayUV = uv;
+                rayUV.y *= 0.3; 
+                rayUV.x += uTime * 0.015; // 減緩流動速度，更優雅
+                rayUV.y -= uTime * 0.01; 
+
+                float rays = fbm(rayUV * 6.0);
+                float mask = smoothstep(0.0, 0.9, 1.0 - uv.y); 
+                
+                // 光束顏色：改為冷冽的白青色，而非金色
+                vec3 rayColor = vec3(0.6, 0.8, 1.0) * rays * 0.12 * mask;
+                
+                // 滑鼠互動
+                vec2 mouse = uMouse / uResolution.xy;
+                float dist = distance(uv, mouse);
+                // 滑鼠光暈：電光藍
+                float glow = smoothstep(0.35, 0.0, dist) * 0.15;
+                vec3 mouseGlow = vec3(0.2, 0.6, 1.0) * glow;
+
+                vec3 finalColor = bg + rayColor + mouseGlow;
+                
+                // 噪點 (底片質感)
+                finalColor += (hash(uv.x * uv.y * uTime) - 0.5) * 0.03;
+
+                gl_FragColor = vec4(finalColor, 1.0);
+            }
+        `;
+
+        const uniforms = {
+            uTime: { value: 0 },
+            uResolution: { value: new THREE.Vector2() },
+            uMouse: { value: new THREE.Vector2() }
+        };
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: uniforms,
+            fragmentShader: fragmentShader,
+            vertexShader: `void main() { gl_Position = vec4( position, 1.0 ); }`
+        });
+
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+        scene.add(plane);
+
+        let mouseX = 0, mouseY = 0;
+
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            uniforms.uResolution.value.x = window.innerWidth;
+            uniforms.uResolution.value.y = window.innerHeight;
+        }
+        onWindowResize();
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        const clock = new THREE.Clock();
+        function animate() {
+            const time = clock.getElapsedTime();
+            uniforms.uTime.value = time;
+            
+            const currentX = uniforms.uMouse.value.x;
+            const currentY = uniforms.uMouse.value.y;
+            uniforms.uMouse.value.x += (mouseX - currentX) * 0.05;
+            uniforms.uMouse.value.y += ((window.innerHeight - mouseY) - currentY) * 0.05;
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="pill"><i class="fas fa-circle"></i> 系統運作正常 | V3.0 AETHER CORE</div>
+        <h1>終於，您可以<br>專注在本業。</h1>
+        <p class="subhead">
+            別再浪費時間複製貼上。<br>
+            讓 <b>祐逸 YOYI</b> 成為您的 24 小時金牌客服，回答那些重複了 1000 次的問題。
+        </p>
+
+        <div class="demo-stage">
+            <div class="demo-controls">
+                <div style="text-transform: uppercase; font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 2px; margin-bottom: 20px;">Select Your Industry (點擊切換行業)</div>
+                <div class="industry-grid">
+                    <div class="ind-btn active" onclick="switchTheme('pc_repair')" id="btn-pc_repair" style="--active-color: #00f260; --active-glow: rgba(0, 242, 96, 0.4)">
+                        <i class="fas fa-microchip ind-icon"></i> <div>電腦維修</div>
+                    </div>
+                    <div class="ind-btn" onclick="switchTheme('beauty')" id="btn-beauty" style="--active-color: #da77f2; --active-glow: rgba(218, 119, 242, 0.4)">
+                        <i class="fas fa-magic ind-icon"></i> <div>時尚美甲</div>
+                    </div>
+                    <div class="ind-btn" onclick="switchTheme('restaurant')" id="btn-restaurant" style="--active-color: #ff9068; --active-glow: rgba(255, 144, 104, 0.4)">
+                        <i class="fas fa-utensils ind-icon"></i> <div>精緻餐飲</div>
+                    </div>
+                    <div class="ind-btn" onclick="switchTheme('car')" id="btn-car" style="--active-color: #4CA1AF; --active-glow: rgba(76, 161, 175, 0.4)">
+                        <i class="fas fa-car ind-icon"></i> <div>汽車保修</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top:30px; padding:20px; border-left:2px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.6); font-size:13px;">
+                    <i class="fas fa-info-circle"></i> 試試點擊右側手機下方的按鈕。您會發現，它給的是<b>「答案」</b>，而不是更多的問題。
+                </div>
+            </div>
+
+            <!-- 手機模擬器 -->
+            <div class="phone-wrapper">
+                <div class="sim-screen" id="simScreen" style="--s-c1: #00f260; --s-c2: #0575e6; --s-c3: #00f260; --s-accent: #00f260;">
+                    <div class="sim-aurora"></div>
+                    <div class="sim-header">
+                        <div class="sim-brand" id="simBrand">電腦維修 // TECH</div>
+                        <div class="sim-actions">
+                            <div class="sim-icon-btn"><i class="fas fa-phone"></i></div>
+                            <div class="sim-icon-btn"><i class="fab fa-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="sim-chat" id="simChat">
+                        <div class="msg bot">系統檢測中... 請問您的電腦遇到什麼狀況？</div>
+                    </div>
+                    <div class="sim-footer">
+                        <div class="sim-chips" id="simChips"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES - STREAM LAYOUT -->
+    <section class="features-section">
+        <div class="journey-container">
+            <!-- Step 1 -->
+            <div class="journey-step">
+                <div class="step-content">
+                    <div class="step-number">01</div>
+                    <h2 class="step-title">30 秒，極速上線</h2>
+                    <p class="step-desc">
+                        我們知道您很忙，沒空搞懂複雜的軟體。
+                        所以我們把一切簡化了。輸入您的店名，選擇行業，您的專屬 AI 分身就誕生了。<br><br>
+                        沒有程式碼，沒有設定地獄。只有「完成」。
+                    </p>
+                </div>
+                <div class="step-visual">
+                    <div class="visual-card">
+                        <i class="fas fa-bolt visual-icon"></i>
+                        <div class="visual-tag">INSTANT SETUP</div>
+                        <div style="margin-top:15px; font-size:12px; color:#888;">選擇行業 -> 立即生成</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="journey-step">
+                <div class="step-content">
+                    <div class="step-number">02</div>
+                    <h2 class="step-title">這就是您的風格</h2>
+                    <p class="step-desc">
+                        從冷靜的科技藍，到溫暖的餐飲橘。
+                        YOYI 不只回答問題，更繼承了您的品牌靈魂。<br><br>
+                        右上角自動整合 <b>電話</b> 與 <b>LINE</b> 按鈕，讓想預約、想下單的客人，一鍵就能找到您。這才是做生意的樣子。
+                    </p>
+                </div>
+                <div class="step-visual">
+                    <div class="visual-card" style="border-color: #da77f2;">
+                        <i class="fas fa-palette visual-icon" style="color: #da77f2;"></i>
+                        <div class="visual-tag" style="color: #da77f2;">BRAND IDENTITY</div>
+                        <div style="margin-top:15px; font-size:12px; color:#888;">自訂色彩 | 完美融入</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="journey-step">
+                <div class="step-content">
+                    <div class="step-number">03</div>
+                    <h2 class="step-title">掌上中控中心</h2>
+                    <p class="step-desc">
+                        想知道客人都問什麼？想把「今日特餐」改成「牛排」？<br>
+                        拿出手機，隨時搞定。<br><br>
+                        <b>數據洞察：</b> 看看哪個按鈕被點最多次。<br>
+                        <b>對話紀錄：</b> 看看客人都輸入了什麼關鍵字。<br>
+                        一切盡在掌握，這就是老闆該有的視野。
+                    </p>
+                </div>
+                <div class="step-visual">
+                    <div class="visual-card" style="border-color: #ff9068;">
+                        <i class="fas fa-chart-pie visual-icon" style="color: #ff9068;"></i>
+                        <div class="visual-tag" style="color: #ff9068;">INSIGHT & CONTROL</div>
+                        <div style="margin-top:15px; font-size:12px; color:#888;">熱門問題排行 | 即時修改</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="cta-sec">
+        <h2 style="font-size: 3rem; margin-bottom: 30px;">現在，讓生意自動運轉。</h2>
+        <a href="https://yoyiblessall-dotcom.github.io/boss-assistant/activation.html" class="cta-btn">
+            <i class="fas fa-power-off" style="margin-right: 10px;"></i> 立即啟用我的 YOYI
+        </a>
+    </section>
+
+    <script>
+        // --- 核心邏輯：觀察者 ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.3 });
+        document.querySelectorAll('.journey-step').forEach(step => observer.observe(step));
+
+        // --- 行業數據庫 ---
+        const themes = {
+            pc_repair: { name: "電腦維修 // TECH", vars: { c1: "#00f260", c2: "#0575e6", c3: "#00f260", accent: "#00f260" }, welcome: "系統檢測中... 請問您的電腦遇到什麼狀況？", chips: [{q:"無法開機", a:"電源燈有亮嗎？如果是黑屏，嘗試長按電源鍵重啟。若無效，可能是主機板問題，建議預約檢測。"}, {q:"電腦變慢", a:"建議先清理 C 槽暫存檔。若需升級 SSD 或加裝記憶體，我們有特惠方案。"}, {q:"收費標準", a:"基本檢測費 $300。若確認維修，檢測費可折抵維修金。"}] },
+            beauty: { name: "時尚美學 // VOGUE", vars: { c1: "#833ab4", c2: "#fd1d1d", c3: "#fcb045", accent: "#da77f2" }, welcome: "您好，想換個新造型嗎？", chips: [{q:"價目表", a:"洗剪 $800 起，染髮 $2500 起 (含頭皮隔離)。會員另有 9 折優惠。"}, {q:"營業時間", a:"每日 11:00 - 20:00。每週一固定公休。"}, {q:"預約方式", a:"點擊右上角 LINE 按鈕即可線上預約，或撥打電話 02-2345-6789。"}] },
+            restaurant: { name: "精緻餐飲 // FOOD", vars: { c1: "#ff416c", c2: "#ff4b1f", c3: "#ff9068", accent: "#ff9068" }, welcome: "歡迎光臨，今天想吃點什麼？", chips: [{q:"有停車場嗎", a:"有的，餐廳後方設有專屬停車場，用餐可免費停車 2 小時。"}, {q:"當季菜單", a:"本季主打：黑松露燉飯佐干貝 ($480) 與 炭烤戰斧豬排 ($680)。"}, {q:"可帶寵物嗎", a:"戶外露台區歡迎攜帶寵物，我們也提供寵物專用水碗。"}] },
+            car: { name: "汽車保修 // AUTO", vars: { c1: "#2C3E50", c2: "#4CA1AF", c3: "#C4E0E5", accent: "#4CA1AF" }, welcome: "車子有異音？該保養了？", chips: [{q:"保養週期", a:"建議每 5000 公里或半年進行一次小保養，確保行車安全。"}, {q:"輪胎優惠", a:"米其林全系列買四送一，加贈四輪定位 (價值 $1200)。"}, {q:"道路救援", a:"緊急狀況請撥打 0800-XXX-XXX，我們配合全鋒拖吊 24H 服務。"}] }
+        };
+
+        let currentTheme = 'pc_repair';
+        let isUserInteracting = false; // 旗標：使用者是否介入
+        let autoPlayTimer;
+
+        function switchTheme(key) {
+            // 使用者切換行業，停止自動演示
+            isUserInteracting = true;
+            clearTimeout(autoPlayTimer);
+
+            document.querySelectorAll('.ind-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + key).classList.add('active');
+            
+            const t = themes[key];
+            currentTheme = key;
+            const screen = document.getElementById('simScreen');
+            
+            // 更新 CSS 變數
+            screen.style.setProperty('--s-c1', t.vars.c1);
+            screen.style.setProperty('--s-c2', t.vars.c2);
+            screen.style.setProperty('--s-c3', t.vars.c3);
+            screen.style.setProperty('--s-accent', t.vars.accent);
+            
+            document.getElementById('simBrand').innerText = t.name;
+            const chat = document.getElementById('simChat');
+            
+            // 重置對話框
+            chat.innerHTML = `<div class="msg bot">${t.welcome}</div>`;
+            
+            renderChips(t.chips);
+        }
+
+        function renderChips(chipsData) {
+            const chipsDiv = document.getElementById('simChips');
+            chipsDiv.innerHTML = "";
+            chipsData.forEach((c, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'sim-chip';
+                chip.id = `chip-${index}`; // 給按鈕 ID 方便自動點擊
+                chip.innerText = c.q;
+                
+                // 點擊事件
+                chip.onclick = () => {
+                    isUserInteracting = true; // 使用者介入
+                    clearTimeout(autoPlayTimer);
+                    // 移除所有自動演示的高亮
+                    document.querySelectorAll('.sim-chip').forEach(el => el.classList.remove('auto-active'));
+                    simReply(c.q, c.a);
+                };
+                
+                chipsDiv.appendChild(chip);
+            });
+        }
+
+        function simReply(q, a) {
+            const chat = document.getElementById('simChat');
+            const uMsg = document.createElement('div'); 
+            uMsg.className = 'msg user'; 
+            uMsg.innerText = q; 
+            chat.appendChild(uMsg);
+            chat.scrollTop = chat.scrollHeight;
+
+            // 模擬打字延遲
+            setTimeout(() => {
+                const bMsg = document.createElement('div'); 
+                bMsg.className = 'msg bot'; 
+                bMsg.innerText = a; 
+                chat.appendChild(bMsg);
+                chat.scrollTop = chat.scrollHeight;
+            }, 600);
+        }
+
+        // --- 自動演示引擎 (Attract Mode) ---
+        function startAutoDemo() {
+            if (isUserInteracting) return;
+
+            // 1. 等待 3.0 秒後開始動作
+            autoPlayTimer = setTimeout(() => {
+                if (isUserInteracting) return;
+                
+                const firstChip = document.getElementById('chip-0');
+                if (firstChip) {
+                    // 2. 視覺引導：高亮按鈕 (模擬手指壓下)
+                    firstChip.classList.add('auto-active');
+                    
+                    // 3. 等待 0.8 秒後 "放開" 並觸發
+                    setTimeout(() => {
+                        if (isUserInteracting) return;
+                        firstChip.classList.remove('auto-active');
+                        
+                        // 取得當前主題的第一組問答
+                        const t = themes[currentTheme];
+                        simReply(t.chips[0].q, t.chips[0].a);
+
+                        // 演示一次就夠了，不要一直 loop 煩死人，除非你想做第二段
+                        // 這裡我們讓它停在回答完的狀態，展示 "AI 已經解決問題"
+                    }, 800);
+                }
+            }, 1500);
+        }
+
+        // 初始化
+        // 確保 DOM 載入後執行
+        window.onload = () => {
+            switchTheme('pc_repair');
+            // 重置旗標 (因為 switchTheme 會設為 true)
+            isUserInteracting = false; 
+            startAutoDemo();
+        };
+
+        // 如果使用者點擊任何行業按鈕，也要停止演示
+        document.querySelectorAll('.ind-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                isUserInteracting = true;
+                clearTimeout(autoPlayTimer);
+            });
+        });
+
+    </script>
+</body>
+</html>

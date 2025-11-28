@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<!-- 🔴 關鍵修復：加入 viewport-fit=cover 與 interactive-widget=resizes-content 解決鍵盤與滿版問題 -->
+<!-- 關鍵修復：解決手機鍵盤與滿版問題 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <title>STANDALONE OS | User Interface</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -23,7 +23,6 @@
     font-family: 'Space Grotesk', -apple-system, "Microsoft JhengHei", "Heiti TC", sans-serif;
     background-color: var(--bg-deep);
     color: #fff;
-    /* 🔴 關鍵修復：使用 dvh (Dynamic Viewport Height) 解決手機工具列遮擋問題 */
     height: 100dvh; 
     width: 100vw;
     display: flex; flex-direction: column;
@@ -49,7 +48,6 @@
   /* --- 頂部導航 --- */
   .hud-top {
     flex: 0 0 auto; 
-    /* 🔴 關鍵修復：頂部增加安全距離，避免被瀏海擋住 */
     padding: calc(20px + env(safe-area-inset-top)) 24px 20px 24px;
     display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -80,19 +78,15 @@
   .node.bot .node-text { color: rgba(255,255,255,0.95); }
   .node.user .node-text { color: var(--accent); text-align: right; }
 
-  /* --- 底部控制台 (圖3修復重點) --- */
+  /* --- 底部控制台 --- */
   .monolith-dock {
     flex: 0 0 auto; 
-    /* 🔴 關鍵修復：底部增加 env(safe-area-inset-bottom) 防止輸入框貼底被 Home Bar 擋住 */
     padding: 0 0 calc(20px + env(safe-area-inset-bottom)) 0;
     background: linear-gradient(to top, #000 40%, transparent);
     display: flex; flex-direction: column; gap: 15px; z-index: 20;
   }
 
-  /* 解決圖1, 圖2 的滑動提示 */
-  .orbit-wrapper {
-    position: relative; width: 100%; display: flex; align-items: center;
-  }
+  .orbit-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
   .orbit-wrapper::after {
     content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 50px;
     background: linear-gradient(to right, transparent, #000); pointer-events: none; z-index: 2;
@@ -113,7 +107,6 @@
   }
   .orbit-chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,255,255,0.1); }
 
-  /* 右滑提示按鈕 (圖1, 圖2 解法) */
   .scroll-btn-right {
     position: absolute; right: 10px; z-index: 10;
     width: 32px; height: 32px; border-radius: 50%;
@@ -144,67 +137,63 @@
   #demoControls.show { opacity: 1; pointer-events: auto; }
   .matrix-select { background: rgba(0,0,0,0.8); border: 1px solid #444; color: #eee; padding: 8px 12px; font-family: inherit; font-size: 13px; backdrop-filter: blur(5px); }
 
-/* --- 登入門衛樣式 (Gatekeeper) --- */
-#loginOverlay {
+  /* --- 登入門衛樣式 (Gatekeeper) --- */
+  #loginOverlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #000000; /* 改成純黑，確保不透光 */
-    z-index: 2147483647 !important; /* <--- 核彈級層級，沒有東西能擋在它前面 */
-    display: none;
+    background: #000000;
+    z-index: 2147483647 !important;
+    display: none; /* 預設隱藏，由 JS 決定是否顯示 */
     justify-content: center; align-items: center; flex-direction: column;
-}
-.login-box {
+  }
+  .login-box {
     width: 90%; max-width: 400px;
     background: rgba(20, 20, 20, 0.8);
     border: 1px solid #333; border-radius: 20px; padding: 40px;
     text-align: center; backdrop-filter: blur(10px);
     box-shadow: 0 0 50px rgba(0, 255, 136, 0.1);
-}
-.login-title { color: #fff; font-size: 20px; margin-bottom: 20px; letter-spacing: 2px; }
-.login-input {
+  }
+  .login-title { color: #fff; font-size: 20px; margin-bottom: 20px; letter-spacing: 2px; }
+  .login-input {
     width: 100%; padding: 15px; background: #000; border: 1px solid #444;
     color: #00ff88; font-family: monospace; text-align: center; font-size: 16px;
     border-radius: 10px; margin-bottom: 20px; outline: none;
-}
-.login-input:focus { border-color: #00ff88; box-shadow: 0 0 15px rgba(0,255,136,0.2); }
-.login-btn {
+  }
+  .login-input:focus { border-color: #00ff88; box-shadow: 0 0 15px rgba(0,255,136,0.2); }
+  .login-btn {
     padding: 12px 30px; background: #00ff88; color: #000; border: none;
     border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s;
-}
-.login-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px #00ff88; }
+  }
+  .login-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px #00ff88; }
 
 </style>
 </head>
 <body>
-<!-- 1. 登入驗證層 (ID 已更名為 unique_gate_input，確保不撞名) -->
+
+<!-- 1. 登入驗證層 (門衛) -->
 <div id="loginOverlay">
     <div class="login-box">
         <div class="login-title">SYSTEM LOGIN</div>
         <p style="color:#888; font-size:12px; margin-bottom:20px;">請輸入您的系統 ID (Access Token)</p>
-        
-        <!-- 注意：我把 ID 改成了 unique_gate_input -->
         <input type="text" id="unique_gate_input" class="login-input" placeholder="Paste ID Here...">
-        
-        <!-- 注意：我把函式名改成了 executeFinalLogin -->
         <button class="login-btn" onclick="executeFinalLogin()">ENTER SYSTEM</button>
-        
         <p style="margin-top:20px; font-size:10px; color:#555;">* 此 ID 為您付費後取得的專屬網址參數</p>
     </div>
 </div>
 
-<!-- 2. 強制執行腳本 -->
-<!-- 2. 強制執行腳本 (含自動銷毀功能) -->
+<!-- 2. 核心控制腳本 (自動銷毀功能) -->
 <script>
     (function() {
         const urlParams = new URLSearchParams(window.location.search);
         const currentId = urlParams.get('id');
-
-        // ★ 抓取登入框元素
         const overlay = document.getElementById('loginOverlay');
 
-        if (!currentId) {
-            // [情況 A] 沒有 ID：啟動防禦模式
-            console.log("No ID found, halting system...");
-            
+        // ★★★ 核心判斷：有 ID 就刪除門衛，沒 ID 就鎖門 ★★★
+        if (currentId) {
+            console.log("ID Verified. Removing Gatekeeper.");
+            // 立即移除登入框，不讓它擋路
+            if (overlay) overlay.remove();
+        } else {
+            console.log("No ID found. Locking down.");
             if (overlay) {
                 overlay.style.display = 'flex'; // 顯示登入框
                 
@@ -220,41 +209,17 @@
                     setTimeout(() => myInput.focus(), 100); 
                 }
             }
-
-            // CSS 隱藏背後的 App
+            // 隱藏其他內容，避免干擾
             const style = document.createElement('style');
-            style.id = 'hide-app-style'; // 給它一個名字方便管理
-            style.innerHTML = `
-                body > *:not(#loginOverlay):not(script) {
-                    display: none !important;
-                }
-            `;
+            style.innerHTML = `body > *:not(#loginOverlay):not(script) { display: none !important; }`;
             document.head.appendChild(style);
-            
-        } else {
-            // [情況 B] 有 ID：★ 清場行動 ★
-            console.log("ID Found: " + currentId);
-            
-            // 1. 如果登入框還在，直接移除它 (Remove from DOM)
-            if (overlay) {
-                overlay.style.display = 'none'; // 先隱藏
-                overlay.remove(); // 再自殺，確保它永遠消失
-            }
-
-            // 2. 移除剛才可能產生的 CSS 隱藏規則 (雙重保險)
-            const oldStyle = document.getElementById('hide-app-style');
-            if (oldStyle) oldStyle.remove();
         }
     })();
 
-    // 登入函式
     function executeFinalLogin() {
         const inputEl = document.getElementById('unique_gate_input');
         if (!inputEl) return;
-
-        const rawVal = inputEl.value;
-        const finalVal = rawVal.trim();
-
+        const finalVal = inputEl.value.trim();
         if (finalVal && finalVal.length > 5) {
             window.location.href = window.location.pathname + '?id=' + finalVal;
         } else {
@@ -263,18 +228,7 @@
     }
 </script>
 
-    <!-- 原本的內容與程式碼在下面... -->
-    <!-- <div id="app">...STANDALONE_OS...</div> -->
-    <div class="login-box">
-        <div class="login-title">SYSTEM LOGIN</div>
-        <p style="color:#888; font-size:12px; margin-bottom:20px;">請輸入您的系統 ID (Access Token)</p>
-        <input type="text" id="manualIdInput" class="login-input" placeholder="Paste ID Here...">
-        <button class="login-btn" onclick="manualLogin()">ENTER SYSTEM</button>
-        <p style="margin-top:20px; font-size:10px; color:#555;">
-            * 此 ID 為您付費後取得的專屬網址參數
-        </p>
-    </div>
-</div>
+<!-- 3. 主應用介面 (如果通過驗證才會顯示) -->
 <div class="aether-void" id="aetherBg"></div>
 <div class="noise-overlay"></div>
 
@@ -312,7 +266,6 @@
 <div class="stream-viewport" id="chatBody"></div>
 
 <div class="monolith-dock">
-  <!-- 滑動按鈕結構 (解決圖1, 圖2) -->
   <div class="orbit-wrapper">
     <div class="orbit-bar" id="quickActions"></div>
     <button class="scroll-btn-right" id="scrollArrow" onclick="scrollMenu()" style="display:none;">
@@ -400,7 +353,7 @@ let currentData = themes.pc_repair;
 
 async function init() {
   if (!CLIENT_ID) {
-    // 演示模式
+    // 演示模式 (如果沒有 ID 會跑這裡，但上面的腳本會先擋住)
     setTimeout(() => {
       document.getElementById("bootLayer").style.opacity = 0;
       setTimeout(()=> document.getElementById("bootLayer").style.display = "none", 1000);

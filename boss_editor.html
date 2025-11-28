@@ -2,7 +2,8 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- 升級 Viewport 設定，與前端保持一致 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <title>STANDALONE CORE | God Mode</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -92,20 +93,18 @@
     background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 80%);
     position: relative; padding: 40px; perspective: 1000px;
     transition: opacity 0.3s;
-    /* 🔴 修正：電腦版預覽區也要能捲動，以免手機太長被切掉 */
     overflow-y: auto; 
   }
 
   .phone-frame {
-    /* 🔴 修正：限制最大高度，確保在電腦螢幕上也能完整顯示 */
     height: 85vh; 
-    max-height: 800px; /* 限制最大高度，避免在大螢幕過長 */
+    max-height: 800px;
     aspect-ratio: 9 / 19.5; width: auto; max-width: 90%;
     background: #000; border-radius: 50px;
     border: 8px solid #1a1a1a;
     box-shadow: 0 0 0 2px #333, 0 20px 50px rgba(0,0,0,0.8), 0 0 100px var(--aurora-1);
     position: relative; overflow: hidden; transition: box-shadow 1s ease; z-index: 10;
-    flex-shrink: 0; /* 防止被擠壓 */
+    flex-shrink: 0; 
   }
   .phone-frame::before {
     content: ''; position: absolute; inset: 0;
@@ -119,9 +118,8 @@
   .notch::after { content: ''; width: 8px; height: 8px; background: #1a1a1a; border-radius: 50%; box-shadow: inset 0 0 2px #000; }
   .notch::before { content: ''; width: 8px; height: 8px; background: #080808; border-radius: 50%; }
 
-  /* 🔴 關鍵修正：螢幕內部結構完全重構，防止溢出 */
   .sim-screen {
-    position: absolute; inset: 0; /* 強制填滿手機框 */
+    position: absolute; inset: 0; 
     display: flex; flex-direction: column; color: #fff; 
     border-radius: 42px; overflow: hidden; background: #000;
   }
@@ -129,7 +127,7 @@
   .status-bar {
     height: 50px; padding: 0 25px; display: flex; justify-content: space-between; align-items: flex-end;
     font-size: 12px; font-weight: 600; padding-bottom: 8px; z-index: 60; color: rgba(255,255,255,0.9);
-    flex-shrink: 0; /* 防止被壓縮 */
+    flex-shrink: 0; 
   }
   .home-indicator {
     position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
@@ -148,14 +146,13 @@
   .sim-title { font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);}
   .sim-capsule { font-size: 9px; padding: 3px 8px; background: rgba(255,255,255,0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; }
 
-  /* 對話區：佔據剩餘空間 */
   .sim-chat { 
     flex: 1; 
     padding: 20px; 
     display: flex; flex-direction: column; justify-content: flex-end; 
     gap: 12px; position: relative; z-index: 5;
-    overflow-y: auto; /* 允許對話滾動 */
-    min-height: 0; /* 關鍵：允許 Flex 子元素縮小 */
+    overflow-y: auto; 
+    min-height: 0; 
   }
   .sim-node {
     max-width: 85%; font-size: 13px; line-height: 1.4; padding: 10px 14px; border-radius: 12px; position: relative; backdrop-filter: blur(5px); animation: slideUp 0.3s ease-out;
@@ -164,23 +161,20 @@
   .sim-node.user { align-self: flex-end; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: var(--accent); text-align: right; }
   @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* 🔴 關鍵修正：Dock 區域的間距與背景 */
   .sim-dock { 
-    padding: 0 0 35px 0; /* 底部保留 35px 給 Home Indicator */
-    background: linear-gradient(to top, #000 40%, transparent); /* 加深背景確保文字清晰 */
+    padding: 0 0 35px 0; 
+    background: linear-gradient(to top, #000 40%, transparent); 
     z-index: 10; display: flex; flex-direction: column; gap: 10px;
-    flex-shrink: 0; /* 防止被壓縮 */
+    flex-shrink: 0; 
   }
   
-  /* 🔴 關鍵修正：電腦版滑鼠橫向捲動優化 */
   .sim-chips { 
     display: flex; gap: 8px; 
     overflow-x: auto; 
     padding: 0 20px; 
-    scrollbar-width: thin; /* Firefox */
+    scrollbar-width: thin; 
     scrollbar-color: rgba(255,255,255,0.3) transparent;
   }
-  /* Webkit 瀏覽器的捲軸樣式 */
   .sim-chips::-webkit-scrollbar { height: 4px; }
   .sim-chips::-webkit-scrollbar-track { background: transparent; }
   .sim-chips::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 2px; }
@@ -196,7 +190,6 @@
   .uplink-layer { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Space Grotesk', monospace; transition: opacity 0.5s; }
   .loader-ring { width: 50px; height: 50px; border: 2px solid rgba(255,255,255,0.1); border-top-color: #fff; border-radius: 50%; animation: rotate 1s infinite linear; }
 
-  /* --- 🔴 關鍵修正：手機版後台佈局優化 --- */
   .mobile-toggle-btn { display: none; }
 
   @media (max-width: 1000px) {
@@ -206,24 +199,19 @@
     .deck { 
       width: 100vw; max-width: 100vw; height: 100vh; border-right: none;
     }
-    
     .preview-deck {
       width: 100vw; max-width: 100vw; height: 100vh;
       padding: 20px;
-      /* 🔴 關鍵：底部留出空間給懸浮按鈕，避免遮擋 */
       padding-bottom: 120px; 
-      align-items: flex-start; /* 讓手機從上方開始排列 */
-      overflow-y: auto; /* 允許手機預覽區本身捲動 */
+      align-items: flex-start; 
+      overflow-y: auto; 
     }
-
     .phone-frame {
       width: 100%; height: auto; aspect-ratio: 9 / 19.5;
       margin-top: 20px;
     }
-    
     .deck-header { padding: 20px; }
     .brand { font-size: 18px; }
-
     .mobile-toggle-btn {
       display: flex; position: fixed; bottom: 30px; right: 20px;
       background: rgba(255,255,255,0.1); backdrop-filter: blur(20px);
@@ -235,14 +223,100 @@
     }
     .mobile-toggle-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
     .toggle-icon { transition: transform 0.3s; }
-    
     body.view-preview .layout { transform: translateX(-100vw); }
     body.view-preview .mobile-toggle-btn { background: var(--accent); color: #000; }
     body.view-preview .toggle-icon { transform: rotate(180deg); }
   }
+
+  /* --- 登入門衛樣式 (移植自 login.html) --- */
+  #loginOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #000000;
+    z-index: 2147483647 !important;
+    display: none;
+    justify-content: center; align-items: center; flex-direction: column;
+  }
+  .login-box {
+    width: 90%; max-width: 400px;
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid #333; border-radius: 20px; padding: 40px;
+    text-align: center; backdrop-filter: blur(10px);
+    box-shadow: 0 0 50px rgba(0, 255, 136, 0.1);
+  }
+  .login-title { color: #fff; font-size: 20px; margin-bottom: 20px; letter-spacing: 2px; }
+  .login-input {
+    width: 100%; padding: 15px; background: #000; border: 1px solid #444;
+    color: #00ff88; font-family: monospace; text-align: center; font-size: 16px;
+    border-radius: 10px; margin-bottom: 20px; outline: none;
+  }
+  .login-input:focus { border-color: #00ff88; box-shadow: 0 0 15px rgba(0,255,136,0.2); }
+  .login-btn {
+    padding: 12px 30px; background: #00ff88; color: #000; border: none;
+    border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s;
+  }
+  .login-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px #00ff88; }
 </style>
 </head>
 <body>
+
+<!-- 1. 登入驗證層 (門衛系統 - 移植版) -->
+<div id="loginOverlay">
+    <div class="login-box">
+        <div class="login-title">ADMIN ACCESS</div>
+        <p style="color:#888; font-size:12px; margin-bottom:20px;">請輸入您的系統 ID (Access Token)</p>
+        <input type="text" id="unique_gate_input" class="login-input" placeholder="Paste ID Here...">
+        <button class="login-btn" onclick="executeFinalLogin()">ENTER CORE</button>
+        <p style="margin-top:20px; font-size:10px; color:#555;">* 僅限授權人員進入</p>
+    </div>
+</div>
+
+<!-- 2. 控制腳本 (自動銷毀功能) -->
+<script>
+    // 立即執行的保安檢查
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentId = urlParams.get('id');
+        const overlay = document.getElementById('loginOverlay');
+
+        if (currentId) {
+            console.log("ID Verified. Removing Gatekeeper.");
+            // 立即移除登入框，不讓它擋路
+            if (overlay) overlay.remove();
+        } else {
+            console.log("No ID found. Locking down.");
+            if (overlay) {
+                overlay.style.display = 'flex'; // 顯示登入框
+                
+                // 綁定 Enter 鍵
+                const myInput = document.getElementById('unique_gate_input');
+                if (myInput) {
+                    myInput.addEventListener("keypress", function(event) {
+                        if (event.key === "Enter") {
+                            event.preventDefault();
+                            executeFinalLogin(); 
+                        }
+                    });
+                    setTimeout(() => myInput.focus(), 100); 
+                }
+            }
+            // 隱藏其他內容，避免干擾
+            const style = document.createElement('style');
+            style.innerHTML = `body > *:not(#loginOverlay):not(script) { display: none !important; }`;
+            document.head.appendChild(style);
+        }
+    })();
+
+    function executeFinalLogin() {
+        const inputEl = document.getElementById('unique_gate_input');
+        if (!inputEl) return;
+        const finalVal = inputEl.value.trim();
+        if (finalVal && finalVal.length > 5) {
+            window.location.href = window.location.pathname + '?id=' + finalVal;
+        } else {
+            alert("錯誤：ID 無效！");
+        }
+    }
+</script>
 
 <div class="core-bg"></div>
 <div class="aurora-mesh" id="coreMesh"></div>
@@ -253,7 +327,6 @@
 </div>
 
 <div class="layout">
-  
   <!-- 左側：編輯區 -->
   <div class="deck">
     <div class="deck-header">
@@ -409,10 +482,9 @@ function toggleView() {
 
 async function init() {
   if (!CLIENT_ID) {
+    // 門衛系統會先擋住，這裡的邏輯是備用
     document.getElementById('uplinkLayer').style.display = 'none';
-    document.getElementById('industryDisplay').value = "DEMO MODE (PC REPAIR)";
-    document.getElementById('industryDisplay').readOnly = false;
-    manualSwitch('pc_repair');
+    document.getElementById('industryDisplay').value = "WAITING FOR LOGIN...";
     return;
   }
   document.getElementById('clientIdDisplay').innerText = `ID: ${CLIENT_ID.substring(0,8)}...`;

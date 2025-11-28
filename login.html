@@ -190,47 +190,65 @@
 
     <!-- 2. 強制執行腳本 (放在這裡，優先權最高) -->
     <script>
-        (function() {
-            // 立即檢查網址
-            const urlParams = new URLSearchParams(window.location.search);
-            const currentId = urlParams.get('id');
+    (function() {
+        // 1. 立即檢查網址有沒有 ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentId = urlParams.get('id');
 
-            if (!currentId) {
-                // 如果沒有 ID
-                console.log("No ID found, halting system...");
+        if (!currentId) {
+            console.log("No ID found, halting system...");
+            
+            // 顯示登入框
+            const overlay = document.getElementById('loginOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
                 
-                // 1. 顯示登入框
-                const overlay = document.getElementById('loginOverlay');
-                if (overlay) {
-                    overlay.style.display = 'flex';
+                // ★ 新增：讓輸入框支援 Enter 鍵 (Steve Jobs 的堅持：體驗優化)
+                const inputField = overlay.querySelector('input'); // 精準抓取層內的輸入框
+                if (inputField) {
+                    inputField.addEventListener("keypress", function(event) {
+                        if (event.key === "Enter") {
+                            event.preventDefault();
+                            manualLogin(); // 按 Enter 等於按按鈕
+                        }
+                    });
+                    // 自動聚焦，讓客戶不用再點一次
+                    setTimeout(() => inputField.focus(), 100); 
                 }
-
-                // 2. ★核彈攻擊★：強制隱藏原本的載入畫面
-                // 我們嘗試隱藏所有非 loginOverlay 的元素，避免干擾
-                // 這會暫停原本 UI 的顯示，直到重新整理
-                const style = document.createElement('style');
-                style.innerHTML = `
-                    body > *:not(#loginOverlay):not(script) {
-                        display: none !important;
-                    }
-                `;
-                document.head.appendChild(style);
-                
-            } else {
-                console.log("ID Found: " + currentId);
-                // 如果有 ID，什麼都不做，讓原本的程式繼續跑
             }
-        })();
 
-        function manualLogin() {
-            const inputVal = document.getElementById('manualIdInput').value.trim();
-            if (inputVal) {
-                window.location.href = window.location.pathname + '?id=' + inputVal;
-            } else {
-                alert("請輸入有效的 ID");
-            }
+            // 強制隱藏原本的載入畫面
+            const style = document.createElement('style');
+            style.innerHTML = `
+                body > *:not(#loginOverlay):not(script) {
+                    display: none !important;
+                }
+            `;
+            document.head.appendChild(style);
+            
+        } else {
+            console.log("ID Found: " + currentId);
         }
-    </script>
+    })();
+
+    // ★ 修正後的登入功能 (Larry Page 的修正)
+    function manualLogin() {
+        // 我們改用 querySelector 鎖定 #loginOverlay 裡面的 input
+        // 這樣就算外面有其他重複 ID 的輸入框，也不會抓錯人
+        const container = document.getElementById('loginOverlay');
+        const inputVal = container.querySelector('input').value.trim();
+        
+        // Debug 模式：如果還是錯，這行會告訴我們它到底抓到了什麼
+        console.log("嘗試登入，抓到的 ID 值為:", inputVal);
+
+        if (inputVal && inputVal.length > 5) { // 加強檢查，確保長度夠
+            // 成功！跳轉
+            window.location.href = window.location.pathname + '?id=' + inputVal;
+        } else {
+            alert("請輸入有效的 ID (系統偵測到輸入為空或過短)");
+        }
+    }
+</script>
 
     <!-- 原本的內容與程式碼在下面... -->
     <!-- <div id="app">...STANDALONE_OS...</div> -->

@@ -147,9 +147,9 @@
 /* --- 登入門衛樣式 (Gatekeeper) --- */
 #loginOverlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.95); /* 深黑背景，擋住後面的東西 */
-    z-index: 9999;
-    display: none; /* 預設隱藏，用 JS 控制顯示 */
+    background: #000000; /* 改成純黑，確保不透光 */
+    z-index: 2147483647 !important; /* <--- 核彈級層級，沒有東西能擋在它前面 */
+    display: none;
     justify-content: center; align-items: center; flex-direction: column;
 }
 .login-box {
@@ -175,8 +175,65 @@
 </style>
 </head>
 <body>
-<!-- 登入驗證層 -->
 <div id="loginOverlay">
+<body>
+    <!-- 1. 登入驗證層 (保持不變，確認 CSS z-index 已改) -->
+    <div id="loginOverlay">
+        <div class="login-box">
+            <div class="login-title">SYSTEM LOGIN</div>
+            <p style="color:#888; font-size:12px; margin-bottom:20px;">請輸入您的系統 ID (Access Token)</p>
+            <input type="text" id="manualIdInput" class="login-input" placeholder="Paste ID Here...">
+            <button class="login-btn" onclick="manualLogin()">ENTER SYSTEM</button>
+            <p style="margin-top:20px; font-size:10px; color:#555;">* 此 ID 為您付費後取得的專屬網址參數</p>
+        </div>
+    </div>
+
+    <!-- 2. 強制執行腳本 (放在這裡，優先權最高) -->
+    <script>
+        (function() {
+            // 立即檢查網址
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentId = urlParams.get('id');
+
+            if (!currentId) {
+                // 如果沒有 ID
+                console.log("No ID found, halting system...");
+                
+                // 1. 顯示登入框
+                const overlay = document.getElementById('loginOverlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                }
+
+                // 2. ★核彈攻擊★：強制隱藏原本的載入畫面
+                // 我們嘗試隱藏所有非 loginOverlay 的元素，避免干擾
+                // 這會暫停原本 UI 的顯示，直到重新整理
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    body > *:not(#loginOverlay):not(script) {
+                        display: none !important;
+                    }
+                `;
+                document.head.appendChild(style);
+                
+            } else {
+                console.log("ID Found: " + currentId);
+                // 如果有 ID，什麼都不做，讓原本的程式繼續跑
+            }
+        })();
+
+        function manualLogin() {
+            const inputVal = document.getElementById('manualIdInput').value.trim();
+            if (inputVal) {
+                window.location.href = window.location.pathname + '?id=' + inputVal;
+            } else {
+                alert("請輸入有效的 ID");
+            }
+        }
+    </script>
+
+    <!-- 原本的內容與程式碼在下面... -->
+    <!-- <div id="app">...STANDALONE_OS...</div> -->
     <div class="login-box">
         <div class="login-title">SYSTEM LOGIN</div>
         <p style="color:#888; font-size:12px; margin-bottom:20px;">請輸入您的系統 ID (Access Token)</p>
@@ -239,31 +296,6 @@
 </div>
 
 <script>
-// --- Gatekeeper Logic (門衛邏輯) ---
-const urlParams = new URLSearchParams(window.location.search);
-let currentId = urlParams.get('id');
-
-// 檢查：如果網址沒有 ID，就顯示登入框
-window.addEventListener('DOMContentLoaded', () => {
-    if (!currentId) {
-        document.getElementById('loginOverlay').style.display = 'flex';
-    } else {
-        // 如果有 ID，這裡原本的程式碼會繼續執行...
-        console.log("ID Found: " + currentId);
-    }
-});
-
-// 手動登入功能
-function manualLogin() {
-    const inputVal = document.getElementById('manualIdInput').value.trim();
-    if (inputVal) {
-        // 重新導向，把 ID 加到網址後面
-        // 這裡會重新整理網頁，等於「插卡」進去
-        window.location.href = window.location.pathname + '?id=' + inputVal;
-    } else {
-        alert("請輸入有效的 ID");
-    }
-}
 // 🔴 你的 GAS API 🔴
 const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZoqtIy9g7r-YPB1Xx_31gZhkhvZ01N8LTux5jqIzULXdvXw/exec"; 
 const urlParams = new URLSearchParams(window.location.search);

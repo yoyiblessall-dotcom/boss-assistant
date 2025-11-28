@@ -143,10 +143,50 @@
   #demoControls { position: fixed; top: 100px; left: 24px; z-index: 50; opacity: 0; pointer-events: none; transition: 0.3s; }
   #demoControls.show { opacity: 1; pointer-events: auto; }
   .matrix-select { background: rgba(0,0,0,0.8); border: 1px solid #444; color: #eee; padding: 8px 12px; font-family: inherit; font-size: 13px; backdrop-filter: blur(5px); }
+
+/* --- 登入門衛樣式 (Gatekeeper) --- */
+#loginOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95); /* 深黑背景，擋住後面的東西 */
+    z-index: 9999;
+    display: none; /* 預設隱藏，用 JS 控制顯示 */
+    justify-content: center; align-items: center; flex-direction: column;
+}
+.login-box {
+    width: 90%; max-width: 400px;
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid #333; border-radius: 20px; padding: 40px;
+    text-align: center; backdrop-filter: blur(10px);
+    box-shadow: 0 0 50px rgba(0, 255, 136, 0.1);
+}
+.login-title { color: #fff; font-size: 20px; margin-bottom: 20px; letter-spacing: 2px; }
+.login-input {
+    width: 100%; padding: 15px; background: #000; border: 1px solid #444;
+    color: #00ff88; font-family: monospace; text-align: center; font-size: 16px;
+    border-radius: 10px; margin-bottom: 20px; outline: none;
+}
+.login-input:focus { border-color: #00ff88; box-shadow: 0 0 15px rgba(0,255,136,0.2); }
+.login-btn {
+    padding: 12px 30px; background: #00ff88; color: #000; border: none;
+    border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s;
+}
+.login-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px #00ff88; }
+
 </style>
 </head>
 <body>
-
+<!-- 登入驗證層 -->
+<div id="loginOverlay">
+    <div class="login-box">
+        <div class="login-title">SYSTEM LOGIN</div>
+        <p style="color:#888; font-size:12px; margin-bottom:20px;">請輸入您的系統 ID (Access Token)</p>
+        <input type="text" id="manualIdInput" class="login-input" placeholder="Paste ID Here...">
+        <button class="login-btn" onclick="manualLogin()">ENTER SYSTEM</button>
+        <p style="margin-top:20px; font-size:10px; color:#555;">
+            * 此 ID 為您付費後取得的專屬網址參數
+        </p>
+    </div>
+</div>
 <div class="aether-void" id="aetherBg"></div>
 <div class="noise-overlay"></div>
 
@@ -199,6 +239,31 @@
 </div>
 
 <script>
+// --- Gatekeeper Logic (門衛邏輯) ---
+const urlParams = new URLSearchParams(window.location.search);
+let currentId = urlParams.get('id');
+
+// 檢查：如果網址沒有 ID，就顯示登入框
+window.addEventListener('DOMContentLoaded', () => {
+    if (!currentId) {
+        document.getElementById('loginOverlay').style.display = 'flex';
+    } else {
+        // 如果有 ID，這裡原本的程式碼會繼續執行...
+        console.log("ID Found: " + currentId);
+    }
+});
+
+// 手動登入功能
+function manualLogin() {
+    const inputVal = document.getElementById('manualIdInput').value.trim();
+    if (inputVal) {
+        // 重新導向，把 ID 加到網址後面
+        // 這裡會重新整理網頁，等於「插卡」進去
+        window.location.href = window.location.pathname + '?id=' + inputVal;
+    } else {
+        alert("請輸入有效的 ID");
+    }
+}
 // 🔴 你的 GAS API 🔴
 const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZoqtIy9g7r-YPB1Xx_31gZhkhvZ01N8LTux5jqIzULXdvXw/exec"; 
 const urlParams = new URLSearchParams(window.location.search);

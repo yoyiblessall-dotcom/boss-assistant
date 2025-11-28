@@ -2,7 +2,8 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- 🔴 關鍵修復：加入 viewport-fit=cover 與 interactive-widget=resizes-content 解決鍵盤與滿版問題 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <title>STANDALONE OS | User Interface</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -22,7 +23,9 @@
     font-family: 'Space Grotesk', -apple-system, "Microsoft JhengHei", "Heiti TC", sans-serif;
     background-color: var(--bg-deep);
     color: #fff;
-    height: 100vh; width: 100vw;
+    /* 🔴 關鍵修復：使用 dvh (Dynamic Viewport Height) 解決手機工具列遮擋問題 */
+    height: 100dvh; 
+    width: 100vw;
     display: flex; flex-direction: column;
     overflow: hidden;
   }
@@ -45,7 +48,9 @@
 
   /* --- 頂部導航 --- */
   .hud-top {
-    flex: 0 0 auto; padding: 20px 24px;
+    flex: 0 0 auto; 
+    /* 🔴 關鍵修復：頂部增加安全距離，避免被瀏海擋住 */
+    padding: calc(20px + env(safe-area-inset-top)) 24px 20px 24px;
     display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid rgba(255,255,255,0.05);
     background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
@@ -75,14 +80,16 @@
   .node.bot .node-text { color: rgba(255,255,255,0.95); }
   .node.user .node-text { color: var(--accent); text-align: right; }
 
-  /* --- 底部控制台 (含修復的滑動選單) --- */
+  /* --- 底部控制台 (圖3修復重點) --- */
   .monolith-dock {
-    flex: 0 0 auto; padding: 0 0 30px 0;
-    background: linear-gradient(to top, #000 30%, transparent);
+    flex: 0 0 auto; 
+    /* 🔴 關鍵修復：底部增加 env(safe-area-inset-bottom) 防止輸入框貼底被 Home Bar 擋住 */
+    padding: 0 0 calc(20px + env(safe-area-inset-bottom)) 0;
+    background: linear-gradient(to top, #000 40%, transparent);
     display: flex; flex-direction: column; gap: 15px; z-index: 20;
   }
 
-  /* 🔴 關鍵修復：滑動容器與提示箭頭 🔴 */
+  /* 解決圖1, 圖2 的滑動提示 */
   .orbit-wrapper {
     position: relative; width: 100%; display: flex; align-items: center;
   }
@@ -106,7 +113,7 @@
   }
   .orbit-chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,255,255,0.1); }
 
-  /* 右滑提示按鈕 */
+  /* 右滑提示按鈕 (圖1, 圖2 解法) */
   .scroll-btn-right {
     position: absolute; right: 10px; z-index: 10;
     width: 32px; height: 32px; border-radius: 50%;
@@ -133,7 +140,7 @@
   .glitch-text { font-size: 26px; letter-spacing: 3px; color: #fff; animation: glitch 1s infinite; }
   @keyframes glitch { 0% { opacity: 1; } 50% { opacity: 0.8; text-shadow: 2px 0 red, -2px 0 blue; } 100% { opacity: 1; } }
 
-  #demoControls { position: fixed; top: 80px; left: 24px; z-index: 50; opacity: 0; pointer-events: none; transition: 0.3s; }
+  #demoControls { position: fixed; top: 100px; left: 24px; z-index: 50; opacity: 0; pointer-events: none; transition: 0.3s; }
   #demoControls.show { opacity: 1; pointer-events: auto; }
   .matrix-select { background: rgba(0,0,0,0.8); border: 1px solid #444; color: #eee; padding: 8px 12px; font-family: inherit; font-size: 13px; backdrop-filter: blur(5px); }
 </style>
@@ -159,7 +166,6 @@
   </div>
 </div>
 
-<!-- 演示選單 (僅在無 ID 時顯示) -->
 <div id="demoControls">
   <select class="matrix-select" onchange="manualSwitch(this.value)">
     <option value="pc_repair">01 / 電腦維修 / 科技青</option>
@@ -178,7 +184,7 @@
 <div class="stream-viewport" id="chatBody"></div>
 
 <div class="monolith-dock">
-  <!-- 🔴 這裡加入了滑動按鈕結構 🔴 -->
+  <!-- 滑動按鈕結構 (解決圖1, 圖2) -->
   <div class="orbit-wrapper">
     <div class="orbit-bar" id="quickActions"></div>
     <button class="scroll-btn-right" id="scrollArrow" onclick="scrollMenu()" style="display:none;">
@@ -276,7 +282,6 @@ async function init() {
     return;
   }
 
-  // 真實連線
   try {
     const res = await fetch(`${API_URL}?action=check_auth&client_id=${CLIENT_ID}`);
     const data = await res.json();
@@ -354,7 +359,6 @@ function applySeparatedTheme(visualKey, contentData) {
   updateOrbit(contentData.faqs);
 }
 
-// 🔴 這裡包含箭頭顯示的邏輯 🔴
 function updateOrbit(faqs) {
   const bar = document.getElementById("quickActions");
   const arrow = document.getElementById("scrollArrow");
@@ -385,7 +389,6 @@ function scrollMenu() {
     bar.scrollBy({ left: 150, behavior: 'smooth' });
 }
 
-// 監聽滑動以隱藏箭頭
 document.getElementById("quickActions").addEventListener("scroll", function() {
    const bar = this;
    const arrow = document.getElementById("scrollArrow");

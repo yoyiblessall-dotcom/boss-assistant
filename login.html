@@ -192,18 +192,23 @@
 </div>
 
 <!-- 2. 強制執行腳本 -->
+<!-- 2. 強制執行腳本 (含自動銷毀功能) -->
 <script>
     (function() {
         const urlParams = new URLSearchParams(window.location.search);
         const currentId = urlParams.get('id');
 
+        // ★ 抓取登入框元素
+        const overlay = document.getElementById('loginOverlay');
+
         if (!currentId) {
-            // 顯示登入框
-            const overlay = document.getElementById('loginOverlay');
+            // [情況 A] 沒有 ID：啟動防禦模式
+            console.log("No ID found, halting system...");
+            
             if (overlay) {
-                overlay.style.display = 'flex';
+                overlay.style.display = 'flex'; // 顯示登入框
                 
-                // 針對新的 ID 綁定 Enter 鍵
+                // 綁定 Enter 鍵
                 const myInput = document.getElementById('unique_gate_input');
                 if (myInput) {
                     myInput.addEventListener("keypress", function(event) {
@@ -216,8 +221,9 @@
                 }
             }
 
-            // CSS 隱藏術 (保持不變)
+            // CSS 隱藏背後的 App
             const style = document.createElement('style');
+            style.id = 'hide-app-style'; // 給它一個名字方便管理
             style.innerHTML = `
                 body > *:not(#loginOverlay):not(script) {
                     display: none !important;
@@ -226,34 +232,33 @@
             document.head.appendChild(style);
             
         } else {
+            // [情況 B] 有 ID：★ 清場行動 ★
             console.log("ID Found: " + currentId);
+            
+            // 1. 如果登入框還在，直接移除它 (Remove from DOM)
+            if (overlay) {
+                overlay.style.display = 'none'; // 先隱藏
+                overlay.remove(); // 再自殺，確保它永遠消失
+            }
+
+            // 2. 移除剛才可能產生的 CSS 隱藏規則 (雙重保險)
+            const oldStyle = document.getElementById('hide-app-style');
+            if (oldStyle) oldStyle.remove();
         }
     })();
 
-    // ★ 全新命名的登入函式 (避免與舊代碼衝突)
+    // 登入函式
     function executeFinalLogin() {
-        // 直接抓取那個獨一無二的新 ID
         const inputEl = document.getElementById('unique_gate_input');
-        
-        if (!inputEl) {
-            alert("系統錯誤：找不到輸入框元素！");
-            return;
-        }
+        if (!inputEl) return;
 
         const rawVal = inputEl.value;
         const finalVal = rawVal.trim();
 
-        // Debug 彈窗：讓你知道程式到底抓到了什麼
-        // 如果這個彈窗顯示空白，那就是瀏覽器見鬼了
-        // 如果顯示你輸入的 ID，那跳轉就會成功
-        console.log("讀取到的值:", finalVal);
-
         if (finalVal && finalVal.length > 5) {
-            // 成功，執行跳轉
             window.location.href = window.location.pathname + '?id=' + finalVal;
         } else {
-            // 顯示更詳細的錯誤，告訴你是因為什麼原因失敗
-            alert("錯誤：讀取到的 ID 為空！(長度: " + finalVal.length + ")");
+            alert("錯誤：ID 無效！");
         }
     }
 </script>

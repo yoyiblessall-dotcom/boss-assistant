@@ -11,28 +11,326 @@
 </style>
 </head>
 <body>
-<div id="loginOverlay"><div class="login-box"><div class="login-title">SYSTEM LOGIN</div><p style="color:#888;font-size:12px;margin-bottom:20px">請輸入您的系統 ID (Access Token)</p><input type="text" id="unique_gate_input" class="login-input" placeholder="Paste ID Here..."><button class="login-btn" onclick="executeFinalLogin()">ENTER SYSTEM</button><p style="margin-top:20px;font-size:10px;color:#555">* 此 ID 為您付費後取得的專屬網址參數</p></div></div>
+
+<div id="loginOverlay">
+    <div class="login-box">
+        <div class="login-title">SYSTEM LOGIN</div>
+        <p style="color:#888; font-size:12px; margin-bottom:20px;">請輸入您的系統 ID (Access Token)</p>
+        <input type="text" id="unique_gate_input" class="login-input" placeholder="Paste ID Here...">
+        <button class="login-btn" onclick="executeFinalLogin()">ENTER SYSTEM</button>
+        <p style="margin-top:20px; font-size:10px; color:#555;">* 此 ID 為您付費後取得的專屬網址參數</p>
+    </div>
+</div>
+
 <script>
-/* Gatekeeper & Main Logic Obfuscated for Security */
-(function(){var p=new URLSearchParams(window.location.search);var i=p.get('id');var o=document.getElementById('loginOverlay');if(i){if(o)o.remove()}else{if(o){o.style.display='flex';var inp=document.getElementById('unique_gate_input');if(inp){inp.addEventListener("keypress",function(e){if(e.key==="Enter"){e.preventDefault();executeFinalLogin()}});setTimeout(()=>inp.focus(),100)}}var st=document.createElement('style');st.innerHTML='body > *:not(#loginOverlay):not(script) { display: none !important; }';document.head.appendChild(st)}})();function executeFinalLogin(){var el=document.getElementById('unique_gate_input');if(!el)return;var v=el.value.trim();if(v&&v.length>5){window.location.href=window.location.pathname+'?id='+v}else{alert("錯誤：ID 無效！")}}
-// Encoded API Endpoint
-const _x1=["\x68\x74\x74\x70\x73\x3A\x2F\x2F\x73\x63\x72\x69\x70\x74\x2E\x67\x6F\x6F\x67\x6C\x65\x2E\x63\x6F\x6D\x2F\x6D\x61\x63\x72\x6F\x73\x2F\x73\x2F","AKfycbz7IJ4YuR2GkR5m61Z8l2TZoqtIy9g7r-YPB1Xx_31gZhkhvZ01N8LTux5jqIzULXdvXw","\x2F\x65\x78\x65\x63"];const _api=_x1[0]+_x1[1]+_x1[2];
-const _ups=new URLSearchParams(window.location.search);const _cid=_ups.get('id');const _th={pc_repair:{name:"電腦維修 // TECH",vars:{"--aurora-1":"#00f260","--aurora-2":"#0575e6","--aurora-3":"#00f260","--accent":"#00f260","--glow":"rgba(0, 242, 96, 0.4)"},welcome:"系統檢測中... 請問您的電腦遇到什麼狀況？",faqs:[{q:"無法開機",a:"請檢查電源插頭與指示燈是否亮起。"},{q:"電腦變慢",a:"建議清理磁碟或升級 SSD 硬碟。"},{q:"疑似中毒",a:"請立即斷開網路並重新啟動。"},{q:"資料救援",a:"請勿再寫入任何資料，立即送修。"},{q:"到府維修",a:"請提供您的地址，我們將安排工程師。"}]},restaurant:{name:"精緻餐飲 // FOOD",vars:{"--aurora-1":"#ff416c","--aurora-2":"#ff4b1f","--aurora-3":"#ff9068","--accent":"#ff9068","--glow":"rgba(255, 144, 104, 0.4)"},welcome:"歡迎光臨，為您安排美好的一餐。",faqs:[{q:"我要訂位",a:"請告知用餐人數與時間。"},{q:"主廚推薦",a:"今日推薦：黑松露野菇燉飯。"}]},beauty:{name:"時尚美學 // VOGUE",vars:{"--aurora-1":"#833ab4","--aurora-2":"#fd1d1d","--aurora-3":"#fcb045","--accent":"#da77f2","--glow":"rgba(218, 119, 242, 0.4)"},welcome:"您好，想換個新造型嗎？",faqs:[{q:"預約剪髮",a:"請問想預約哪位設計師？"},{q:"價目表",a:"洗剪服務 800 元起。"}]},real_estate:{name:"房產顧問 // ESTATE",vars:{"--aurora-1":"#CAC531","--aurora-2":"#F3F9A7","--aurora-3":"#8E8D8A","--accent":"#F3F9A7","--glow":"rgba(243, 249, 167, 0.4)"},welcome:"正在為您搜尋理想物件。",faqs:[{q:"最新物件",a:"目前市中心有幾間不錯的物件..."},{q:"預約看房",a:"請留下您的聯絡電話。"}]},gym:{name:"健身教練 // GYM",vars:{"--aurora-1":"#11998e","--aurora-2":"#38ef7d","--aurora-3":"#000000","--accent":"#38ef7d","--glow":"rgba(56, 239, 125, 0.4)"},welcome:"準備好流汗了嗎？",faqs:[{q:"會籍費用",a:"月費 988 元起，免入會費。"},{q:"私人教練",a:"目前有體驗課程優惠中。"}]},car:{name:"汽車保修 // AUTO",vars:{"--aurora-1":"#2C3E50","--aurora-2":"#4CA1AF","--aurora-3":"#C4E0E5","--accent":"#4CA1AF","--glow":"rgba(76, 161, 175, 0.4)"},welcome:"車子有異音？該保養了？",faqs:[{q:"定期保養",a:"建議每 5000 公里回廠保養。"},{q:"道路救援",a:"緊急情況請撥打客服電話。"}]},shop:{name:"網拍客服 // SHOP",vars:{"--aurora-1":"#FF512F","--aurora-2":"#DD2476","--aurora-3":"#FF512F","--accent":"#FF512F","--glow":"rgba(255, 81, 47, 0.4)"},welcome:"您好！關於訂單或退換貨問題？",faqs:[{q:"訂單查詢",a:"請提供您的訂單編號。"},{q:"退換貨",a:"七天鑑賞期內可申請退換。"}]},clinic:{name:"診所掛號 // MED",vars:{"--aurora-1":"#00d2ff","--aurora-2":"#3a7bd5","--aurora-3":"#00d2ff","--accent":"#00d2ff","--glow":"rgba(0, 210, 255, 0.4)"},welcome:"早安，需要掛號或健康諮詢嗎？",faqs:[{q:"門診時間",a:"早診 9:00 - 12:00，午診 14:00 - 17:00。"},{q:"掛號",a:"請提供身分證字號。"}]},plumbing:{name:"水電維修 // FIX",vars:{"--aurora-1":"#1A2980","--aurora-2":"#26D0CE","--aurora-3":"#1A2980","--accent":"#26D0CE","--glow":"rgba(38, 208, 206, 0.4)"},welcome:"哪裡漏水了？我們馬上過去處理。",faqs:[{q:"馬桶不通",a:"我們有專業設備可協助疏通。"},{q:"更換水龍頭",a:"有多種款式可供選擇。"}]},tutor:{name:"補習班 // STUDY",vars:{"--aurora-1":"#4776E6","--aurora-2":"#8E54E9","--aurora-3":"#4776E6","--accent":"#8E54E9","--glow":"rgba(142, 84, 233, 0.4)"},welcome:"想了解什麼課程？",faqs:[{q:"課程試聽",a:"歡迎預約免費試聽課程。"},{q:"收費方式",a:"詳細費用請洽櫃台諮詢。"}]}};
-let _ck="pc_repair";let _cd=_th.pc_repair;
-async function _init(){if(!_cid){setTimeout(()=>{document.getElementById("bootLayer").style.opacity=0;setTimeout(()=>document.getElementById("bootLayer").style.display="none",1e3);document.getElementById("demoControls").classList.add("show");_ms('pc_repair')},2e3);return}try{const r=await fetch(`${_api}?action=check_auth&client_id=${_cid}`);const d=await r.json();if(d.status==='error'||d.status==='expired'){document.querySelector('.glitch-text').innerText="ACCESS_DENIED";document.querySelector('.glitch-text').style.color="#ff3b30";return}if(d.phone){const b=document.getElementById("btnPhone");b.href=`tel:${d.phone}`;b.style.display="flex"}if(d.line){const b=document.getElementById("btnLine");b.href=d.line;b.style.display="flex"}let ik="pc_repair";if(d.industry&&_th[d.industry])ik=d.industry;let vk=ik;if(d.theme_preference&&_th[d.theme_preference])vk=d.theme_preference;const bc=_th[ik];_cd={name:d.shop_name||bc.name,welcome:bc.welcome,faqs:d.custom_qa||bc.faqs};_ast(vk,_cd);setTimeout(()=>{document.getElementById("bootLayer").style.opacity=0;setTimeout(()=>document.getElementById("bootLayer").style.display="none",1e3)},1500)}catch(e){console.error(e);document.querySelector('.glitch-text').innerText="CONNECTION_FAIL"}}
-function _ms(k){_ck=k;_cd=_th[k];_ast(k,_cd)}
-function _ast(vk,cd){const r=document.documentElement;const vv=_th[vk].vars;for(const[k,v]of Object.entries(vv)){r.style.setProperty(k,v)}document.getElementById("brandTitle").innerText=cd.name;document.title=cd.name;document.getElementById("statusLight").style.backgroundColor=vv["--accent"];document.getElementById("statusLight").style.boxShadow=`0 0 10px ${vv["--accent"]}`;const cb=document.getElementById("chatBody");cb.innerHTML="";setTimeout(()=>{_an("bot",cd.welcome)},500);_uo(cd.faqs)}
-function _uo(f){const b=document.getElementById("quickActions");const a=document.getElementById("scrollArrow");b.innerHTML="";if(f&&f.length>0){f.forEach(i=>{const c=document.createElement("button");c.className="orbit-chip";c.innerText=i.q;c.onclick=()=>_hi(i.q,i.a);b.appendChild(c)});setTimeout(()=>{if(b.scrollWidth>b.clientWidth){a.style.display="flex"}else{a.style.display="none"}},100)}else{a.style.display="none"}}
-function scrollMenu(){const b=document.getElementById("quickActions");b.scrollBy({left:150,behavior:'smooth'})}
-document.getElementById("quickActions").addEventListener("scroll",function(){const b=this;const a=document.getElementById("scrollArrow");if(b.scrollLeft+b.clientWidth>=b.scrollWidth-10){a.style.opacity="0.3"}else{a.style.opacity="1"}});
-function _hi(q,a){_an("user",q);_sp();setTimeout(()=>{_rp();_an("bot",a);if(_cid){fetch(_api,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'log_chat',client_id:_cid,type:'button',message:q,bot_response:a})})}},800)}
-function handleSend(){const i=document.getElementById("userInput");const t=i.value.trim();if(!t)return;_an("user",t);i.value="";_sp();let a="如需詳細服務，請點擊上方按鈕聯絡專人。";if(_cd.faqs){for(let f of _cd.faqs){if(t.includes(f.q))a=f.a}}setTimeout(()=>{_rp();_an("bot",a);if(_cid){fetch(_api,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'log_chat',client_id:_cid,type:'text',message:t,bot_response:a})})}},1e3)}
-function _an(r,t){const b=document.getElementById("chatBody");const n=document.createElement("div");n.className=`node ${r}`;n.innerHTML=`<div class="node-text">${t}</div>`;b.appendChild(n);b.scrollTop=b.scrollHeight;if(r==='bot'&&_cid){fetch(_api,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'log_chat',client_id:_cid,type:'bot',message:t})})}}
-function _sp(){const b=document.getElementById("chatBody");const n=document.createElement("div");n.id="procNode";n.className="node bot";n.innerHTML=`<div class="node-text" style="opacity:0.6;font-size:12px;letter-spacing:1px;">運算中...</div>`;b.appendChild(n);b.scrollTop=b.scrollHeight}
-function _rp(){const el=document.getElementById("procNode");if(el)el.remove()}
-document.getElementById("userInput").addEventListener("keypress",(e)=>{if(e.key==="Enter")handleSend()});
-_init();
+    // 門衛系統
+    (function() {
+        var p = new URLSearchParams(window.location.search);
+        var i = p.get('id');
+        var o = document.getElementById('loginOverlay');
+        if (i) {
+            if (o) o.remove();
+        } else {
+            if (o) {
+                o.style.display = 'flex';
+                var inp = document.getElementById('unique_gate_input');
+                if (inp) {
+                    inp.addEventListener("keypress", function(e) {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            executeFinalLogin();
+                        }
+                    });
+                    setTimeout(() => inp.focus(), 100);
+                }
+            }
+            var st = document.createElement('style');
+            st.innerHTML = 'body > *:not(#loginOverlay):not(script) { display: none !important; }';
+            document.head.appendChild(st);
+        }
+    })();
+    function executeFinalLogin() {
+        var el = document.getElementById('unique_gate_input');
+        if (!el) return;
+        var v = el.value.trim();
+        if (v && v.length > 5) {
+            window.location.href = window.location.pathname + '?id=' + v;
+        } else {
+            alert("錯誤：ID 無效！");
+        }
+    }
 </script>
-<div class="aether-void" id="aetherBg"></div><div class="noise-overlay"></div><div class="boot-screen" id="bootLayer"><div class="glitch-text">STANDALONE_OS</div><div style="margin-top:20px;font-size:12px;color:#666;letter-spacing:1px;">系統核心啟動中...</div></div><div class="hud-top"><div class="brand-logo"><div class="status-light" id="statusLight"></div><span id="brandTitle">系統待機</span></div><div class="nav-actions"><a href="#" class="nav-btn" id="btnPhone"><i class="fas fa-phone"></i> 通話</a><a href="#" class="nav-btn" id="btnLine"><i class="fab fa-line"></i> LINE</a></div></div><div id="demoControls"><select class="matrix-select" onchange="_ms(this.value)"><option value="pc_repair">01 / 電腦維修 / 科技青</option><option value="restaurant">02 / 餐飲美食 / 琥珀橘</option><option value="beauty">03 / 時尚美學 / 霓虹紫</option><option value="real_estate">04 / 房產顧問 / 奢華金</option><option value="gym">05 / 健身教練 / 毒液綠</option><option value="car">06 / 汽車保修 / 鋼鐵藍</option><option value="shop">07 / 網拍客服 / 珊瑚紅</option><option value="clinic">08 / 診所掛號 / 醫療青</option><option value="plumbing">09 / 水電維修 / 深海藍</option><option value="tutor">10 / 補習班 / 智慧靛</option></select></div><div class="stream-viewport" id="chatBody"></div><div class="monolith-dock"><div class="orbit-wrapper"><div class="orbit-bar" id="quickActions"></div><button class="scroll-btn-right" id="scrollArrow" onclick="scrollMenu()" style="display:none;"><i class="fas fa-chevron-right"></i></button></div><div class="core-input-wrapper"><input type="text" class="core-input" id="userInput" placeholder="輸入訊息..." autocomplete="off"><button class="transmit-btn" onclick="handleSend()">發送</button></div></div>
+
+<div class="aether-void" id="aetherBg"></div>
+<div class="noise-overlay"></div>
+
+<div class="boot-screen" id="bootLayer">
+  <div class="glitch-text">STANDALONE_OS</div>
+  <div style="margin-top:20px; font-size:12px; color:#666; letter-spacing:1px;">系統核心啟動中...</div>
+</div>
+
+<div class="hud-top">
+  <div class="brand-logo">
+    <div class="status-light" id="statusLight"></div>
+    <span id="brandTitle">系統待機</span>
+  </div>
+  <div class="nav-actions">
+    <a href="#" class="nav-btn" id="btnPhone"><i class="fas fa-phone"></i> 通話</a>
+    <a href="#" class="nav-btn" id="btnLine"><i class="fab fa-line"></i> LINE</a>
+  </div>
+</div>
+
+<div id="demoControls">
+  <select class="matrix-select" onchange="manualSwitch(this.value)">
+    <option value="pc_repair">01 / 電腦維修 / 科技青</option>
+    <option value="restaurant">02 / 餐飲美食 / 琥珀橘</option>
+    <option value="beauty">03 / 時尚美學 / 霓虹紫</option>
+    <option value="real_estate">04 / 房產顧問 / 奢華金</option>
+    <option value="gym">05 / 健身教練 / 毒液綠</option>
+    <option value="car">06 / 汽車保修 / 鋼鐵藍</option>
+    <option value="shop">07 / 網拍客服 / 珊瑚紅</option>
+    <option value="clinic">08 / 診所掛號 / 醫療青</option>
+    <option value="plumbing">09 / 水電維修 / 深海藍</option>
+    <option value="tutor">10 / 補習班 / 智慧靛</option>
+  </select>
+</div>
+
+<div class="stream-viewport" id="chatBody"></div>
+
+<div class="monolith-dock">
+  <div class="orbit-wrapper">
+    <div class="orbit-bar" id="quickActions"></div>
+    <button class="scroll-btn-right" id="scrollArrow" onclick="scrollMenu()" style="display:none;">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+  
+  <div class="core-input-wrapper">
+    <input type="text" class="core-input" id="userInput" placeholder="輸入訊息..." autocomplete="off">
+    <button class="transmit-btn" onclick="handleSend()">發送</button>
+  </div>
+</div>
+
+<script>
+// --- 保護層：API URL 已經編碼，F12 看不到明文 ---
+const _s0 = "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6N0lKNHl1UjJHa1I1bTYxWjhsMlRab3F0SXk5ZzdyLVlQQjFYeF8zMWdaaGtodlowMU44TFR1eDVqcUl6VUxYZHZYdy9leGVj";
+const API_URL = atob(_s0); // 解碼
+const urlParams = new URLSearchParams(window.location.search);
+const CLIENT_ID = urlParams.get('id');
+
+const themes = {
+  pc_repair: { name: "電腦維修 // TECH", vars: { "--aurora-1": "#00f260", "--aurora-2": "#0575e6", "--aurora-3": "#00f260", "--accent": "#00f260", "--glow": "rgba(0, 242, 96, 0.4)" }, welcome: "系統檢測中... 請問您的電腦遇到什麼狀況？", faqs: [{q:"無法開機",a:"請檢查電源插頭與指示燈是否亮起。"}, {q:"電腦變慢",a:"建議清理磁碟或升級 SSD 硬碟。"}, {q:"疑似中毒",a:"請立即斷開網路並重新啟動。"}, {q:"資料救援",a:"請勿再寫入任何資料，立即送修。"}, {q:"到府維修",a:"請提供您的地址，我們將安排工程師。"}] },
+  restaurant: { name: "精緻餐飲 // FOOD", vars: { "--aurora-1": "#ff416c", "--aurora-2": "#ff4b1f", "--aurora-3": "#ff9068", "--accent": "#ff9068", "--glow": "rgba(255, 144, 104, 0.4)" }, welcome: "歡迎光臨，為您安排美好的一餐。", faqs: [{q:"我要訂位",a:"請告知用餐人數與時間。"}, {q:"主廚推薦",a:"今日推薦：黑松露野菇燉飯。"}] },
+  beauty: { name: "時尚美學 // VOGUE", vars: { "--aurora-1": "#833ab4", "--aurora-2": "#fd1d1d", "--aurora-3": "#fcb045", "--accent": "#da77f2", "--glow": "rgba(218, 119, 242, 0.4)" }, welcome: "您好，想換個新造型嗎？", faqs: [{q:"預約剪髮",a:"請問想預約哪位設計師？"}, {q:"價目表",a:"洗剪服務 800 元起。"}] },
+  real_estate: { name: "房產顧問 // ESTATE", vars: { "--aurora-1": "#CAC531", "--aurora-2": "#F3F9A7", "--aurora-3": "#8E8D8A", "--accent": "#F3F9A7", "--glow": "rgba(243, 249, 167, 0.4)" }, welcome: "正在為您搜尋理想物件。", faqs: [{q:"最新物件",a:"目前市中心有幾間不錯的物件..."}, {q:"預約看房",a:"請留下您的聯絡電話。"}] },
+  gym: { name: "健身教練 // GYM", vars: { "--aurora-1": "#11998e", "--aurora-2": "#38ef7d", "--aurora-3": "#000000", "--accent": "#38ef7d", "--glow": "rgba(56, 239, 125, 0.4)" }, welcome: "準備好流汗了嗎？", faqs: [{q:"會籍費用",a:"月費 988 元起，免入會費。"}, {q:"私人教練",a:"目前有體驗課程優惠中。"}] },
+  car: { name: "汽車保修 // AUTO", vars: { "--aurora-1": "#2C3E50", "--aurora-2": "#4CA1AF", "--aurora-3": "#C4E0E5", "--accent": "#4CA1AF", "--glow": "rgba(76, 161, 175, 0.4)" }, welcome: "車子有異音？該保養了？", faqs: [{q:"定期保養",a:"建議每 5000 公里回廠保養。"}, {q:"道路救援",a:"緊急情況請撥打客服電話。"}] },
+  shop: { name: "網拍客服 // SHOP", vars: { "--aurora-1": "#FF512F", "--aurora-2": "#DD2476", "--aurora-3": "#FF512F", "--accent": "#FF512F", "--glow": "rgba(255, 81, 47, 0.4)" }, welcome: "您好！關於訂單或退換貨問題？", faqs: [{q:"訂單查詢",a:"請提供您的訂單編號。"}, {q:"退換貨",a:"七天鑑賞期內可申請退換。"}] },
+  clinic: { name: "診所掛號 // MED", vars: { "--aurora-1": "#00d2ff", "--aurora-2": "#3a7bd5", "--aurora-3": "#00d2ff", "--accent": "#00d2ff", "--glow": "rgba(0, 210, 255, 0.4)" }, welcome: "早安，需要掛號或健康諮詢嗎？", faqs: [{q:"門診時間",a:"早診 9:00 - 12:00，午診 14:00 - 17:00。"}, {q:"掛號",a:"請提供身分證字號。"}] },
+  plumbing: { name: "水電維修 // FIX", vars: { "--aurora-1": "#1A2980", "--aurora-2": "#26D0CE", "--aurora-3": "#1A2980", "--accent": "#26D0CE", "--glow": "rgba(38, 208, 206, 0.4)" }, welcome: "哪裡漏水了？我們馬上過去處理。", faqs: [{q:"馬桶不通",a:"我們有專業設備可協助疏通。"}, {q:"更換水龍頭",a:"有多種款式可供選擇。"}] },
+  tutor: { name: "補習班 // STUDY", vars: { "--aurora-1": "#4776E6", "--aurora-2": "#8E54E9", "--aurora-3": "#4776E6", "--accent": "#8E54E9", "--glow": "rgba(142, 84, 233, 0.4)" }, welcome: "想了解什麼課程？", faqs: [{q:"課程試聽",a:"歡迎預約免費試聽課程。"}, {q:"收費方式",a:"詳細費用請洽櫃台諮詢。"}] }
+};
+
+let currentKey = "pc_repair";
+let currentData = themes.pc_repair;
+
+async function init() {
+  if (!CLIENT_ID) {
+    setTimeout(() => {
+      document.getElementById("bootLayer").style.opacity = 0;
+      setTimeout(()=> document.getElementById("bootLayer").style.display = "none", 1000);
+      document.getElementById("demoControls").classList.add("show");
+      manualSwitch('pc_repair'); 
+    }, 2000);
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}?action=check_auth&client_id=${CLIENT_ID}`);
+    const data = await res.json();
+
+    if (data.status === 'error' || data.status === 'expired') {
+      document.querySelector('.glitch-text').innerText = "ACCESS_DENIED";
+      document.querySelector('.glitch-text').style.color = "#ff3b30";
+      return;
+    }
+
+    if(data.phone) {
+      const btn = document.getElementById("btnPhone");
+      btn.href = `tel:${data.phone}`; btn.style.display = "flex";
+    }
+    if(data.line) {
+      const btn = document.getElementById("btnLine");
+      btn.href = data.line; btn.style.display = "flex";
+    }
+    
+    let industryKey = "pc_repair";
+    if (data.industry && themes[data.industry]) {
+      industryKey = data.industry;
+    }
+    let visualKey = industryKey;
+    if (data.theme_preference && themes[data.theme_preference]) {
+      visualKey = data.theme_preference;
+    }
+
+    const baseContent = themes[industryKey];
+    currentData = {
+      name: data.shop_name || baseContent.name,
+      welcome: baseContent.welcome,
+      faqs: data.custom_qa || baseContent.faqs
+    };
+
+    applySeparatedTheme(visualKey, currentData);
+
+    setTimeout(() => {
+      document.getElementById("bootLayer").style.opacity = 0;
+      setTimeout(()=> document.getElementById("bootLayer").style.display = "none", 1000);
+    }, 1500);
+
+  } catch (e) {
+    console.error(e);
+    document.querySelector('.glitch-text').innerText = "CONNECTION_FAIL";
+  }
+}
+
+function manualSwitch(key) {
+  currentKey = key;
+  currentData = themes[key];
+  applySeparatedTheme(key, currentData);
+}
+
+function applySeparatedTheme(visualKey, contentData) {
+  const root = document.documentElement;
+  const visualVars = themes[visualKey].vars;
+  for (const [k, v] of Object.entries(visualVars)) {
+    root.style.setProperty(k, v);
+  }
+  document.getElementById("brandTitle").innerText = contentData.name;
+  document.title = contentData.name;
+  document.getElementById("statusLight").style.backgroundColor = visualVars["--accent"];
+  document.getElementById("statusLight").style.boxShadow = `0 0 10px ${visualVars["--accent"]}`;
+
+  const chatBody = document.getElementById("chatBody");
+  chatBody.innerHTML = "";
+  
+  setTimeout(() => {
+     addNode("bot", contentData.welcome);
+  }, 500);
+
+  updateOrbit(contentData.faqs);
+}
+
+function updateOrbit(faqs) {
+  const bar = document.getElementById("quickActions");
+  const arrow = document.getElementById("scrollArrow");
+  bar.innerHTML = "";
+  if(faqs && faqs.length > 0) {
+    faqs.forEach(item => {
+      const chip = document.createElement("button");
+      chip.className = "orbit-chip";
+      chip.innerText = item.q;
+      chip.onclick = () => handleInput(item.q, item.a);
+      bar.appendChild(chip);
+    });
+    setTimeout(() => {
+        if(bar.scrollWidth > bar.clientWidth) {
+            arrow.style.display = "flex";
+        } else {
+            arrow.style.display = "none";
+        }
+    }, 100);
+  } else {
+      arrow.style.display = "none";
+  }
+}
+
+function scrollMenu() {
+    const bar = document.getElementById("quickActions");
+    bar.scrollBy({ left: 150, behavior: 'smooth' });
+}
+
+document.getElementById("quickActions").addEventListener("scroll", function() {
+   const bar = this;
+   const arrow = document.getElementById("scrollArrow");
+   if(bar.scrollLeft + bar.clientWidth >= bar.scrollWidth - 10) {
+       arrow.style.opacity = "0.3"; 
+   } else {
+       arrow.style.opacity = "1";
+   }
+});
+
+function handleInput(q, a) {
+  addNode("user", q);
+  showProcessing();
+  setTimeout(() => {
+    removeProcessing();
+    addNode("bot", a);
+    if (CLIENT_ID) {
+      fetch(API_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ action: 'log_chat', client_id: CLIENT_ID, type: 'button', message: q, bot_response: a })
+      });
+    }
+  }, 800);
+}
+
+function handleSend() {
+  const input = document.getElementById("userInput");
+  const text = input.value.trim();
+  if(!text) return;
+  addNode("user", text);
+  input.value = "";
+  showProcessing();
+  let ans = "如需詳細服務，請點擊上方按鈕聯絡專人。";
+  if (currentData.faqs) {
+    for(let f of currentData.faqs) {
+        if(text.includes(f.q)) ans = f.a;
+    }
+  }
+  setTimeout(() => {
+    removeProcessing();
+    addNode("bot", ans);
+    if (CLIENT_ID) {
+      fetch(API_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ action: 'log_chat', client_id: CLIENT_ID, type: 'text', message: text, bot_response: ans })
+      });
+    }
+  }, 1000);
+}
+
+function addNode(role, text) {
+  const body = document.getElementById("chatBody");
+  const node = document.createElement("div");
+  node.className = `node ${role}`;
+  node.innerHTML = `<div class="node-text">${text}</div>`;
+  body.appendChild(node);
+  body.scrollTop = body.scrollHeight;
+  if (role === 'bot' && CLIENT_ID) {
+     fetch(API_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action: 'log_chat', client_id: CLIENT_ID, type: 'bot', message: text })
+    });
+  }
+}
+
+function showProcessing() {
+  const body = document.getElementById("chatBody");
+  const node = document.createElement("div");
+  node.id = "procNode";
+  node.className = "node bot";
+  node.innerHTML = `<div class="node-text" style="opacity:0.6; font-size:12px; letter-spacing:1px;">運算中...</div>`;
+  body.appendChild(node);
+  body.scrollTop = body.scrollHeight;
+}
+
+function removeProcessing() { const el = document.getElementById("procNode"); if(el) el.remove(); }
+document.getElementById("userInput").addEventListener("keypress", (e) => { if(e.key==="Enter") handleSend(); });
+
+init();
+</script>
 </body>
 </html>

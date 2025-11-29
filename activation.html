@@ -67,48 +67,62 @@
   const _raw = [104,116,116,112,115,58,47,47,115,99,114,105,112,116,46,103,111,111,103,108,101,46,99,111,109,47,109,97,99,114,111,115,47,115,47,65,75,102,121,99,98,122,55,73,74,52,89,117,82,50,71,107,82,53,109,54,49,90,56,108,50,84,90,111,113,116,73,121,57,103,55,114,45,89,80,66,49,88,120,95,51,49,103,90,104,107,104,118,90,48,49,78,56,76,84,117,120,53,106,113,73,122,85,76,88,100,118,88,119,47,101,120,101,99];
   const API_URL = String.fromCharCode(..._raw);
 
- 
+  // 自動偵測當前頁面所在的目錄
   const GITHUB_URL = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
 
   async function activate() {
     const token = document.getElementById('tokenInput').value.trim();
     const name = document.getElementById('clientName').value.trim();
     const industry = document.getElementById('industry').value;
+    
     if(!token || !name) return alert("⚠️ 請填寫完整資料 (序號與名稱)");
-    const btn = document.querySelector('.btn'); const originalText = btn.innerText;
-    btn.innerText = "VERIFYING..."; btn.disabled = true;
+
+    const btn = document.querySelector('.btn');
+    const originalText = btn.innerText;
+    btn.innerText = "VERIFYING...";
+    btn.disabled = true;
+
     try {
+
       const res = await fetch(API_URL, {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'redeem_token', token: token, name: name, industry: industry, github_url: GITHUB_URL })
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+        body: JSON.stringify({
+          action: 'redeem_token',
+          token: token,
+          name: name,
+          industry: industry,
+          github_url: GITHUB_URL
+        })
       });
-     
-      
-      const res2 = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'redeem_token', token: token, name: name, industry: industry, github_url: GITHUB_URL })
-      });
-      const data = await res2.json();
+
+      const data = await res.json();
 
       if(data.status === 'success') {
         document.getElementById('formArea').style.display = 'none';
         document.getElementById('successArea').style.display = 'block';
+        
         document.getElementById('botUrl').innerText = data.bot_url;
         document.getElementById('adminUrl').innerText = data.admin_url;
       } else {
         alert("❌ 啟動失敗: " + (data.msg || "無效序號或已被使用"));
-        btn.innerText = originalText; btn.disabled = false;
+        btn.innerText = originalText;
+        btn.disabled = false;
       }
+
     } catch(e) {
-      alert("⚠️ 連線錯誤或序號無效");
       console.error(e);
-      btn.innerText = originalText; btn.disabled = false;
+      alert("⚠️ 連線錯誤，請檢查網路或稍後再試");
+      btn.innerText = originalText;
+      btn.disabled = false;
     }
   }
+
   function copyText(id) {
     const text = document.getElementById(id).innerText;
-    navigator.clipboard.writeText(text).then(() => { alert("連結已複製！"); });
+    navigator.clipboard.writeText(text).then(() => {
+      alert("連結已複製！");
+    });
   }
 </script>
 

@@ -3,76 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YOYI | Activate Access</title>
+<title>STANDALONE | Activate Access</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
   :root { --bg: #050505; --accent: #00ff88; --border: rgba(255,255,255,0.1); }
   * { box-sizing: border-box; }
   body { background: var(--bg); color: #fff; font-family: 'Space Grotesk', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
-
-  .card {
-    width: 100%; max-width: 450px;
-    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-    border-radius: 20px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    backdrop-filter: blur(10px);
-  }
-
+  .card { width: 100%; max-width: 450px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 20px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
   h2 { margin: 0 0 10px 0; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
   p { color: #888; font-size: 13px; margin-bottom: 30px; }
-
   .input-group { margin-bottom: 20px; }
   label { display: block; color: #666; font-size: 11px; margin-bottom: 8px; letter-spacing: 1px; }
-  input, select {
-    width: 100%; background: rgba(0,0,0,0.3); border: 1px solid #333;
-    padding: 15px; color: #fff; font-family: inherit; border-radius: 8px;
-    font-size: 16px; transition: 0.3s;
-  }
+  input, select { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid #333; padding: 15px; color: #fff; font-family: inherit; border-radius: 8px; font-size: 16px; transition: 0.3s; }
   input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 136, 0.2); outline: none; }
-  
-  /* 序號輸入框特別樣式 */
   #tokenInput { font-family: monospace; letter-spacing: 2px; text-align: center; border: 1px dashed #555; }
-
-  .btn {
-    width: 100%; padding: 15px; background: #fff; color: #000; border: none; border-radius: 8px;
-    font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 14px; letter-spacing: 1px;
-    position: relative; overflow: hidden;
-  }
+  .btn { width: 100%; padding: 15px; background: #fff; color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 14px; letter-spacing: 1px; position: relative; overflow: hidden; }
   .btn:hover { background: var(--accent); box-shadow: 0 0 20px rgba(0,255,136,0.4); }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  /* 成功畫面 */
   #successArea { display: none; margin-top: 30px; border-top: 1px solid #333; padding-top: 20px; animation: fadeIn 0.5s; }
   @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-  
-  .result-link {
-    background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.2);
-    padding: 15px; border-radius: 8px; margin-bottom: 10px;
-  }
+  .result-link { background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.2); padding: 15px; border-radius: 8px; margin-bottom: 10px; }
   .link-label { font-size: 10px; color: var(--accent); display: block; margin-bottom: 5px; }
   .link-url { font-family: monospace; font-size: 12px; color: #fff; word-break: break-all; }
   .copy-hint { font-size: 10px; color: #666; text-align: right; margin-top: 2px; cursor: pointer; }
   .copy-hint:hover { color: #fff; }
-
 </style>
 </head>
 <body>
 
 <div class="card">
-  <h2>Yoyi Redeem</h2>
+  <h2>Aether Redeem</h2>
   <p>ENTER LICENSE KEY TO INITIALIZE SYSTEM</p>
-
   <div id="formArea">
-    <div class="input-group">
-      <label>LICENSE KEY (啟動序號)</label>
-      <input type="text" id="tokenInput" placeholder="XXXX-XXXX-XXXX">
-    </div>
-
-    <div class="input-group">
-      <label>CLIENT NAME (您的稱呼)</label>
-      <input type="text" id="clientName" placeholder="Tony Stark">
-    </div>
-
+    <div class="input-group"><label>LICENSE KEY (啟動序號)</label><input type="text" id="tokenInput" placeholder="XXXX-XXXX-XXXX"></div>
+    <div class="input-group"><label>CLIENT NAME (您的稱呼)</label><input type="text" id="clientName" placeholder="Tony Stark"></div>
     <div class="input-group">
       <label>INDUSTRY (行業)</label>
       <select id="industry">
@@ -88,88 +53,62 @@
         <option value="tutor">📚 補習班</option>
       </select>
     </div>
-
     <button class="btn" onclick="activate()">ACTIVATE NOW</button>
   </div>
-
   <div id="successArea">
-    <div style="text-align:center; color:#00ff88; margin-bottom:20px;">
-      <i class="fas fa-check-circle"></i> SYSTEM ACTIVATED
-    </div>
-    
-    <div class="result-link">
-      <span class="link-label">🤖 AI BOT LINK (給客人用的)</span>
-      <div class="link-url" id="botUrl">...</div>
-      <div class="copy-hint" onclick="copyText('botUrl')">[複製連結]</div>
-    </div>
-
-    <div class="result-link">
-      <span class="link-label">🛠️ ADMIN PANEL (您的後台)</span>
-      <div class="link-url" id="adminUrl">...</div>
-      <div class="copy-hint" onclick="copyText('adminUrl')">[複製連結]</div>
-    </div>
-    
-    <p style="text-align:center; margin-top:20px; font-size:11px; color:#ff4757;">
-      <i class="fas fa-exclamation-triangle"></i> 請務必立即複製並保存，頁面關閉後無法找回！
-    </p>
+    <div style="text-align:center; color:#00ff88; margin-bottom:20px;"><i class="fas fa-check-circle"></i> SYSTEM ACTIVATED</div>
+    <div class="result-link"><span class="link-label">🤖 AI BOT LINK (給客人用的)</span><div class="link-url" id="botUrl">...</div><div class="copy-hint" onclick="copyText('botUrl')">[複製連結]</div></div>
+    <div class="result-link"><span class="link-label">🛠️ ADMIN PANEL (您的後台)</span><div class="link-url" id="adminUrl">...</div><div class="copy-hint" onclick="copyText('adminUrl')">[複製連結]</div></div>
+    <p style="text-align:center; margin-top:20px; font-size:11px; color:#ff4757;"><i class="fas fa-exclamation-triangle"></i> 請務必立即複製並保存，頁面關閉後無法找回！</p>
   </div>
-
 </div>
 
 <script>
-  // ★★★ 請記得填入你的 GAS URL ★★★
-  const API_URL = "https://script.google.com/macros/s/AKfycbz7IJ4YuR2GkR5m61Z8l2TZoqtIy9g7r-YPB1Xx_31gZhkhvZ01N8LTux5jqIzULXdvXw/exec";
-  const GITHUB_URL = "https://yoyiblessall-dotcom.github.io/boss-assistant/";
+  const _raw = [104,116,116,112,115,58,47,47,115,99,114,105,112,116,46,103,111,111,103,108,101,46,99,111,109,47,109,97,99,114,111,115,47,115,47,65,75,102,121,99,98,122,55,73,74,52,89,117,82,50,71,107,82,53,109,54,49,90,56,108,50,84,90,111,113,116,73,121,57,103,55,114,45,89,80,66,49,88,120,95,51,49,103,90,104,107,104,118,90,48,49,78,56,76,84,117,120,53,106,113,73,122,85,76,88,100,118,88,119,47,101,120,101,99];
+  const API_URL = String.fromCharCode(..._raw);
+
+ 
+  const GITHUB_URL = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
 
   async function activate() {
     const token = document.getElementById('tokenInput').value.trim();
     const name = document.getElementById('clientName').value.trim();
     const industry = document.getElementById('industry').value;
-    
     if(!token || !name) return alert("⚠️ 請填寫完整資料 (序號與名稱)");
-
-    const btn = document.querySelector('.btn');
-    const originalText = btn.innerText;
-    btn.innerText = "VERIFYING...";
-    btn.disabled = true;
-
+    const btn = document.querySelector('.btn'); const originalText = btn.innerText;
+    btn.innerText = "VERIFYING..."; btn.disabled = true;
     try {
       const res = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'redeem_token',
-          token: token,
-          name: name,
-          industry: industry,
-          github_url: GITHUB_URL
-        })
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'redeem_token', token: token, name: name, industry: industry, github_url: GITHUB_URL })
       });
-      const data = await res.json();
+     
+      
+      const res2 = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'redeem_token', token: token, name: name, industry: industry, github_url: GITHUB_URL })
+      });
+      const data = await res2.json();
 
       if(data.status === 'success') {
         document.getElementById('formArea').style.display = 'none';
         document.getElementById('successArea').style.display = 'block';
-        
         document.getElementById('botUrl').innerText = data.bot_url;
         document.getElementById('adminUrl').innerText = data.admin_url;
       } else {
-        alert("❌ 啟動失敗: " + (data.msg || "未知錯誤"));
-        btn.innerText = originalText;
-        btn.disabled = false;
+        alert("❌ 啟動失敗: " + (data.msg || "無效序號或已被使用"));
+        btn.innerText = originalText; btn.disabled = false;
       }
-
     } catch(e) {
-      alert("⚠️ 連線錯誤，請檢查網路或稍後再試");
-      btn.innerText = originalText;
-      btn.disabled = false;
+      alert("⚠️ 連線錯誤或序號無效");
+      console.error(e);
+      btn.innerText = originalText; btn.disabled = false;
     }
   }
-
   function copyText(id) {
     const text = document.getElementById(id).innerText;
-    navigator.clipboard.writeText(text).then(() => {
-      alert("連結已複製！");
-    });
+    navigator.clipboard.writeText(text).then(() => { alert("連結已複製！"); });
   }
 </script>
 

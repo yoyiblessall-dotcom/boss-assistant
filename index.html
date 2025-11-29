@@ -4,18 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>祐逸 YOYI | 你的社群智能分身</title>
-<!-- 繼承 AETHER 家族字體 -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-<!-- Three.js 引擎 -->
+
 <script type="importmap">
     { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
 </script>
 
 <style>
     :root {
-        /* 讓背景完全依賴 Canvas，但預設為深黑 */
+        
         --bg-deep: #020205; 
         --text-main: #ffffff;
         --text-sub: #b0b0b0; 
@@ -26,7 +25,7 @@
         --active-glow: rgba(0, 242, 96, 0.4);
     }
 
-    /* 隱形捲軸 */
+    
     html { scrollbar-width: none; }
     body::-webkit-scrollbar { display: none; }
     
@@ -40,7 +39,7 @@
         overflow-x: hidden;
     }
 
-    /* --- 核心：動態背景畫布 --- */
+    
     canvas { 
         display: block; 
         position: fixed; 
@@ -48,7 +47,7 @@
         z-index: -1; 
     }
 
-    /* 新增：自動演示時的高亮效果 (模擬手指按壓) */
+    
     .sim-chip.auto-active {
         background: rgba(255, 255, 255, 0.9);
         color: #000;
@@ -57,7 +56,7 @@
         border-color: #fff;
     }
 
-    /* --- HERO SECTION --- */
+    
     .hero {
         min-height: 100vh;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -76,7 +75,7 @@
     h1 {
         font-family: 'Space Grotesk', sans-serif; font-size: clamp(3rem, 6vw, 5rem);
         line-height: 1.1; margin: 0 0 20px 0;
-        text-shadow: 0 10px 40px rgba(0,0,0,0.8); /* 加強陰影，讓字體在深色背景更立體 */
+        text-shadow: 0 10px 40px rgba(0,0,0,0.8); 
         background: linear-gradient(180deg, #fff 0%, #a5a5a5 100%); 
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
@@ -106,7 +105,7 @@
     .phone-wrapper {
         position: relative; width: 320px; height: 650px; border-radius: 40px;
         background: #000; border: 8px solid #1a1a1a; 
-        box-shadow: 0 30px 80px rgba(0,0,0,0.8); /* 更深的陰影 */
+        box-shadow: 0 30px 80px rgba(0,0,0,0.8); /* 陰影 */
         overflow: hidden;
     }
     .sim-screen { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; transition: 0.5s; }
@@ -134,7 +133,7 @@
     /* --- FEATURES SECTION --- */
     .features-section {
         padding: 150px 20px;
-        /* 漸層黑，讓底部稍微暗一點，連接 Footer */
+        /* 漸層 */
         background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.8) 100%); 
         overflow: hidden;
         position: relative;
@@ -174,7 +173,7 @@
     /* --- CTA --- */
     .cta-sec { 
         padding: 100px 20px; text-align: center; 
-        background: transparent; /* 讓動態背景透出來 */
+        background: transparent; /* 動態 */
         position: relative; z-index: 1;
     }
     
@@ -205,8 +204,7 @@
         const scene = new THREE.Scene();
         const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-        // SHADER: DEEP MIND (深空智能)
-        // 修正：完全移除暖色/橘色，改為冷色系深邃風格
+
         const fragmentShader = `
             uniform float uTime;
             uniform vec2 uResolution;
@@ -233,40 +231,36 @@
             void main() {
                 vec2 uv = gl_FragCoord.xy / uResolution.xy;
                 
-                // --- COLOR PALETTE FIX (賈伯斯修正版) ---
-                // 捨棄原本的 Peach/Orange
-                // 改為 Deep Void (黑) -> Midnight Navy (深藍) -> Subtle Cyber (微光)
+                vec3 topColor = vec3(0.0, 0.0, 0.02);
+                vec3 midColor = vec3(0.01, 0.03, 0.12);
+                vec3 botColor = vec3(0.05, 0.15, 0.30);
                 
-                vec3 topColor = vec3(0.0, 0.0, 0.02);      // 極致深黑 (頂部)
-                vec3 midColor = vec3(0.01, 0.03, 0.12);    // 深海軍藍
-                vec3 botColor = vec3(0.05, 0.15, 0.30);    // 底部微微泛起的科技藍光
                 
-                // 背景漸層
                 vec3 bg = mix(topColor, midColor, smoothstep(0.3, 0.8, 1.0 - uv.y));
                 bg = mix(bg, botColor, smoothstep(0.0, 0.6, 1.0 - uv.y));
 
-                // 光束效果 (Rays)
+                
                 vec2 rayUV = uv;
                 rayUV.y *= 0.3; 
-                rayUV.x += uTime * 0.015; // 減緩流動速度，更優雅
+                rayUV.x += uTime * 0.015; 
                 rayUV.y -= uTime * 0.01; 
 
                 float rays = fbm(rayUV * 6.0);
                 float mask = smoothstep(0.0, 0.9, 1.0 - uv.y); 
                 
-                // 光束顏色：改為冷冽的白青色，而非金色
+                
                 vec3 rayColor = vec3(0.6, 0.8, 1.0) * rays * 0.12 * mask;
                 
-                // 滑鼠互動
+                
                 vec2 mouse = uMouse / uResolution.xy;
                 float dist = distance(uv, mouse);
-                // 滑鼠光暈：電光藍
+                
                 float glow = smoothstep(0.35, 0.0, dist) * 0.15;
                 vec3 mouseGlow = vec3(0.2, 0.6, 1.0) * glow;
 
                 vec3 finalColor = bg + rayColor + mouseGlow;
                 
-                // 噪點 (底片質感)
+                
                 finalColor += (hash(uv.x * uv.y * uTime) - 0.5) * 0.03;
 
                 gl_FragColor = vec4(finalColor, 1.0);
@@ -322,7 +316,7 @@
     <!-- HERO -->
     <section class="hero">
 
-<!-- 懸浮在右上角的登入按鈕 -->
+
 <div style="position: absolute; top: 20px; right: 20px; z-index: 10;">
     <a href="login.html" style="
         color: rgba(255,255,255,0.7); 
@@ -468,7 +462,7 @@
     </section>
 
     <script>
-        // --- 核心邏輯：觀察者 ---
+        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -478,7 +472,7 @@
         }, { threshold: 0.3 });
         document.querySelectorAll('.journey-step').forEach(step => observer.observe(step));
 
-        // --- 行業數據庫 ---
+        
         const themes = {
             pc_repair: { name: "電腦維修 // TECH", vars: { c1: "#00f260", c2: "#0575e6", c3: "#00f260", accent: "#00f260" }, welcome: "系統檢測中... 請問您的電腦遇到什麼狀況？", chips: [{q:"無法開機", a:"電源燈有亮嗎？如果是黑屏，嘗試長按電源鍵重啟。若無效，可能是主機板問題，建議預約檢測。"}, {q:"電腦變慢", a:"建議先清理 C 槽暫存檔。若需升級 SSD 或加裝記憶體，我們有特惠方案。"}, {q:"收費標準", a:"基本檢測費 $300。若確認維修，檢測費可折抵維修金。"}] },
             beauty: { name: "時尚美學 // VOGUE", vars: { c1: "#833ab4", c2: "#fd1d1d", c3: "#fcb045", accent: "#da77f2" }, welcome: "您好，想換個新造型嗎？", chips: [{q:"價目表", a:"洗剪 $800 起，染髮 $2500 起 (含頭皮隔離)。會員另有 9 折優惠。"}, {q:"營業時間", a:"每日 11:00 - 20:00。每週一固定公休。"}, {q:"預約方式", a:"點擊右上角 LINE 按鈕即可線上預約，或撥打電話 02-2345-6789。"}] },
@@ -487,11 +481,11 @@
         };
 
         let currentTheme = 'pc_repair';
-        let isUserInteracting = false; // 旗標：使用者是否介入
+        let isUserInteracting = false; 
         let autoPlayTimer;
 
         function switchTheme(key) {
-            // 使用者切換行業，停止自動演示
+            
             isUserInteracting = true;
             clearTimeout(autoPlayTimer);
 
@@ -502,7 +496,7 @@
             currentTheme = key;
             const screen = document.getElementById('simScreen');
             
-            // 更新 CSS 變數
+            
             screen.style.setProperty('--s-c1', t.vars.c1);
             screen.style.setProperty('--s-c2', t.vars.c2);
             screen.style.setProperty('--s-c3', t.vars.c3);
@@ -511,7 +505,7 @@
             document.getElementById('simBrand').innerText = t.name;
             const chat = document.getElementById('simChat');
             
-            // 重置對話框
+            
             chat.innerHTML = `<div class="msg bot">${t.welcome}</div>`;
             
             renderChips(t.chips);
@@ -523,14 +517,14 @@
             chipsData.forEach((c, index) => {
                 const chip = document.createElement('div');
                 chip.className = 'sim-chip';
-                chip.id = `chip-${index}`; // 給按鈕 ID 方便自動點擊
+                chip.id = `chip-${index}`; 
                 chip.innerText = c.q;
                 
-                // 點擊事件
+                
                 chip.onclick = () => {
-                    isUserInteracting = true; // 使用者介入
+                    isUserInteracting = true; 
                     clearTimeout(autoPlayTimer);
-                    // 移除所有自動演示的高亮
+                    
                     document.querySelectorAll('.sim-chip').forEach(el => el.classList.remove('auto-active'));
                     simReply(c.q, c.a);
                 };
@@ -547,7 +541,7 @@
             chat.appendChild(uMsg);
             chat.scrollTop = chat.scrollHeight;
 
-            // 模擬打字延遲
+            
             setTimeout(() => {
                 const bMsg = document.createElement('div'); 
                 bMsg.className = 'msg bot'; 
@@ -557,37 +551,35 @@
             }, 600);
         }
 
-        // --- 自動演示引擎 (Attract Mode) ---
+        
         function startAutoDemo() {
             if (isUserInteracting) return;
 
-            // 1. 等待 3.0 秒後開始動作
+            
             autoPlayTimer = setTimeout(() => {
                 if (isUserInteracting) return;
                 
                 const firstChip = document.getElementById('chip-0');
                 if (firstChip) {
-                    // 2. 視覺引導：高亮按鈕 (模擬手指壓下)
+                    
                     firstChip.classList.add('auto-active');
                     
-                    // 3. 等待 0.8 秒後 "放開" 並觸發
+                    
                     setTimeout(() => {
                         if (isUserInteracting) return;
                         firstChip.classList.remove('auto-active');
                         
-                        // 取得當前主題的第一組問答
+                        
                         const t = themes[currentTheme];
                         simReply(t.chips[0].q, t.chips[0].a);
 
-                        // 演示一次就夠了，不要一直 loop 煩死人，除非你想做第二段
-                        // 這裡我們讓它停在回答完的狀態，展示 "AI 已經解決問題"
+                        
                     }, 800);
                 }
             }, 1500);
         }
 
-        // 初始化
-        // 確保 DOM 載入後執行
+        
         window.onload = () => {
             switchTheme('pc_repair');
             // 重置旗標 (因為 switchTheme 會設為 true)
@@ -595,7 +587,7 @@
             startAutoDemo();
         };
 
-        // 如果使用者點擊任何行業按鈕，也要停止演示
+        
         document.querySelectorAll('.ind-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 isUserInteracting = true;
